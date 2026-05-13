@@ -32,10 +32,11 @@ try {
   // targeted check here at that point rather than resurrecting the
   // blanket rebuild.
 
-  if (!isCheck) {
-    fs.rmSync(path.join(desktopRoot, 'dist-electron'), { recursive: true, force: true });
-  }
-
+  // NOTE: We no longer delete dist-electron before every run.
+  // vite-plugin-electron handles incremental rebuilds correctly, and the
+  // synchronous deletion caused a race condition where Electron would
+  // launch before the rebuild finished, producing "Cannot find module"
+  // errors on Windows.
   if (isCheck) {
     console.log(`[desktop:${mode}] Check mode passed`);
     process.exit(0);

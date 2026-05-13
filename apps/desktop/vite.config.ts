@@ -3,7 +3,8 @@ import electron from 'vite-plugin-electron';
 import path from 'path';
 import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
+import { setTimeout as sleep } from 'node:timers/promises';
 import esbuild from 'esbuild';
 import pkg from './package.json';
 
@@ -68,20 +69,26 @@ export default defineConfig(() => ({
     electron([
       {
         entry: 'src/main/index.ts',
-        onstart({ startup }) {
+        async onstart({ startup }) {
           const inspectArg = process.env.ELECTRON_DEBUG
             ? `--inspect=${process.env.ELECTRON_DEBUG_PORT || '9229'}`
             : undefined;
           const argv = ['.', '--no-sandbox', ...(inspectArg ? [inspectArg] : [])];
 
-          // Wait for the compiled entry point to actually land on disk.
-          // On Windows and slow filesystems, vite-plugin-electron may fire the
-          // onstart callback before the build output is fully flushed, causing
-          // Electron to fail with "Cannot find module".
+          // Ensure the compiled entry point is fully on disk before launching
+          // Electron. Under heavy I/O or antivirus scanning on Windows the file
+          // may appear after a brief delay.
           const entryPath = path.resolve(__dirname, 'dist-electron/main/index.js');
           const deadline = Date.now() + 10_000;
-          while (!existsSync(entryPath) && Date.now() < deadline) {
-            // busy-wait — file typically appears within 100ms
+          while (Date.now() < deadline) {
+            try {
+              if (existsSync(entryPath) && statSync(entryPath).size > 0) {
+                break;
+              }
+            } catch {
+              // file not ready yet
+            }
+            await sleep(50);
           }
 
           startup(argv);
