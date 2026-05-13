@@ -602,12 +602,12 @@
     "title": "À propos",
     "version": "Version {{version}}",
     "description": "NestCafe est un agent IA local pour votre Mac qui lit vos fichiers, crée des documents et automatise les tâches répétitives - le tout en open source avec les modèles d'IA de votre choix.",
-    "contact": "Des questions ou des commentaires ? Cliquez ici pour nous contacter",
-    "visitUs": "Visitez-nous",
-    "haveQuestion": "Une question ?",
+    "contact": "Issues or feedback? Open an issue on GitHub",
+    "visitUs": "GitHub",
+    
     "versionLabel": "Version",
     "loading": "Chargement...",
-    "allRightsReserved": "NestCafe™ Tous droits réservés."
+    "license": "MIT License � open-source and free to use."
   },
   "warnings": {
     "noProviderReady": "Aucun fournisseur prêt",

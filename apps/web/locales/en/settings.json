@@ -664,13 +664,12 @@
   "about": {
     "title": "About",
     "version": "Version {{version}}",
-    "description": "NestCafe is a local computer-use AI agent for your Mac that reads your files, creates documents, and automates repetitive knowledge work—all open-source with your AI models of choice.",
-    "contact": "Any questions or feedback? Click here to contact us",
-    "visitUs": "Visit us",
-    "haveQuestion": "Have a question?",
+    "description": "NestCafe is a local AI desktop agent that automates tasks on your computer — open-source and free.",
+    "contact": "Issues or feedback? Open an issue on GitHub",
+    "visitUs": "GitHub",
     "versionLabel": "Version",
     "loading": "Loading...",
-    "allRightsReserved": "NestCafe™ All rights reserved."
+    "license": "MIT License — open-source and free to use."
   },
   "warnings": {
     "noProviderReady": "No provider ready",

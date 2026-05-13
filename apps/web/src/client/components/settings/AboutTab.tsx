@@ -13,18 +13,12 @@ export function AboutTab({ appVersion }: AboutTabProps) {
           <div>
             <div className="text-sm text-muted-foreground">{t('about.visitUs')}</div>
             <a
-              href="https://www.nestcafe.ai"
+              href="https://github.com/snakex21/NestCafe"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline"
             >
-              www.nestcafe.ai
-            </a>
-          </div>
-          <div>
-            <div className="text-sm text-muted-foreground">{t('about.haveQuestion')}</div>
-            <a href="mailto:support@nestcafe.ai" className="text-primary hover:underline">
-              support@nestcafe.ai
+              github.com/snakex21/NestCafe
             </a>
           </div>
           <div>
@@ -33,7 +27,7 @@ export function AboutTab({ appVersion }: AboutTabProps) {
           </div>
         </div>
         <div className="mt-6 pt-4 border-t border-border text-xs text-muted-foreground">
-          {t('about.allRightsReserved')}
+          {t('about.license')}
         </div>
       </div>
     </div>
