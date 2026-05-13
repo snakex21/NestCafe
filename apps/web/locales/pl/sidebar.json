@@ -1,0 +1,21 @@
+{
+  "newTask": "Nowe zadanie",
+  "searchTasks": "Szukaj zadań (Cmd+K)",
+  "noConversations": "Brak konwersacji",
+  "settings": "Ustawienia",
+  "searchPlaceholder": "Szukaj zadań...",
+  "results": "Wyniki",
+  "lastSevenDays": "Ostatnie 7 dni",
+  "noTasksFound": "Nie znaleziono zadań",
+  "navigate": "Nawiguj",
+  "select": "Wybierz",
+  "close": "Zamknij",
+  "confirmDelete": "Czy na pewno chcesz usunąć to zadanie?",
+  "deleteTask": "Usuń zadanie",
+  "deleteAllChats": "Usuń wszystkie rozmowy",
+  "confirmDeleteAll": "Usunąć wszystkie rozmowy? Tej operacji nie można cofnąć.",
+  "favorite": {
+    "add": "Dodaj do ulubionych",
+    "remove": "Usuń z ulubionych"
+  }
+}
