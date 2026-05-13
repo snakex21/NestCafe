@@ -95,8 +95,17 @@ export function sendEmail(
   body: string,
   cc?: string,
   bcc?: string,
+  attachments?: string[],
 ): { sent: boolean; message: string } {
   const bodyB64 = Buffer.from(body, 'utf-8').toString('base64');
+  const attachScript = attachments?.length
+    ? attachments
+        .map(
+          (p, i) =>
+            `$mail.Attachments.Add('${p.replace(/'/g, "''")}') | Out-Null; Write-Output "Attached: ${p.replace(/'/g, "''")}"`,
+        )
+        .join('\n')
+    : '';
   const script = `
 $body = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${bodyB64}'))
 $outlook = New-Object -ComObject Outlook.Application
@@ -106,10 +115,39 @@ $mail.Subject = '${subject.replace(/'/g, "''")}'
 $mail.Body = $body
 ${cc ? `$mail.CC = '${cc.replace(/'/g, "''")}'` : ''}
 ${bcc ? `$mail.BCC = '${bcc.replace(/'/g, "''")}'` : ''}
+${attachScript}
 $mail.Send()
 Write-Output '{"sent":true,"message":"Email sent successfully"}'
 `;
   const output = runPowershell(script);
+  return JSON.parse(output);
+}
+
+export function getAttachments(index: number, folder: string): { name: string; path: string; size: number }[] {
+  const script = `
+$outlook = New-Object -ComObject Outlook.Application
+$ns = $outlook.GetNamespace("MAPI")
+$folder = $ns.Folders.Item(1).Folders | Where-Object { $_.Name -eq '${folder.replace(/'/g, "''")}' }
+if (-not $folder) { $folder = $ns.GetDefaultFolder(6) }
+$items = $folder.Items
+$items.Sort("[ReceivedTime]", $true)
+if (${index} -gt $items.Count) { Write-Output "[]"; exit }
+$item = $items.Item(${index})
+$results = @()
+$tmpDir = [System.IO.Path]::GetTempPath()
+foreach ($att in $item.Attachments) {
+  $safePath = Join-Path $tmpDir $att.FileName
+  try { $att.SaveAsFile($safePath) } catch {}
+  $results += [PSCustomObject]@{
+    name = $att.FileName
+    path = $safePath
+    size = $att.Size
+  }
+}
+$results | ConvertTo-Json -Compress
+`;
+  const output = runPowershell(script);
+  if (!output) return [];
   return JSON.parse(output);
 }
 
