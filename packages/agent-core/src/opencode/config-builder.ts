@@ -1,0 +1,222 @@
+import type { ProviderSettings } from '../common/types/providerSettings.js';
+import { PROVIDER_ID_TO_OPENCODE } from '../common/index.js';
+import type { ProviderConfig } from './config-generator.js';
+import {
+  getProviderSettings,
+  getActiveProviderModel,
+  getConnectedProviderIds,
+  getOllamaConfig,
+} from '../storage/repositories/index.js';
+import { OPENAI_COMPATIBLE_PROVIDER_IDS } from './config-auth-sync.js';
+export { syncApiKeysToOpenCodeAuth } from './config-auth-sync.js';
+import { buildOllamaConfig, buildLMStudioConfig } from './config-providers-local.js';
+import { buildBedrockConfig } from './config-providers-bedrock.js';
+import { buildVertexConfig, buildAzureFoundryConfig } from './config-providers-vertex-azure.js';
+import { buildXaiConfig, buildGoogleConfig, buildZaiConfig } from './config-providers-ai-cloud.js';
+import {
+  buildOpenRouterConfig,
+  buildMoonshotConfig,
+  buildLiteLLMConfig,
+  buildMinimaxConfig,
+} from './config-providers-standard.js';
+import {
+  buildNimConfig,
+  buildCustomConfig,
+  buildOpenAICompatibleConfigs,
+  buildCopilotConfig,
+} from './config-providers-compat.js';
+import { buildNestcafeAiConfig } from './config-providers-nestcafe.js';
+import type { StorageDeps, NestcafeRuntime } from './nestcafe-runtime.js';
+
+/**
+ * Paths required for config generation (Electron-specific resolution stays in desktop)
+ */
+export interface ConfigPaths {
+  mcpToolsPath: string;
+  userDataPath: string;
+  configDir: string;
+}
+
+/**
+ * Result of building provider configurations
+ */
+export interface ProviderConfigResult {
+  providerConfigs: ProviderConfig[];
+  enabledProviders: string[];
+  modelOverride?: { model: string; smallModel: string };
+}
+
+/**
+ * Options for building provider configs
+ */
+export interface BuildProviderConfigsOptions {
+  /**
+   * Function to get an API key for a provider.
+   * Returns string if found, undefined or null if not found.
+   */
+  getApiKey: (provider: string) => string | undefined | null;
+  /**
+   * Azure Foundry token for Entra ID authentication
+   */
+  azureFoundryToken?: string;
+  /**
+   * Optional provider settings override (defaults to calling getProviderSettings())
+   */
+  providerSettings?: ProviderSettings;
+  /**
+   * Accomplish AI runtime adapter (noop in OSS, real impl in commercial).
+   */
+  NestcafeRuntime?: NestcafeRuntime;
+  /**
+   * Accomplish AI identity storage deps (injected from daemon secure storage).
+   * Required for the Accomplish AI free-tier proxy to load/create Ed25519 keypairs.
+   */
+  accomplishStorageDeps?: StorageDeps;
+}
+
+/**
+ * Builds provider configurations for OpenCode CLI by delegating to per-provider builders.
+ * Each builder returns configs + extra enabled IDs + optional model override.
+ */
+export async function buildProviderConfigs(
+  options: BuildProviderConfigsOptions,
+): Promise<ProviderConfigResult> {
+  const { getApiKey, azureFoundryToken, NestcafeRuntime, accomplishStorageDeps } = options;
+  const providerSettings = options.providerSettings ?? getProviderSettings();
+  const connectedIds = getConnectedProviderIds();
+  const activeModel = getActiveProviderModel() ?? inferActiveProviderModel(providerSettings);
+  const ctx = {
+    providerSettings,
+    getApiKey,
+    azureFoundryToken,
+    activeModel,
+    NestcafeRuntime,
+    accomplishStorageDeps,
+  };
+
+  const baseProviders = [
+    'anthropic',
+    'openrouter',
+    'google',
+    'xai',
+    'deepseek',
+    'moonshot',
+    'zai-coding-plan',
+    'amazon-bedrock',
+    'vertex',
+    'minimax',
+    ...OPENAI_COMPATIBLE_PROVIDER_IDS,
+  ];
+  if (
+    activeModel?.provider === 'openai' ||
+    providerSettings.connectedProviders.openai?.connectionStatus === 'connected' ||
+    getApiKey('openai')
+  ) {
+    baseProviders.push('openai');
+  }
+  let enabledProviders = baseProviders;
+  if (connectedIds.length > 0) {
+    // Filter out nestcafe-ai from upfront mapping — it's added via enableToAdd
+    // only when the builder successfully starts the proxy. Without this, a failed
+    // proxy start would leave nestcafe-ai in enabledProviders with no config definition.
+    const mappedProviders = connectedIds
+      .filter((id) => id !== 'nestcafe-ai')
+      .map((id) => {
+        if (id.startsWith('custom:')) {
+          return id.replace(/[^a-zA-Z0-9_-]/g, '-');
+        }
+
+        return PROVIDER_ID_TO_OPENCODE[id];
+      })
+      .filter((id): id is string => typeof id === 'string' && id.length > 0);
+    enabledProviders = [...new Set([...baseProviders, ...mappedProviders])];
+  } else {
+    const ollamaConfig = getOllamaConfig();
+    if (ollamaConfig?.enabled) {
+      enabledProviders = [...baseProviders, 'ollama'];
+    }
+  }
+
+  const results = await Promise.all([
+    buildOllamaConfig(ctx),
+    buildLMStudioConfig(ctx),
+    buildOpenRouterConfig(ctx),
+    buildMoonshotConfig(ctx),
+    buildLiteLLMConfig(ctx),
+    buildMinimaxConfig(ctx),
+    buildXaiConfig(ctx),
+    buildGoogleConfig(ctx),
+    buildZaiConfig(ctx),
+    buildBedrockConfig(ctx),
+    buildVertexConfig(ctx),
+    buildAzureFoundryConfig(ctx),
+    buildNimConfig(ctx),
+    buildCustomConfig(ctx),
+    buildOpenAICompatibleConfigs(ctx),
+    buildCopilotConfig(ctx),
+    buildNestcafeAiConfig(ctx),
+  ]);
+
+  const providerConfigs: ProviderConfig[] = [];
+  let modelOverride: { model: string; smallModel: string } | undefined;
+
+  for (const result of results) {
+    providerConfigs.push(...result.configs);
+    for (const id of result.enableToAdd) {
+      if (!enabledProviders.includes(id)) {
+        enabledProviders.push(id);
+      }
+    }
+    if (result.modelOverride) {
+      modelOverride = result.modelOverride;
+    }
+  }
+
+  if (!modelOverride && activeModel) {
+    const opencodeProviderId = activeModel.provider.startsWith('custom:')
+      ? activeModel.provider.replace(/[^a-zA-Z0-9_-]/g, '-')
+      : PROVIDER_ID_TO_OPENCODE[activeModel.provider];
+
+    if (opencodeProviderId) {
+      const internalPrefix = `${activeModel.provider}/`;
+      const modelId = activeModel.model.startsWith(internalPrefix)
+        ? activeModel.model.slice(internalPrefix.length)
+        : activeModel.model;
+      const opencodeModel = `${opencodeProviderId}/${modelId}`;
+      modelOverride = { model: opencodeModel, smallModel: opencodeModel };
+    }
+  }
+
+  return { providerConfigs, enabledProviders, modelOverride };
+}
+
+function inferActiveProviderModel(providerSettings: ProviderSettings): {
+  provider: keyof typeof PROVIDER_ID_TO_OPENCODE;
+  model: string;
+  baseUrl?: string;
+} | null {
+  const connected = Object.values(providerSettings.connectedProviders ?? {}).filter(
+    (provider) => provider?.connectionStatus === 'connected' && provider.selectedModelId,
+  );
+
+  const activeProviderId = providerSettings.activeProviderId;
+  let provider = activeProviderId
+    ? providerSettings.connectedProviders?.[activeProviderId]
+    : undefined;
+  if (!provider && connected.length === 1) {
+    provider = connected[0];
+  }
+
+  if (!provider?.selectedModelId && connected.length > 0) {
+    provider = connected.find((candidate) => candidate?.providerId !== 'openai') ?? connected[0];
+  }
+
+  if (!provider?.selectedModelId) {
+    return null;
+  }
+
+  return {
+    provider: provider.providerId,
+    model: provider.selectedModelId,
+  };
+}
