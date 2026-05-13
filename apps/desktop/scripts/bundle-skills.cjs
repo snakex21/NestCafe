@@ -48,6 +48,7 @@ const SKILLS_FULLY_BUNDLED = [
   'request-google-file-picker',
   'wiki-memory',
   'search-conversations',
+  'outlook-mcp',
 ];
 
 // Skills that need googleapis at runtime — bundle JS but mark googleapis as external
@@ -117,6 +118,11 @@ const bundles = [
     entry: 'src/index.ts',
     outfile: 'dist/index.mjs',
     external: ['playwright'],
+  },
+  {
+    name: 'outlook-mcp',
+    entry: 'src/index.ts',
+    outfile: 'dist/index.mjs',
   },
   {
     // Main HTTP server — output as ESM (.mjs) since start-server.ts uses top-level await

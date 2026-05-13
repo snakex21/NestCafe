@@ -246,6 +246,20 @@ export function buildMcpServers(options: BuildMcpServersOptions): Record<string,
     };
   }
 
+  // Outlook MCP — local COM automation on Windows, no accounts needed
+  if (process.platform === 'win32') {
+    try {
+      mcpServers['outlook-mcp'] = {
+        type: 'local',
+        command: resolveMcpCommand(mcpToolsPath, 'outlook-mcp', 'dist/index.mjs', nodeExe),
+        enabled: true,
+        timeout: 60000,
+      };
+    } catch (err) {
+      log.warn(`[OpenCode MCP] outlook-mcp not registered: ${err}`);
+    }
+  }
+
   if (gwsAccountsManifestPath) {
     const gwsEnv = { GWS_ACCOUNTS_MANIFEST: gwsAccountsManifestPath };
     try {
