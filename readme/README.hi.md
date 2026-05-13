@@ -1,9 +1,9 @@
 ﻿<p align="center">
-  <a href="README.md">English</a> | <a href="README.zh-CN.md">中文</a> | <a href="README.ja.md">日本語</a> | <a href="README.ko.md">한국어</a> | <a href="README.ru.md">Русский</a> | <a href="README.es.md">Español</a> | <a href="README.tr.md">Türkçe</a> | <a href="README.ar.md">العربية</a> | <a href="README.id.md">Bahasa Indonesia</a> | <a href="README.ta.md">தமிழ்</a> | <strong>हिन्दी</strong>
+  <a href="../README.md">English</a> | <strong>हिन्दी</strong> | <a href="README.pl.md">Polski</a> | <a href="README.zh-CN.md">中文</a> | <a href="README.ja.md">日本語</a> | <a href="README.ko.md">한국어</a> | <a href="README.ru.md">Русский</a> | <a href="README.es.md">Español</a> | <a href="README.tr.md">Türkçe</a> | <a href="README.ar.md">العربية</a> | <a href="README.id.md">Bahasa Indonesia</a> | <a href="README.ta.md">தமிழ்</a> | <a href="README.hi.md">हिन्दी</a>
 </p>
 
 <p align="center">
-  <img src="docs/banner.svg" alt="NestCafe - अपनी खुद की AI API कीज़ से फ़ाइल मैनेजमेंट, डॉक्यूमेंट क्रिएशन और ब्राउज़र टास्क को ऑटोमेट करने वाला ओपन सोर्स AI डेस्कटॉप एजेंट" width="100%" />
+  <img src="../apps/desktop/public/assets/logo.png" alt="NestCafe - अपनी खुद की AI API कीज़ से फ़ाइल मैनेजमेंट, डॉक्यूमेंट क्रिएशन और ब्राउज़र टास्क को ऑटोमेट करने वाला ओपन सोर्स AI डेस्कटॉप एजेंट" width="120" height="120" />
 </p>
 
 <p align="center">

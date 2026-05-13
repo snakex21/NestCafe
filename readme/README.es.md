@@ -1,9 +1,9 @@
 ﻿<p align="center">
-  <a href="README.md">English</a> | <a href="README.zh-CN.md">中文</a> | <a href="README.ja.md">日本語</a> | <a href="README.ko.md">한국어</a> | <a href="README.ru.md">Русский</a> | <strong>Español</strong> | <a href="README.tr.md">Türkçe</a> | <a href="README.ar.md">العربية</a> | <a href="README.id.md">Bahasa Indonesia</a> | <a href="README.ta.md">தமிழ்</a> | <a href="README.hi.md">हिन्दी</a>
+  <a href="../README.md">English</a> | <strong>Español</strong> | <a href="README.pl.md">Polski</a> | <a href="README.zh-CN.md">中文</a> | <a href="README.ja.md">日本語</a> | <a href="README.ko.md">한국어</a> | <a href="README.ru.md">Русский</a> | <a href="README.es.md">Español</a> | <a href="README.tr.md">Türkçe</a> | <a href="README.ar.md">العربية</a> | <a href="README.id.md">Bahasa Indonesia</a> | <a href="README.ta.md">தமிழ்</a> | <a href="README.hi.md">हिन्दी</a>
 </p>
 
 <p align="center">
-  <img src="docs/banner.svg" alt="NestCafe - Agente de escritorio de IA de código abierto que automatiza la gestión de archivos, creación de documentos y tareas del navegador con tus propias claves API de IA" width="100%" />
+  <img src="../apps/desktop/public/assets/logo.png" alt="NestCafe - Agente de escritorio de IA de código abierto que automatiza la gestión de archivos, creación de documentos y tareas del navegador con tus propias claves API de IA" width="120" height="120" />
 </p>
 
 <p align="center">
