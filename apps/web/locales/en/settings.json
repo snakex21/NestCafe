@@ -37,6 +37,8 @@
     "confirmDelete": "Are you sure?",
     "enterKey": "Enter API Key",
     "invalidKey": "Invalid API key",
+    "validKey": "Valid key",
+    "scanning": "Scanning…",
     "enterKeyRequired": "Please enter an API key",
     "saved": "API key saved",
     "savedReconnectToSee": "API key saved (reconnect to see prefix)"

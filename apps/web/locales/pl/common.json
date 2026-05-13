@@ -28,7 +28,7 @@
     "yes": "Tak",
     "no": "Nie",
     "retry": "Spróbuj ponownie",
-    "saveApiKey": "Zapisz API Key",
+    "saveApiKey": "Zapisz klucz API",
     "copyToClipboard": "Kopiuj do schowka",
     "dismiss": "Zamknij",
     "messageTooLong": "Wiadomość jest za długa",
@@ -66,9 +66,9 @@
   "labels": {
     "awsCredentials": "Dane AWS",
     "gcpCredentials": "Dane GCP",
-    "localApiKey": "Lokalny API Key",
+    "localApiKey": "Lokalny klucz API",
     "azureFoundryEntraId": "Azure Foundry (Entra ID)",
-    "bedrockApiKey": "Bedrock API Key",
+    "bedrockApiKey": "Klucz API Bedrock",
     "awsAccessKeys": "Klucze dostępu AWS",
     "awsProfile": "Profil AWS: {{name}}"
   },
