@@ -31,7 +31,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
             description:
               "The operation to perform. One of: 'list', 'read', 'send', 'search', 'folders'. " +
               "For 'send': provide --to, --subject, --body, optionally --cc, --bcc, and comma-separated --attachments (file paths). " +
-              "For 'attachments': provide the email --index and optionally --folder to list/save attachments locally.",
+              "For 'attachments': provide the email --index and optionally --folder to list/save attachments locally. " +
               "For 'list': optionally --folder (default: Inbox), --count (default: 20). " +
               "For 'read': provide the email index and optionally --folder. " +
               "For 'search': provide --query, optionally --folder and --count. " +
