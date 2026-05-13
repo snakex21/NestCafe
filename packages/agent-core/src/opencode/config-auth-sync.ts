@@ -12,6 +12,10 @@ export const OPENAI_COMPATIBLE_PROVIDER_IDS = [
   'fireworks',
   'groq',
   'venice',
+  'qwen-china',
+  'qwen-international',
+  'xiaomi',
+  'perplexity',
 ] as const;
 
 const AUTH_KEY_MAPPING: Record<string, string> = {

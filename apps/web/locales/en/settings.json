@@ -54,6 +54,8 @@
     "formLogo": "{{provider}} logo",
     "showAll": "Show All",
     "hide": "Hide",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
     "anthropic": "Anthropic",
     "openai": "OpenAI",
     "google": "Google AI",

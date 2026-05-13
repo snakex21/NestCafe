@@ -24,6 +24,10 @@ export type ProviderId =
   | 'custom'
   | 'copilot'
   | 'nestcafe-ai'
+  | 'qwen-china'
+  | 'qwen-international'
+  | 'xiaomi'
+  | 'perplexity'
   | (string & {}); // Allow custom:uuid pattern while preserving autocomplete
 
 export type ProviderCategory =
@@ -226,6 +230,37 @@ export const PROVIDER_META: Record<ProviderId, ProviderMeta> = {
     label: 'Free Tier',
     logoKey: 'nestcafe',
   },
+  'qwen-china': {
+    id: 'qwen-china',
+    name: 'Qwen (China)',
+    category: 'classic',
+    label: 'Service',
+    logoKey: 'qwen-china',
+    helpUrl: 'https://dashscope.console.aliyun.com/apiKey',
+  },
+  'qwen-international': {
+    id: 'qwen-international',
+    name: 'Qwen (International)',
+    category: 'classic',
+    label: 'Service',
+    logoKey: 'qwen-international',
+    helpUrl: 'https://dashscope-intl.console.aliyun.com/apiKey',
+  },
+  xiaomi: {
+    id: 'xiaomi',
+    name: 'Xiaomi',
+    category: 'classic',
+    label: 'Service',
+    logoKey: 'xiaomi',
+  },
+  perplexity: {
+    id: 'perplexity',
+    name: 'Perplexity',
+    category: 'classic',
+    label: 'Service',
+    logoKey: 'perplexity',
+    helpUrl: 'https://www.perplexity.ai/settings/api',
+  },
 };
 
 export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
@@ -406,6 +441,10 @@ export const DEFAULT_MODELS: Partial<Record<ProviderId, string>> = {
   nim: 'nim/meta/llama-3.1-70b-instruct',
   copilot: 'copilot/gpt-4o',
   'nestcafe-ai': 'nestcafe-ai/nestcafe-free',
+  'qwen-china': 'qwen-china/qwen-turbo',
+  'qwen-international': 'qwen-international/qwen-turbo',
+  xiaomi: 'xiaomi/mixtral-8x7b',
+  perplexity: 'perplexity/llama-3.1-sonar-small-128k-online',
 };
 
 export function getDefaultModelForProvider(providerId: ProviderId): string | null {
@@ -443,6 +482,10 @@ export const PROVIDER_ID_TO_OPENCODE: Record<ProviderId, string> = {
   custom: 'custom',
   copilot: 'github-copilot',
   'nestcafe-ai': 'nestcafe-ai',
+  'qwen-china': 'qwen-china',
+  'qwen-international': 'qwen-international',
+  xiaomi: 'xiaomi',
+  perplexity: 'perplexity',
 };
 
 // -----------------------------------------------------------------------------

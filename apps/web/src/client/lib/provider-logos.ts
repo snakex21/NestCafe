@@ -24,6 +24,10 @@ import customLogo from '/assets/ai-logos/custom.svg';
 import nimLogo from '/assets/ai-logos/nim.png';
 import copilotLogo from '/assets/ai-logos/copilot.svg';
 import accomplishLogo from '/assets/ai-logos/nestcafe.svg';
+import qwenChinaLogo from '/assets/ai-logos/qwen-china.png';
+import qwenInternationalLogo from '/assets/ai-logos/qwen-international.png';
+import xiaomiLogo from '/assets/ai-logos/xiaomi.png';
+import perplexityLogo from '/assets/ai-logos/perplexity.png';
 
 export const PROVIDER_LOGOS: Record<string, string> = {
   anthropic: anthropicLogo,
@@ -51,6 +55,10 @@ export const PROVIDER_LOGOS: Record<string, string> = {
   custom: customLogo,
   copilot: copilotLogo,
   'nestcafe-ai': accomplishLogo,
+  'qwen-china': qwenChinaLogo,
+  'qwen-international': qwenInternationalLogo,
+  xiaomi: xiaomiLogo,
+  perplexity: perplexityLogo,
 };
 
 export const DARK_INVERT_PROVIDERS = new Set<ProviderId>([

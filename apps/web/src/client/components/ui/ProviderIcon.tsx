@@ -36,6 +36,10 @@ const PROVIDER_COLORS: Record<string, string> = {
   fireworks: 'bg-[#EF4444]', // Red
   groq: 'bg-[#F55036]', // Red-orange
   nim: 'bg-[#76B900]', // NVIDIA green
+  'qwen-china': 'bg-[#FF6A00]', // Alibaba orange
+  'qwen-international': 'bg-[#1677FF]', // Alibaba blue
+  xiaomi: 'bg-[#FF6900]', // Xiaomi orange
+  perplexity: 'bg-[#1DB954]', // Perplexity green
   custom: 'bg-[#6B7280]', // Gray
 };
 
@@ -63,6 +67,10 @@ const PROVIDER_INITIALS: Record<string, string> = {
   fireworks: 'F',
   groq: 'G',
   nim: 'N',
+  'qwen-china': 'Q',
+  'qwen-international': 'Q',
+  xiaomi: 'X',
+  perplexity: 'P',
   custom: 'C',
 };
 
