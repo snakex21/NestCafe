@@ -1,0 +1,110 @@
+{
+  "status": {
+    "queued": "Sırada",
+    "running": "Çalışıyor",
+    "completed": "Tamamlandı",
+    "failed": "Başarısız",
+    "cancelled": "İptal Edildi",
+    "stopped": "Durduruldu",
+    "pending": "Bekliyor",
+    "waiting_permission": "İzin bekleniyor"
+  },
+  "waiting": {
+    "title": "Başka bir görev bekleniyor",
+    "description": "Görevin sırada ve mevcut görev tamamlandığında otomatik olarak başlayacak.",
+    "followUpDescription": "Takip görevin otomatik olarak devam edecek",
+    "cancel": "Görevi iptal et"
+  },
+  "thinking": "Düşünüyor...",
+  "thinkingBlock": "Düşünüyor\u2026",
+  "thinkingPhrases": {
+    "doing": "Yapıyor...",
+    "executing": "Çalıştırıyor...",
+    "running": "Çalışıyor...",
+    "handling": "Hall ediyor...",
+    "accomplishing": "NestCafe'liyor..."
+  },
+  "loadingAgent": "Ajan yükleniyor...",
+  "waitingForResponse": "Yanıt bekleniyor...",
+  "connectingToModel": "{{modelName}} bağlanılıyor...",
+  "coldStartHint": "İlk görev biraz daha uzun sürer...",
+  "agentWorking": "Ajan çalışıyor...",
+  "stopAgent": "Ajanı durdur (Ctrl+C)",
+  "followUp": {
+    "interruptedPlaceholder": "Yeni talimat ver...",
+    "noSessionPlaceholder": "Tekrar denemek için yeni talimat gönder...",
+    "completedPlaceholder": "Yeni talimat ver...",
+    "defaultPlaceholder": "Bir şey iste...",
+    "dropFilesToAttach": "Eklemek için dosyaları sürükle"
+  },
+  "questionPrompt": {
+    "oauthConnecting": "{{provider}} bağlanıyor...",
+    "oauthConnected": "{{provider}} bağlandı.",
+    "oauthFailed": "{{provider}} bağlanamadı. Tekrar dene.",
+    "oauthStillDisconnected": "{{provider}} hâlâ bağlı değil. Girişi tamamlayıp tekrar dene."
+  },
+  "taskStatus": "Görev {{status}}",
+  "processing": "İşleniyor",
+  "system": "Sistem",
+  "copyToClipboard": "Panoya kopyala",
+  "permission": {
+    "title": "İzin Gerekli",
+    "fileTitle": "Dosya İzni Gerekli",
+    "fileDeleteTitle": "Dosya Silme Uyarısı",
+    "questionTitle": "Soru",
+    "toolQuestion": "{{toolName}} aracına izin verilsin mi?",
+    "tool": "Araç",
+    "previewContent": "İçeriği önizle",
+    "backToOptions": "← Seçeneklere dön",
+    "typeResponse": "Yanıtını yaz...",
+    "orTypeOwn": "veya kendi yanıtını yaz",
+    "enterDifferentOption": "Farklı bir seçenek gir...",
+    "cannotBeUndone": "Bu işlem geri alınamaz.",
+    "deleteWarningSingle": "Bu dosya kalıcı olarak silinecek:",
+    "deleteWarningMultiple": "{{count}} dosya kalıcı olarak silinecek:",
+    "operations": {
+      "delete": "SİL",
+      "overwrite": "ÜZERİNE YAZ",
+      "modify": "DEĞİŞTİR",
+      "create": "OLUŞTUR",
+      "rename": "YENİDEN ADLANDIR",
+      "move": "TAŞI"
+    }
+  },
+  "browserInstall": {
+    "title": "Chrome yüklü değil",
+    "description": "Otomasyon için tarayıcı yükleniyor...",
+    "downloading": "İndiriliyor...",
+    "oneTimeSetup": "Tek seferlik kurulum (~250 MB)"
+  },
+  "debug": {
+    "title": "Hata Ayıklama Günlükleri",
+    "noLogs": "Henüz hata ayıklama günlüğü yok. Görmek için bir görev çalıştır."
+  },
+  "browserScript": {
+    "title": "Tarayıcı Eylemleri",
+    "actions": {
+      "navigateTo": "{{hostname}} adresine git",
+      "navigate": "Git",
+      "fill": "\"{{text}}\" metnini doldur",
+      "fillField": "Alanı doldur",
+      "click": "{{target}} öğesine tıkla",
+      "press": "{{key}} tuşuna bas",
+      "capturePage": "Sayfayı yakala",
+      "screenshot": "Ekran görüntüsü",
+      "waitForElement": "Öğeyi bekle",
+      "waitForPage": "Sayfayı bekle",
+      "waitForNavigation": "Yönlendirmeyi bekle",
+      "runScript": "Betik çalıştır"
+    },
+    "showMore": "+{{count}} daha",
+    "showLess": "Daha az göster",
+    "showFewerActions": "Daha az eylem göster",
+    "showMoreActions": "{{count}} eylem daha göster"
+  },
+  "todos": {
+    "title": "Görevler",
+    "progress": "{{completed}} / {{total}}"
+  },
+  "startNewTask": "Yeni Görev Başlat"
+}

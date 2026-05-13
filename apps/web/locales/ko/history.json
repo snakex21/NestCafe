@@ -1,0 +1,8 @@
+{
+  "title": "작업 기록",
+  "recentTasks": "최근 작업",
+  "noTasks": "아직 작업이 없습니다. NestCafe로 처리할 작업을 설명해 주세요.",
+  "viewAll": "{{count}}개 작업 모두 보기",
+  "confirmClear": "모든 작업 기록을 정말 삭제하시겠습니까?",
+  "confirmDelete": "이 작업을 삭제하시겠습니까?"
+}

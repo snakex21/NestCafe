@@ -12,6 +12,11 @@
     "cloudDescription": "Sélectionnez un modèle d'IA cloud. Nécessite une clé API pour le fournisseur.",
     "selectModel": "Sélectionner un modèle...",
     "searchModels": "Rechercher des modèles...",
+    "enabledCount": "{{enabled}} / {{total}} activé(s)",
+    "enableAll": "Tout activer",
+    "disableAll": "Tout désactiver",
+    "fetchModels": "Récupérer les modèles",
+    "scanning": "Analyse…",
     "noApiKey": "(Aucune clé API)",
     "modelUpdated": "Modèle mis à jour : {{model}}",
     "noApiKeyWarning": "Aucune clé API configurée pour {{provider}}. Ajoutez-en une ci-dessous.",
@@ -32,6 +37,8 @@
     "confirmDelete": "Êtes-vous sûr ?",
     "enterKey": "Saisissez la clé API",
     "invalidKey": "Clé API invalide",
+    "validKey": "Clé valide",
+    "scanning": "Analyse…",
     "enterKeyRequired": "Veuillez saisir une clé API",
     "saved": "Clé API enregistrée",
     "savedReconnectToSee": "Clé API enregistrée (reconnectez-vous pour voir le préfixe)"
@@ -39,12 +46,16 @@
   "providers": {
     "title": "Fournisseurs",
     "selectProvider": "Sélectionnez un fournisseur à configurer.",
+    "emptyTitle": "Sélectionnez un fournisseur",
+    "emptyDescription": "Choisissez un fournisseur dans la liste pour configurer les clés API et les modèles.",
     "search": "Rechercher des fournisseurs...",
     "unknownType": "Type de fournisseur inconnu",
     "formTitle": "Paramètres {{provider}}",
     "formLogo": "Logo {{provider}}",
     "showAll": "Tout afficher",
     "hide": "Masquer",
+    "enabled": "Activé",
+    "disabled": "Désactivé",
     "anthropic": "Anthropic",
     "openai": "OpenAI",
     "google": "Google AI",
@@ -60,11 +71,11 @@
     "litellm": "LiteLLM",
     "vertex": "Vertex AI",
     "azure-foundry": "Azure AI Foundry",
+    "huggingface-local": "HuggingFace Local",
     "nebius": "Nebius AI",
     "together": "Together AI",
     "fireworks": "Fireworks AI",
     "groq": "Groq",
-    "huggingface-local": "HuggingFace Local",
     "accomplish-ai": "NestCafe AI",
     "NestcafeAi": {
       "description": "Utilisez le modèle intégré propulsé par NestCafe - aucune clé API requise.\nInclut 200 crédits gratuits par mois pour commencer.",
@@ -75,7 +86,12 @@
     "venice": "Venice AI",
     "nim": "NVIDIA NIM",
     "custom": "Point d'accès personnalisé",
-    "copilot": "GitHub Copilot"
+    "copilot": "GitHub Copilot",
+    "qwen-china": "Qwen (Chine)",
+    "qwen-international": "Qwen (International)",
+    "xiaomi": "Xiaomi",
+    "xiaomi-token": "Xiaomi (Forfait jetons)",
+    "perplexity": "Perplexity"
   },
   "providerLabels": {
     "anthropic": "Modèles Claude",
@@ -93,20 +109,26 @@
     "litellm": "Proxy unifié",
     "vertex": "Google Cloud",
     "azure-foundry": "Service Azure",
+    "huggingface-local": "Inférence locale",
     "nebius": "Modèles Llama et DeepSeek",
     "together": "Modèles Llama et Mixtral",
     "fireworks": "Modèles d'inférence rapide",
     "groq": "Modèles Llama ultra-rapides",
-    "huggingface-local": "Inférence locale",
     "accomplish-ai": "Offre gratuite",
     "venice": "Service",
     "nim": "Modèles hébergés NVIDIA",
     "custom": "Personnalisé",
-    "copilot": "Modèles Copilot"
+    "copilot": "Modèles Copilot",
+    "qwen-china": "Modèles Qwen (Chine)",
+    "qwen-international": "Modèles Qwen (Global)",
+    "xiaomi": "Modèles Xiaomi",
+    "xiaomi-token": "Forfait jetons Xiaomi",
+    "perplexity": "Recherche propulsée par l'IA"
   },
   "status": {
     "connected": "Connecté",
     "ready": "Prêt",
+    "noModel": "Aucun modèle",
     "notConfigured": "Non configuré",
     "connecting": "Connexion...",
     "disconnecting": "Déconnexion...",
@@ -274,14 +296,16 @@
     "providers": "Fournisseurs",
     "connectors": "Connecteurs",
     "skills": "Compétences",
+    "browsers": "Navigateurs cloud",
     "voiceInput": "Saisie vocale",
     "workspaces": "Espaces de travail",
+    "defaultWorkspace": "Par défaut",
+    "manageWorkspaces": "Gérer les espaces de travail...",
     "appearance": "Apparence",
-    "about": "À propos",
-    "browsers": "Navigateurs cloud",
     "general": "Général",
+    "about": "À propos",
     "integrations": "Intégrations",
-    "scheduler": "Scheduler",
+    "scheduler": "Planificateur",
     "memory": "Mémoire",
     "folders": "Dossiers"
   },
@@ -292,92 +316,109 @@
     }
   },
   "daemon": {
-    "title": "Background Daemon",
+    "title": "Service d'arrière-plan",
     "status": {
-      "running": "Running",
-      "stopped": "Stopped",
-      "reconnecting": "Reconnecting...",
-      "unknown": "Unknown",
-      "uptime": "Uptime: {{uptime}}",
-      "lastPing": "Last ping: {{seconds}}s ago",
-      "starting": "Starting...",
-      "stopping": "Stopping...",
-      "failed": "Failed",
-      "failedMessage": "The daemon could not start or reconnect. Try restarting manually."
+      "running": "En cours",
+      "stopped": "Arrêté",
+      "reconnecting": "Reconnexion...",
+      "unknown": "Inconnu",
+      "uptime": "Disponibilité: {{uptime}}",
+      "lastPing": "Dernier ping: il y a {{seconds}}s",
+      "starting": "Démarrage...",
+      "stopping": "Arrêt...",
+      "failed": "Échec",
+      "failedMessage": "Le service n'a pas pu démarrer ou se reconnecter. Essayez de redémarrer manuellement."
     },
     "controls": {
-      "restart": "Restart",
-      "restarting": "Restarting...",
-      "stop": "Stop",
-      "stopping": "Stopping...",
-      "start": "Start Daemon",
-      "starting": "Starting..."
+      "restart": "Redémarrer",
+      "restarting": "Redémarrage...",
+      "stop": "Arrêter",
+      "stopping": "Arrêt...",
+      "start": "Démarrer le service",
+      "starting": "Démarrage..."
     },
     "closeBehavior": {
-      "label": "Window Close Behavior",
-      "keepDescription": "Closing the window hides it to the system tray. The daemon keeps running and tasks continue in the background.",
-      "stopDescription": "Closing the window stops the daemon and quits the app. Running tasks will be terminated.",
-      "warning": "Background features (external integrations) will not work when the window is closed."
+      "label": "Comportement à la fermeture",
+      "keepDescription": "La fermeture de la fenêtre la réduit dans la barre d'état. Le service continue de fonctionner et les tâches continuent en arrière-plan.",
+      "stopDescription": "La fermeture de la fenêtre arrête le service et ferme l'application. Les tâches en cours seront terminées.",
+      "warning": "Les fonctionnalités d'arrière-plan (intégrations externes) ne fonctionneront pas lorsque la fenêtre est fermée."
     },
     "warningDialog": {
-      "title": "Disable Background Mode?",
-      "description": "This will terminate any running tasks when you close the window. Background features like external integrations will stop working.",
-      "cancel": "Cancel",
-      "continue": "Continue"
+      "title": "Désactiver le mode arrière-plan ?",
+      "description": "Cela terminera toutes les tâches en cours lorsque vous fermerez la fenêtre. Les fonctionnalités d'arrière-plan comme les intégrations externes cesseront de fonctionner.",
+      "cancel": "Annuler",
+      "continue": "Continuer"
     },
     "confirmDialog": {
-      "title": "Are you sure?",
-      "description": "Tasks in progress will be lost when you close the window. This is not recommended for most users.",
-      "cancel": "Cancel",
-      "confirm": "Confirm"
+      "title": "Êtes-vous sûr ?",
+      "description": "Les tâches en cours seront perdues lorsque vous fermerez la fenêtre. Ceci n'est pas recommandé pour la plupart des utilisateurs.",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
     },
     "socket": {
-      "title": "Daemon Socket",
-      "description": "External clients (CLI tools, integrations) can send tasks via the local daemon socket using JSON-RPC 2.0.",
-      "pathLabel": "Socket Path",
-      "pathUnavailable": "Socket path unavailable.",
-      "copy": "Copy"
+      "title": "Socket du service",
+      "description": "Les clients externes (outils CLI, intégrations) peuvent envoyer des tâches via le socket local du service en utilisant JSON-RPC 2.0.",
+      "pathLabel": "Chemin du socket",
+      "pathUnavailable": "Chemin du socket indisponible.",
+      "copy": "Copier"
     }
   },
   "closeDialog": {
     "askLabel": "Demander avant de fermer",
     "askDescription": "Afficher la boîte de dialogue Close NestCafe lorsque vous cliquez sur le bouton de fermeture de la fenêtre.",
+    "title": "Fermer NestCafe",
+    "description": "Choisissez comment fermer l'application.",
     "defaultAction": "Action de fermeture par défaut",
     "keepDaemonTitle": "Fermer la fenêtre",
     "keepDaemonDescription": "Masquer la fenêtre et laisser les tâches en arrière-plan s'exécuter.",
+    "keepDaemonLongDescription": "Le service d'arrière-plan continue de fonctionner. Les tâches planifiées, les messages WhatsApp et les autres intégrations continueront à fonctionner.",
     "stopDaemonTitle": "Fermer et arrêter le daemon",
-    "stopDaemonDescription": "Quitter NestCafe et arrêter le traitement en arrière-plan."
+    "stopDaemonDescription": "Quitter NestCafe et arrêter le traitement en arrière-plan.",
+    "stopDaemonLongDescription": "Arrêter tout le traitement en arrière-plan. Les tâches planifiées et les intégrations ne fonctionneront pas tant que vous n'aurez pas rouvert l'application.",
+    "stopWarning": "Les tâches d'arrière-plan, les tâches planifiées et le traitement des messages WhatsApp s'arrêteront immédiatement. Ils reprendront lorsque vous rouvrirez NestCafe.",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "closeAndStop": "Fermer et arrêter"
   },
-  "integrations": {
-    "title": "Intégrations de messagerie",
-    "description": "Connectez des plateformes de messagerie pour déclencher des tâches NestCafe à distance. Une fois activé, vous pouvez démarrer et surveiller des tâches depuis votre téléphone ou n'importe quel appareil.",
-    "enabled": "Activé",
-    "messaging": "Messagerie",
-    "comingSoon": "Bientôt disponible",
-    "enable": "Activer {{name}}",
-    "enableDescription": "Autoriser la réception et l'envoi de messages",
-    "disconnect": "Déconnecter {{name}}",
-    "connectedAs": "Connecté en tant que {{name}}",
-    "remoteAccess": "Activer l'accès à distance",
-    "remoteAccessDescription": "Ouvrir un tunnel sécurisé pour que les messages puissent atteindre cette machine de n'importe où",
-    "platforms": {
-      "whatsapp": "Déclencher des tâches et recevoir des mises à jour via WhatsApp",
-      "slack": "Connecter un espace de travail Slack pour la gestion des tâches",
-      "telegram": "Utiliser le bot Telegram pour interagir avec NestCafe",
-      "teams": "Intégrer avec les canaux et chats Teams"
-    },
-    "whatsapp": {
-      "connect": "Connecter WhatsApp",
-      "scanQr": "Scannez le QR code ci-dessous avec votre application WhatsApp pour connecter cet appareil. Allez dans WhatsApp > Paramètres > Appareils liés > Lier un appareil.",
-      "qrPlaceholder": "Le QR code apparaîtra ici lorsque le service WhatsApp démarrera",
-      "securityNotice": "En connectant WhatsApp, vous accordez à NestCafe l'accès à vos messages WhatsApp. Toutes les données restent sur votre appareil et ne sont pas partagées à l'extérieur."
-    },
-    "tabs": {
-      "messaging": "Messagerie",
-      "connectors": "Connecteurs",
-      "custom": "Personnalisé"
-    },
-    "errorDismiss": "Ignorer"
+  "sandbox": {
+    "title": "Sandbox local",
+    "experimental": "Expérimental",
+    "description": "Restreindre l'accès au système de fichiers et au réseau de l'agent en utilisant le sandboxing au niveau du système d'exploitation. Sur macOS, l'agent s'exécute dans un profil sandbox. Sur les autres plateformes, l'application des variables d'environnement est utilisée.",
+    "activeDescription": "Le mode sandbox est actif. L'accès au système de fichiers et la connectivité réseau de l'agent seront restreints lors de la prochaine tâche. Redémarrez toute tâche en cours pour que les modifications prennent effet."
+  },
+  "backup": {
+    "title": "Sauvegarde et restauration",
+    "description": "Enregistrez votre configuration dans un fichier ou importez-la ultérieurement. Chaque section est facultative et sélectionnée par défaut.",
+    "export": "Exporter la sauvegarde",
+    "import": "Importer la sauvegarde",
+    "exporting": "Exportation...",
+    "importing": "Importation...",
+    "cancelled": "Annulé.",
+    "error": "Échec de l'opération de sauvegarde.",
+    "exportSuccess": "Sauvegarde enregistrée : {{path}}",
+    "importSuccess": "Sauvegarde importée. Fermez et rouvrez les paramètres pour actualiser l'affichage.",
+    "sections": {
+      "settings": {
+        "title": "Paramètres de l'application",
+        "description": "Thème, langue, notifications, comportement de fermeture, sandbox et configuration des intégrations."
+      },
+      "providers": {
+        "title": "Fournisseurs et modèles",
+        "description": "Fournisseur actif, fournisseurs connectés, modèles sélectionnés et URL de base."
+      },
+      "apiKeys": {
+        "title": "Clés API et secrets",
+        "description": "Clés API et identifiants Bedrock ; lors de l'importation, ils sont enregistrés à nouveau avec un chiffrement local."
+      },
+      "workspaces": {
+        "title": "Espaces de travail",
+        "description": "Liste des espaces de travail et espace de travail actif."
+      },
+      "skills": {
+        "title": "Compétences",
+        "description": "État d'activation des compétences existantes."
+      }
+    }
   },
   "appearance": {
     "title": "Thème",
@@ -390,7 +431,28 @@
     "themeDescription": "Choisissez l'apparence d'NestCafe. Sélectionnez Système pour correspondre aux paramètres de votre système d'exploitation.",
     "themeSystem": "Système",
     "themeLight": "Clair",
-    "themeDark": "Sombre"
+    "themeDark": "Sombre",
+    "colorTitle": "Thème de couleur",
+    "colorDescription": "Choisissez un style de couleur supplémentaire pour l'application.",
+    "colorDefault": "Défaut",
+    "colorCoffee": "Café",
+    "colorMidnight": "Minuit",
+    "colorNord": "Nord",
+    "colorDracula": "Dracula",
+    "colorOcean": "Océan",
+    "colorSunset": "Coucher de soleil",
+    "colorForest": "Forêt",
+    "colorRose": "Rose",
+    "fontTitle": "Police",
+    "fontDescription": "Modifier la police de l'interface de l'application.",
+    "fontInter": "Inter",
+    "fontGeist": "Geist",
+    "fontApparat": "KMR Apparat",
+    "fontSystem": "Système",
+    "fontSerif": "Serif",
+    "fontLora": "Lora",
+    "fontMono": "Monospace",
+    "fontJetbrains": "JetBrains Mono"
   },
   "connectors": {
     "title": "Connecteurs",
@@ -400,6 +462,8 @@
     "add": "Ajouter",
     "empty": "Aucun serveur MCP connecté",
     "defaultName": "Serveur MCP",
+    "customTitle": "Serveurs MCP personnalisés",
+    "customDescription": "Ajoutez votre propre URL de serveur MCP distant. OAuth est pris en charge pour les serveurs qui exposent le flux d'autorisation standard.",
     "urlMustBeHttp": "L'URL doit commencer par http:// ou https://",
     "invalidUrl": "Veuillez saisir une URL valide",
     "addFailed": "Échec de l'ajout du connecteur",
@@ -417,21 +481,19 @@
     "disable": "Désactiver",
     "confirmDelete": "Cliquez à nouveau pour confirmer",
     "delete": "Supprimer",
-    "customTitle": "Serveurs MCP personnalisés",
-    "customDescription": "Ajoutez votre propre URL de serveur MCP distant. OAuth est pris en charge pour les serveurs qui exposent le flux d'autorisation standard.",
     "cta": {
-      "connect": "Connect",
-      "reconnect": "Reconnect",
-      "connecting": "Connecting...",
-      "disconnect": "Disconnect",
-      "disconnecting": "Disconnecting...",
-      "authHint": "NestCafe will open your browser to authorize access.",
-      "pendingHint": "Authorization was started but not finished. Reconnect to try again.",
-      "connectedHint": "Connected and ready for the agent to use.",
+      "connect": "Connecter",
+      "reconnect": "Reconnecter",
+      "connecting": "Connexion...",
+      "disconnect": "Déconnecter",
+      "disconnecting": "Déconnexion...",
+      "authHint": "NestCafe ouvrira votre navigateur pour autoriser l'accès.",
+      "pendingHint": "L'autorisation a été commencée mais pas terminée. Reconnectez pour réessayer.",
+      "connectedHint": "Connecté et prêt à être utilisé par l'agent.",
       "waitingForBrowser": "En attente du navigateur…"
     },
-    "marketplaceHint": "This connector requires the app to be installed from the marketplace.",
-    "marketplaceLink": "Open marketplace",
+    "marketplaceHint": "Ce connecteur nécessite que l'application soit installée depuis la marketplace.",
+    "marketplaceLink": "Ouvrir la marketplace",
     "slack": {
       "title": "Slack",
       "description": "Authentifiez Slack pour que l'agent puisse envoyer des messages et utiliser le contexte Slack via le MCP Slack intégré.",
@@ -453,63 +515,63 @@
     },
     "jira": {
       "title": "Jira",
-      "description": "Let the agent create, update, and search Jira issues in your Atlassian workspace."
+      "description": "Permettez à l'agent de créer, mettre à jour et rechercher des tickets Jira dans votre espace de travail Atlassian."
     },
     "github": {
       "title": "GitHub",
-      "description": "Let the agent read and manage GitHub repositories, issues, and pull requests via the gh CLI."
+      "description": "Permettez à l'agent de lire et gérer les dépôts GitHub, les tickets et les pull requests via la CLI gh."
     },
     "notion": {
       "title": "Notion",
-      "description": "Let the agent read and update Notion pages and databases in your workspace."
+      "description": "Permettez à l'agent de lire et mettre à jour les pages et bases de données Notion dans votre espace de travail."
     },
     "monday": {
       "title": "monday.com",
-      "description": "Let the agent manage boards, items, and updates in your monday.com workspace.",
-      "marketplaceHint": "Install the NestCafe app from the monday.com marketplace first.",
-      "marketplaceLink": "Open marketplace"
+      "description": "Permettez à l'agent de gérer les tableaux, les éléments et les mises à jour dans votre espace de travail monday.com.",
+      "marketplaceHint": "Installez d'abord l'application NestCafe depuis la marketplace monday.com.",
+      "marketplaceLink": "Ouvrir la marketplace"
     },
     "lightdash": {
       "title": "Lightdash",
-      "description": "Let the agent query your Lightdash dashboards and metrics.",
-      "instanceUrlHint": "Enter your Lightdash instance URL (e.g. https://app.lightdash.cloud).",
+      "description": "Permettez à l'agent d'interroger vos tableaux de bord et métriques Lightdash.",
+      "instanceUrlHint": "Saisissez l'URL de votre instance Lightdash (ex. https://app.lightdash.cloud).",
       "instanceUrlPlaceholder": "https://app.lightdash.cloud",
-      "instanceUrlRequired": "Please enter a valid Lightdash instance URL.",
-      "saveFailed": "Failed to save Lightdash URL",
-      "save": "Save",
-      "update": "Update",
-      "cancel": "Cancel",
-      "edit": "Edit",
-      "authHint": "Once the URL is saved, connect to authorize Lightdash access.",
-      "pendingHint": "Authorization was started but not finished. Reconnect to try again.",
-      "connectedHint": "Connected and ready for the agent to use.",
+      "instanceUrlRequired": "Veuillez saisir une URL d'instance Lightdash valide.",
+      "saveFailed": "Échec de l'enregistrement de l'URL Lightdash",
+      "save": "Enregistrer",
+      "update": "Mettre à jour",
+      "cancel": "Annuler",
+      "edit": "Modifier",
+      "authHint": "Une fois l'URL enregistrée, connectez-vous pour autoriser l'accès à Lightdash.",
+      "pendingHint": "L'autorisation a été commencée mais pas terminée. Reconnectez pour réessayer.",
+      "connectedHint": "Connecté et prêt à être utilisé par l'agent.",
       "status": {
-        "connected": "Connected",
-        "disconnected": "Not connected",
-        "pending": "Authorization started",
-        "noInstance": "No instance URL set"
+        "connected": "Connecté",
+        "disconnected": "Non connecté",
+        "pending": "Autorisation commencée",
+        "noInstance": "Aucune URL d'instance définie"
       }
     },
     "datadog": {
       "title": "Datadog",
-      "description": "Let the agent query Datadog metrics, logs, and monitors.",
-      "regionHint": "Select your Datadog site region.",
-      "regionPlaceholder": "Select region...",
-      "regionRequired": "Please select a Datadog region.",
-      "saveFailed": "Failed to save Datadog region",
-      "save": "Save",
-      "update": "Update",
-      "cancel": "Cancel",
-      "edit": "Edit",
-      "authHint": "Once the region is saved, connect to authorize Datadog access.",
-      "pendingHint": "Authorization was started but not finished. Reconnect to try again.",
-      "connectedHint": "Connected and ready for the agent to use.",
-      "reconnectRequired": "Reconnect required after changing region.",
+      "description": "Permettez à l'agent d'interroger les métriques, logs et moniteurs Datadog.",
+      "regionHint": "Sélectionnez la région de votre site Datadog.",
+      "regionPlaceholder": "Sélectionner la région...",
+      "regionRequired": "Veuillez sélectionner une région Datadog.",
+      "saveFailed": "Échec de l'enregistrement de la région Datadog",
+      "save": "Enregistrer",
+      "update": "Mettre à jour",
+      "cancel": "Annuler",
+      "edit": "Modifier",
+      "authHint": "Une fois la région enregistrée, connectez-vous pour autoriser l'accès à Datadog.",
+      "pendingHint": "L'autorisation a été commencée mais pas terminée. Reconnectez pour réessayer.",
+      "connectedHint": "Connecté et prêt à être utilisé par l'agent.",
+      "reconnectRequired": "Reconnexion requise après changement de région.",
       "status": {
-        "connected": "Connected",
-        "disconnected": "Not connected",
-        "pending": "Authorization started",
-        "noSite": "No site selected"
+        "connected": "Connecté",
+        "disconnected": "Non connecté",
+        "pending": "Autorisation commencée",
+        "noSite": "Aucun site sélectionné"
       }
     }
   },
@@ -522,6 +584,14 @@
   "openrouter": {
     "description": "Accédez à plus de 200 modèles d'IA via l'API unifiée d'OpenRouter.",
     "fetchModelsFailed": "Échec de la récupération des modèles"
+  },
+  "huggingfaceLocal": {
+    "serverUrl": "URL du serveur HuggingFace Local",
+    "serverHint": "Exécutez un serveur d'inférence local HuggingFace Transformers.js avec ONNX Runtime",
+    "selectModel": "Veuillez sélectionner un modèle",
+    "selectModelPlaceholder": "Sélectionner un modèle...",
+    "infoBannerTitle": "Inférence locale avec Transformers.js",
+    "infoBannerDescription": "Les modèles s'exécutent localement avec ONNX Runtime. Les modèles quantifiés plus petits (Q4) sont recommandés pour une inférence plus rapide."
   },
   "litellm": {
     "description": "Connectez-vous à votre serveur proxy LiteLLM pour un accès unifié aux modèles.",
@@ -640,6 +710,37 @@
     "tooltipDefault": "Cliquez pour enregistrer la saisie vocale",
     "processing": "Traitement..."
   },
+  "integrations": {
+    "title": "Intégrations de messagerie",
+    "description": "Connectez des plateformes de messagerie pour déclencher des tâches NestCafe à distance. Une fois activé, vous pouvez démarrer et surveiller des tâches depuis votre téléphone ou n'importe quel appareil.",
+    "enabled": "Activé",
+    "messaging": "Messagerie",
+    "comingSoon": "Bientôt disponible",
+    "enable": "Activer {{name}}",
+    "enableDescription": "Autoriser la réception et l'envoi de messages",
+    "disconnect": "Déconnecter {{name}}",
+    "connectedAs": "Connecté en tant que {{name}}",
+    "remoteAccess": "Activer l'accès à distance",
+    "remoteAccessDescription": "Ouvrir un tunnel sécurisé pour que les messages puissent atteindre cette machine de n'importe où",
+    "platforms": {
+      "whatsapp": "Déclencher des tâches et recevoir des mises à jour via WhatsApp",
+      "slack": "Connecter un espace de travail Slack pour la gestion des tâches",
+      "telegram": "Utiliser le bot Telegram pour interagir avec NestCafe",
+      "teams": "Intégrer avec les canaux et chats Teams"
+    },
+    "whatsapp": {
+      "connect": "Connecter WhatsApp",
+      "scanQr": "Scannez le QR code ci-dessous avec votre application WhatsApp pour connecter cet appareil. Allez dans WhatsApp > Paramètres > Appareils liés > Lier un appareil.",
+      "qrPlaceholder": "Le QR code apparaîtra ici lorsque le service WhatsApp démarrera",
+      "securityNotice": "En connectant WhatsApp, vous accordez à NestCafe l'accès à vos messages WhatsApp. Toutes les données restent sur votre appareil et ne sont pas partagées à l'extérieur."
+    },
+    "tabs": {
+      "messaging": "Messagerie",
+      "connectors": "Connecteurs",
+      "custom": "Personnalisé"
+    },
+    "errorDismiss": "Ignorer"
+  },
   "baseUrl": {
     "title": "URL de base",
     "description": "Laissez vide pour utiliser l'URL par défaut."
@@ -651,36 +752,28 @@
     "connecting": "En attente de l'autorisation…",
     "connectButton": "Se connecter avec GitHub"
   },
-  "huggingfaceLocal": {
-    "serverUrl": "URL du serveur HuggingFace Local",
-    "serverHint": "Exécutez un serveur d'inférence local HuggingFace Transformers.js avec ONNX Runtime",
-    "selectModel": "Veuillez sélectionner un modèle",
-    "selectModelPlaceholder": "Sélectionner un modèle...",
-    "infoBannerTitle": "Inférence locale avec Transformers.js",
-    "infoBannerDescription": "Les modèles s'exécutent localement avec ONNX Runtime. Les modèles quantifiés plus petits (Q4) sont recommandés pour une inférence plus rapide."
-  },
   "scheduler": {
-    "title": "Scheduled Tasks",
-    "description": "Automate recurring tasks with cron expressions. Schedules persist across daemon restarts.",
-    "empty": "No scheduled tasks. Create one to automate recurring work.",
-    "addButton": "Add Schedule",
-    "autoStartWarning": "Enable 'Start at Login' in Settings → General to ensure schedules fire after system restart.",
+    "title": "Tâches planifiées",
+    "description": "Automatisez les tâches récurrentes avec des expressions cron. Les planifications persistent après le redémarrage du service.",
+    "empty": "Aucune tâche planifiée. Créez-en une pour automatiser le travail récurrent.",
+    "addButton": "Ajouter une planification",
+    "autoStartWarning": "Activez « Démarrer à la connexion » dans Paramètres → Général pour garantir le déclenchement des planifications après le redémarrage du système.",
     "card": {
-      "lastRun": "Last run",
-      "nextRun": "Next run",
-      "never": "Never",
-      "delete": "Delete",
-      "deleteConfirm": "Delete this scheduled task?"
+      "lastRun": "Dernière exécution",
+      "nextRun": "Prochaine exécution",
+      "never": "Jamais",
+      "delete": "Supprimer",
+      "deleteConfirm": "Supprimer cette tâche planifiée ?"
     },
     "addDialog": {
-      "title": "New Scheduled Task",
-      "cronLabel": "Cron Expression",
+      "title": "Nouvelle tâche planifiée",
+      "cronLabel": "Expression Cron",
       "cronPlaceholder": "0 9 * * 1-5",
-      "cronHelp": "5-field format: minute hour day-of-month month day-of-week. Examples: '0 9 * * *' (daily at 9am), '0 9 * * 1-5' (weekdays at 9am), '*/30 * * * *' (every 30 min)",
-      "promptLabel": "Task Prompt",
-      "promptPlaceholder": "Check email and summarize important items",
-      "create": "Create Schedule",
-      "cancel": "Cancel"
+      "cronHelp": "Format à 5 champs : minute heure jour-du-mois mois jour-de-la-semaine. Exemples : '0 9 * * *' (tous les jours à 9h), '0 9 * * 1-5' (en semaine à 9h), '*/30 * * * *' (toutes les 30 min)",
+      "promptLabel": "Contenu de la tâche",
+      "promptPlaceholder": "Vérifier les emails et résumer les éléments importants",
+      "create": "Créer la planification",
+      "cancel": "Annuler"
     }
   },
   "knowledgeNotes": {
@@ -707,5 +800,44 @@
     "save": "Enregistrer",
     "edit": "Modifier",
     "delete": "Supprimer"
+  },
+  "workspaces": {
+    "createWorkspace": "Créer un espace de travail",
+    "namePlaceholder": "Nom de l'espace de travail",
+    "descriptionPlaceholder": "Description facultative",
+    "deleteConfirm": "Supprimer cet espace de travail ?"
+  },
+  "cloudBrowsers": {
+    "title": "Navigateurs cloud",
+    "description": "Configurez les fournisseurs de navigateurs cloud. Le fournisseur actif sera utilisé à la place du navigateur local.",
+    "localBrowser": "Navigateur local (par défaut)",
+    "usingProvider": "Utilisation de {{provider}}",
+    "activate": "Activer",
+    "deactivate": "Désactiver",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "remove": "Supprimer",
+    "expand": "Configurer",
+    "loadFailed": "Échec du chargement de la configuration",
+    "saveFailed": "Échec de l'enregistrement de la configuration",
+    "providers": {
+      "browserbase": "Infrastructure de navigateurs cloud avec support CDP",
+      "steel": "Sessions de navigateur gérées pour les agents IA",
+      "aws-agentcore": "Intégration de l'outil navigateur Amazon Bedrock"
+    }
+  },
+  "whatsapp": {
+    "title": "WhatsApp",
+    "description": "Envoyez et recevez des messages via WhatsApp",
+    "connected": "Connecté",
+    "loggedOutMessage": "Votre session WhatsApp a été déconnectée. Reconnectez-vous pour continuer.",
+    "reconnect": "Reconnecter WhatsApp",
+    "connecting": "Connexion...",
+    "confirmDisconnect": "Confirmer la déconnexion ?",
+    "disconnecting": "Déconnexion...",
+    "disconnect": "Déconnecter",
+    "scanInstructions": "Ouvrez WhatsApp sur votre téléphone, allez dans Paramètres > Appareils liés et scannez ce code.",
+    "unofficialWarning": "⚠️ Cette intégration utilise un protocole WhatsApp Web non officiel. À utiliser à vos propres risques.",
+    "connect": "Connecter WhatsApp"
   }
 }

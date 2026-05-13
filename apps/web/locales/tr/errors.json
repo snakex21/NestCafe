@@ -1,0 +1,132 @@
+{
+  "api": {
+    "timeout": "İstek zaman aşımına uğradı. İnternet bağlantını kontrol et.",
+    "timeoutRetry": "İstek zaman aşımına uğradı. İnternet bağlantını kontrol edip tekrar dene.",
+    "invalidKey": "Geçersiz API anahtarı",
+    "noKey": "Lütfen bir API anahtarı gir.",
+    "validationFailed": "API anahtarı doğrulaması başarısız",
+    "networkError": "Ağ hatası. Bağlantını kontrol et.",
+    "connectionFailed": "API anahtarı doğrulanamadı. İnternet bağlantını kontrol et.",
+    "unsupportedProvider": "Desteklenmeyen sağlayıcı"
+  },
+  "task": {
+    "notFound": "Görev bulunamadı",
+    "startFailed": "Görev başlatılamadı",
+    "cancelFailed": "Görev iptal edilemedi",
+    "taskFailed": "Görev başarısız",
+    "noActiveTask": "Devam edecek aktif görev yok",
+    "noSession": "Devam edecek oturum yok - lütfen yeni bir görev başlat",
+    "sendMessageFailed": "Mesaj gönderilemedi"
+  },
+  "adapter": {
+    "cliNotFound": "OpenCode CLI kullanılabilir değil. Dahili CLI eksik veya bozuk olabilir. Lütfen uygulamayı yeniden yükle.",
+    "disposed": "Adaptör kapatılmış ve yeni görev başlatamaz",
+    "noActiveProcess": "Aktif süreç yok",
+    "exitWithCode": "OpenCode CLI, {{code}} koduyla sonlandı"
+  },
+  "validation": {
+    "mustBeString": "{{field}} bir metin olmalı",
+    "required": "{{field}} zorunlu",
+    "exceedsLength": "{{field}} maksimum uzunluğu aşıyor",
+    "unsupportedProvider": "Desteklenmeyen API anahtarı sağlayıcısı",
+    "untrustedWindow": "Güvenilmeyen pencere",
+    "focusedWindowRequired": "IPC isteği odaklanmış pencereden gelmeli"
+  },
+  "provider": {
+    "notReady": "Hiçbir sağlayıcı hazır değil. Lütfen Ayarlar'dan bir sağlayıcı bağlayıp model seç.",
+    "noModelsEndpoint": "Bu sağlayıcı için model uç noktası yapılandırılmamış",
+    "noApiKey": "Bu sağlayıcı için API anahtarı bulunamadı"
+  },
+  "ollama": {
+    "connectionFailed": "Bağlantı başarısız",
+    "noModels": "Model bulunamadı",
+    "saveFailed": "Kaydedilemedi",
+    "invalidUrl": "Geçersiz URL formatı",
+    "protocolNotAllowed": "Sadece http ve https URL'lerine izin verilir",
+    "invalidConfig": "Geçersiz Ollama yapılandırması",
+    "modelsArray": "Geçersiz Ollama yapılandırması: modeller bir dizi olmalı",
+    "invalidModelFormat": "Geçersiz Ollama yapılandırması: geçersiz model formatı",
+    "connectionTimeout": "Bağlantı zaman aşımına uğradı. Ollama'nın çalıştığından emin ol.",
+    "cannotConnect": "Ollama'ya bağlanılamıyor: {{message}}"
+  },
+  "bedrock": {
+    "invalidCredentials": "Geçersiz kimlik bilgileri",
+    "saveFailed": "Kimlik bilgileri kaydedilemedi",
+    "invalidAuthType": "Geçersiz kimlik doğrulama türü",
+    "invalidAwsCredentials": "Geçersiz AWS kimlik bilgileri. Erişim Anahtarı Kimliği ve Gizli Erişim Anahtarını kontrol et.",
+    "accessDenied": "Erişim engellendi. AWS kimlik bilgilerinin Bedrock izinlerine sahip olduğundan emin ol.",
+    "profileNotFound": "AWS profili bulunamadı. ~/.aws/credentials dosyanı kontrol et.",
+    "accessKeyRequired": "Erişim Anahtarı Kimliği ve Gizli Erişim Anahtarı zorunlu",
+    "profileNameRequired": "Profil adı zorunlu",
+    "apiKeyRequired": "API Anahtarı zorunlu"
+  },
+  "model": {
+    "invalidConfig": "Geçersiz model yapılandırması"
+  },
+  "litellm": {
+    "invalidConfig": "Geçersiz LiteLLM yapılandırması",
+    "modelsArray": "Geçersiz LiteLLM yapılandırması: modeller bir dizi olmalı",
+    "invalidModelFormat": "Geçersiz LiteLLM yapılandırması: geçersiz model formatı"
+  },
+  "lmstudio": {
+    "notConfigured": "LM Studio yapılandırılmamış"
+  },
+  "azureFoundry": {
+    "baseUrlRequired": "Geçersiz Azure Foundry yapılandırması: baseUrl zorunlu",
+    "deploymentRequired": "Geçersiz Azure Foundry yapılandırması: deploymentName zorunlu",
+    "invalidAuthType": "Geçersiz Azure Foundry yapılandırması: authType, api-key veya entra-id olmalı",
+    "invalidEnabled": "Geçersiz Azure Foundry yapılandırması: enabled bir boolean olmalı",
+    "invalidBaseUrl": "Geçersiz Azure Foundry yapılandırması: Geçersiz taban URL formatı"
+  },
+  "connector": {
+    "protocolRequired": "Bağlayıcı URL'si http:// veya https:// kullanmalı",
+    "invalidUrl": "Geçersiz bağlayıcı URL'si: {{url}}"
+  },
+  "settings": {
+    "invalidDebugFlag": "Geçersiz hata ayıklama modu bayrağı",
+    "invalidTheme": "Geçersiz tema değeri",
+    "invalidBaseUrl": "Geçersiz taban URL"
+  },
+  "i18n": {
+    "unsupportedLanguage": "Desteklenmeyen dil"
+  },
+  "url": {
+    "protocolNotAllowed": "Sadece http ve https URL'lerine izin verilir"
+  },
+  "permission": {
+    "denied": "İzin reddedildi",
+    "required": "İzin gerekli"
+  },
+  "generic": {
+    "unknown": "Bilinmeyen bir hata oluştu",
+    "tryAgain": "Lütfen tekrar dene"
+  },
+  "app": {
+    "mustRunInDesktop": "Bu uygulama NestCafe masaüstü uygulaması içinde çalıştırılmalı.",
+    "unableToStart": "Başlatılamıyor",
+    "updateRequired": "Güncelleme Gerekli",
+    "schemaNewerMessage": "Bu veri, NestCafe'in daha yeni bir sürümü tarafından oluşturuldu (şema v{{version}}).",
+    "schemaNewerDetail": "Uygulaman en fazla şema v{{version}} destekliyor. Devam etmek için NestCafe'i güncelle."
+  },
+  "auth": {
+    "sessionExpired": "{{provider}} Oturumu Sona Erdi",
+    "reLoginTo": "{{provider}} hesabına yeniden giriş yap",
+    "connectorAttention": "{{provider}} dikkat gerektiriyor",
+    "openConnectorSettings": "Ayarlar → Bağlayıcılar → {{provider}} yolunu aç"
+  },
+  "daemon": {
+    "disconnected": "Arka Plan Hizmeti Bağlantısı Koptu",
+    "disconnectedMessage": "Arka plan hizmetiyle bağlantı kesildi. Yeniden bağlanılıyor...",
+    "reconnectFailed": "Yeniden Bağlanma Başarısız",
+    "reconnectFailedMessage": "Arka plan hizmetine yeniden bağlanılamadı. Görevler kesintiye uğramış olabilir.",
+    "openSettings": "Ayarları Aç"
+  },
+  "boundary": {
+    "title": "Bir şeyler yanlış gitti",
+    "unexpectedError": "Beklenmeyen bir hata oluştu.",
+    "compactMessage": "Bu içerik görüntülenirken bir hata oluştu.",
+    "errorPrefix": "Hata:",
+    "tryAgain": "Tekrar dene",
+    "sidebarLoading": "Gezinme yükleniyor…"
+  }
+}

@@ -115,11 +115,11 @@
     "openConnectorSettings": "Открыть Настройки -> Коннекторы -> {{provider}}"
   },
   "daemon": {
-    "disconnected": "Daemon Disconnected",
-    "disconnectedMessage": "Connection to the background daemon was lost. Reconnecting...",
-    "reconnectFailed": "Reconnection Failed",
-    "reconnectFailedMessage": "Could not reconnect to the daemon. Tasks may be interrupted.",
-    "openSettings": "Open Settings"
+    "disconnected": "Демон отключён",
+    "disconnectedMessage": "Соединение с фоновым демоном потеряно. Переподключение...",
+    "reconnectFailed": "Ошибка переподключения",
+    "reconnectFailedMessage": "Не удалось переподключиться к демону. Задачи могут быть прерваны.",
+    "openSettings": "Открыть настройки"
   },
   "boundary": {
     "title": "Что-то пошло не так",

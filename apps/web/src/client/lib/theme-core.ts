@@ -7,8 +7,25 @@
  */
 
 export type ThemePreference = 'system' | 'light' | 'dark';
-export type ColorThemePreference = 'default' | 'coffee' | 'midnight' | 'nord' | 'dracula';
-export type FontPreference = 'geist' | 'apparat' | 'system' | 'serif' | 'mono';
+export type ColorThemePreference =
+  | 'default'
+  | 'coffee'
+  | 'midnight'
+  | 'nord'
+  | 'dracula'
+  | 'ocean'
+  | 'sunset'
+  | 'forest'
+  | 'rose';
+export type FontPreference =
+  | 'geist'
+  | 'apparat'
+  | 'system'
+  | 'serif'
+  | 'mono'
+  | 'inter'
+  | 'jetbrains'
+  | 'lora';
 
 export const THEME_KEY = 'theme';
 export const COLOR_THEME_KEY = 'nestcafe:color-theme';
@@ -57,11 +74,11 @@ export function initEarlyTheme(): void {
 
   try {
     const colorTheme = localStorage.getItem(COLOR_THEME_KEY) || 'default';
-    if (['default', 'coffee', 'midnight', 'nord', 'dracula'].includes(colorTheme)) {
+    if (['default', 'coffee', 'midnight', 'nord', 'dracula', 'ocean', 'sunset', 'forest', 'rose'].includes(colorTheme)) {
       applyColorTheme(colorTheme as ColorThemePreference);
     }
     const font = localStorage.getItem(FONT_KEY) || 'geist';
-    if (['geist', 'apparat', 'system', 'serif', 'mono'].includes(font)) {
+    if (['geist', 'apparat', 'system', 'serif', 'mono', 'inter', 'jetbrains', 'lora'].includes(font)) {
       applyFontPreference(font as FontPreference);
     }
   } catch (_e) {

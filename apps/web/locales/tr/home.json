@@ -1,0 +1,90 @@
+{
+  "title": "Bugün neyi NestCafe'leyeceksin?",
+  "inputPlaceholder": "Bir görev tanımla, gerisini yapay zekaya bırak",
+  "favorites": {
+    "title": "Favoriler",
+    "empty": "Tamamlanan veya kesilen görevleri yıldızla, burada görünsün.",
+    "remove": "Favorilerden kaldır",
+    "showAll": "Tüm {{count}} favoriyi göster",
+    "showAll_one": "{{count}} favoriyi göster",
+    "showAll_few": "Tüm {{count}} favoriyi göster",
+    "showAll_many": "Tüm {{count}} favoriyi göster",
+    "showAll_other": "Tüm {{count}} favoriyi göster"
+  },
+  "plusMenu": {
+    "addContent": "İçerik ekle",
+    "attachFiles": "Dosya Ekle",
+    "soon": "Yakında",
+    "useSkills": "Yetenekleri Kullan",
+    "connectors": "Bağlayıcılar",
+    "noConnectors": "Henüz bağlayıcı yok",
+    "manage": "Yönet",
+    "dropFilesHere": "Dosyaları buraya sürükleyip bırak",
+    "dropFilesHint": "(maks {max} dosya, her biri {size}MB)",
+    "fileTooLarge": "{name}, {limit} boyut sınırını aşıyor",
+    "tooManyFiles": "En fazla {max} dosya eklenebilir",
+    "attachFailed": "Dosyalar eklenemedi",
+    "selectFolder": "Klasör Seç"
+  },
+  "examplePrompts": "Örnek Komutlar",
+  "useCases": {
+    "calendarPrepNotes": {
+      "title": "Takvim Hazırlık Notları",
+      "description": "Yarının toplantılarını incele ve hazırlık notları oluştur.",
+      "prompt": "Google Takvimimden yarının toplantılarını kontrol et ve yeni bir Google Dokümanında hazırlık notları oluştur."
+    },
+    "inboxPromoCleanup": {
+      "title": "Gelen Kutusu Temizliği",
+      "description": "Son 24 saatin promosyon e-postalarını temizle.",
+      "prompt": "Gmail gelen kutuma git ve son 24 saatin tüm promosyon e-postalarını sil."
+    },
+    "competitorPricingDeck": {
+      "title": "Rakip Fiyat Sunumu",
+      "description": "Rakip fiyatlandırmasını analiz et ve önerilerle bir slayt oluştur.",
+      "prompt": "Şu 5 rakip sitesinden fiyat ve özellikleri topla [URL'leri listele], CSV'ye kaydet, fiyat boşluklarımızı analiz et ve Pazartesi toplantısı için Google Slaytlar'da bir öneri slaydı oluştur."
+    },
+    "notionApiAudit": {
+      "title": "Notion API Denetimi",
+      "description": "Bir Notion wikisini eski API referansları için tara.",
+      "prompt": "[URL]'deki Notion wikisini oku ve eski API'ye yapılan tüm atıfları sayfa bağlantılarıyla listele."
+    },
+    "stagingVsProdVisual": {
+      "title": "Staging ve Prod Görsel Karşılaştırma",
+      "description": "Staging ve canlı ortamı ekran görüntüleriyle karşılaştır.",
+      "prompt": "[URL]'deki staging sitemi [URL]'deki canlı site ile karşılaştır ve görsel farklılıkların ekran görüntüsünü al."
+    },
+    "prodBrokenLinks": {
+      "title": "Canlı Ortam Kırık Bağlantılar",
+      "description": "Web sitemdeki kırık bağlantıları kontrol et.",
+      "prompt": "[URL]'yi aç, tüm bağlantılara tıkla ve 404 hatalarını raporla."
+    },
+    "portfolioMonitoring": {
+      "title": "Portföy İzleme",
+      "description": "Hisse fiyatlarını izle, düşüş ve yükselişlerde uyar.",
+      "prompt": "[Aracı sitesindeki] hisse portföyümü izle, fiyat düşüşleri ve ani yükselişlerde uyar."
+    },
+    "jobApplicationAutomation": {
+      "title": "İş Başvurusu Otomasyonu",
+      "description": "İş ilanlarını filtrele ve kayıtlı profille başvur.",
+      "prompt": "LinkedIn'de [sorgu] için iş ilanlarını bul, maaşa göre sırala ve profilimi kullanarak en iyi 5'ine başvur."
+    },
+    "eventCalendarBuilder": {
+      "title": "Etkinlik Takvimi Oluşturucu",
+      "description": "En iyi etkinlikleri seç ve takvime ekle.",
+      "prompt": "Eventbrite'tan etkinlik listelerini topla, konuma göre filtrele ve en iyi 5'ini takvimime ekle."
+    }
+  },
+  "slashCommand": {
+    "title": "Yetenekler",
+    "filtering": "\"{{query}}\" ile eşleşen yetenekler",
+    "navigate": "gezin",
+    "select": "seç",
+    "dismiss": "kapat"
+  },
+  "selectFolder": "Klasör Seç",
+  "selectedFolder": {
+    "badge": "📁 {folder}",
+    "clearAriaLabel": "Seçili klasörü temizle",
+    "clearButton": "✕"
+  }
+}

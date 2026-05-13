@@ -1,0 +1,100 @@
+{
+  "app": {
+    "name": "NestCafe"
+  },
+  "buttons": {
+    "send": "அனுப்பு",
+    "submit": "சமர்ப்பி",
+    "stop": "நிறுத்து",
+    "cancel": "ரத்துசெய்",
+    "close": "மூடு",
+    "save": "சேமி",
+    "delete": "நீக்கு",
+    "deleteAll": "அனைத்தும் நீக்கு",
+    "allow": "அனுமதி",
+    "deny": "மறு",
+    "continue": "தொடர்",
+    "doneContinue": "முடிந்தது, தொடர்",
+    "goHome": "முகப்புக்குச் செல்",
+    "startNewTask": "புதிய பணியைத் தொடங்கு",
+    "test": "சோதனை",
+    "testing": "சோதனையில்...",
+    "saving": "சேமிக்கிறது...",
+    "validating": "சரிபார்க்கிறது...",
+    "export": "ஏற்றுமதி",
+    "exported": "ஏற்றுமதி செய்யப்பட்டது",
+    "clear": "அழி",
+    "clearAll": "அனைத்தும் அழி",
+    "yes": "ஆம்",
+    "no": "இல்லை",
+    "retry": "மீண்டும் முயற்சி",
+    "saveApiKey": "API சாவியைச் சேமி",
+    "copyToClipboard": "கிளிப்போர்டுக்கு நகலெடு",
+    "dismiss": "நிராகரி",
+    "messageTooLong": "செய்தி மிக நீளமாக உள்ளது",
+    "enterMessage": "செய்தியை உள்ளிடவும்",
+    "quit": "வெளியேறு"
+  },
+  "aria": {
+    "scrollToBottom": "கீழே உருட்டு",
+    "customResponse": "தனிப்பயன் பதில்"
+  },
+  "status": {
+    "running": "இயங்குகிறது",
+    "completed": "முடிந்தது",
+    "failed": "தோல்வி",
+    "cancelled": "ரத்துசெய்யப்பட்டது",
+    "queued": "வரிசையில்",
+    "pending": "நிலுவையில்",
+    "waiting": "காத்திருக்கிறது",
+    "stopped": "நிறுத்தப்பட்டது",
+    "interrupted": "குறுக்கிடப்பட்டது"
+  },
+  "time": {
+    "justNow": "இப்போதுதான்",
+    "minutesAgo": "{{count}} நிமி. முன்",
+    "hoursAgo": "{{count}} மணி. முன்",
+    "daysAgo": "{{count}} நாள். முன்",
+    "today": "இன்று",
+    "yesterday": "நேற்று"
+  },
+  "nav": {
+    "home": "முகப்பு",
+    "history": "வரலாறு",
+    "settings": "அமைப்புகள்"
+  },
+  "labels": {
+    "awsCredentials": "AWS சான்றுகள்",
+    "gcpCredentials": "GCP சான்றுகள்",
+    "localApiKey": "உள்ளூர் API சாவி",
+    "azureFoundryEntraId": "Azure Foundry (Entra ID)",
+    "bedrockApiKey": "Bedrock API சாவி",
+    "awsAccessKeys": "AWS அணுகல் சாவிகள்",
+    "awsProfile": "AWS சுயவிவரம்: {{name}}"
+  },
+  "contextMenu": {
+    "addToDictionary": "அகராதியில் சேர்"
+  },
+  "fileFilters": {
+    "text": "உரைக் கோப்புகள்",
+    "log": "பதிவுக் கோப்புகள்",
+    "skill": "திறன் கோப்புகள்",
+    "all": "அனைத்து கோப்புகள்"
+  },
+  "model": {
+    "selectModel": "மாதிரியைத் தேர்ந்தெடு",
+    "current": "தற்போதைய",
+    "configureModel": "மாதிரியை உள்ளமை",
+    "changeModel": "மாதிரியை மாற்று"
+  },
+  "messages": "{{count}} செய்திகள்",
+  "favorite": "விருப்பமான",
+  "theme": {
+    "switchToLight": "வெளிச்ச பயன்முறைக்கு மாறு",
+    "switchToDark": "இருள் பயன்முறைக்கு மாறு",
+    "switchToSystem": "கணினி பயன்முறைக்கு மாறு",
+    "lightMode": "வெளிச்ச பயன்முறை",
+    "darkMode": "இருள் பயன்முறை",
+    "systemMode": "கணினி"
+  }
+}
