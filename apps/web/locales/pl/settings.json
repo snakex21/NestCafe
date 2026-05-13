@@ -664,13 +664,12 @@
   "about": {
     "title": "O programie",
     "version": "Wersja {{version}}",
-    "description": "NestCafe to lokalny agent AI do obsługi komputera, który czyta Twoje pliki, tworzy dokumenty i automatyzuje powtarzalną pracę wiedzy — wszystko open-source z wybranymi modelami AI.",
-    "contact": "Masz pytania lub opinie? Kliknij tutaj, aby się z nami skontaktować",
-    "visitUs": "Odwiedź nas",
-    "haveQuestion": "Masz pytanie?",
+    "description": "NestCafe to lokalny agent AI na pulpit, który automatyzuje zadania na Twoim komputerze — open-source i za darmo.",
+    "contact": "Problemy lub opinie? Zgłoś issue na GitHubie",
+    "visitUs": "GitHub",
     "versionLabel": "Wersja",
     "loading": "Ładowanie...",
-    "allRightsReserved": "NestCafe™ Wszelkie prawa zastrzeżone."
+    "license": "Licencja MIT — open-source, wolny w użyciu."
   },
   "warnings": {
     "noProviderReady": "Brak gotowego dostawcy",
