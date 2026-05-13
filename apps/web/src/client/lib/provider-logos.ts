@@ -58,6 +58,7 @@ export const PROVIDER_LOGOS: Record<string, string> = {
   'qwen-china': qwenChinaLogo,
   'qwen-international': qwenInternationalLogo,
   xiaomi: xiaomiLogo,
+  'xiaomi-token': xiaomiLogo,
   perplexity: perplexityLogo,
 };
 

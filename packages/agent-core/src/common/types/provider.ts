@@ -36,6 +36,7 @@ export type ProviderType =
   | 'qwen-china'
   | 'qwen-international'
   | 'xiaomi'
+  | 'xiaomi-token'
   | 'perplexity';
 
 export type ApiKeyProvider =
@@ -549,6 +550,20 @@ export const DEFAULT_PROVIDERS: ProviderConfig[] = [
       authStyle: 'bearer',
       responseFormat: 'openai',
       modelIdPrefix: 'xiaomi/',
+    },
+    models: [],
+  },
+  {
+    id: 'xiaomi-token',
+    name: 'Xiaomi (Token Plan)',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'XIAOMI_TOKEN_API_KEY',
+    baseUrl: 'https://token-plan-ams.xiaomimimo.com/v1',
+    modelsEndpoint: {
+      url: 'https://token-plan-ams.xiaomimimo.com/v1/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'xiaomi-token/',
     },
     models: [],
   },

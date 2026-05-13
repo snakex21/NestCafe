@@ -33,7 +33,7 @@ Think of it as an AI coworker that actually _does_ things, not just talks about 
 ## Features
 
 - **Multi-Agent Execution** — A lead agent coordinates specialized sub-agents to tackle complex, multi-step tasks
-- **20+ AI Providers** — Use OpenAI, Anthropic, Google, DeepSeek, Ollama, LM Studio, or bring your own API
+- **25+ AI Providers** — Use OpenAI, Anthropic, Google, DeepSeek, Qwen, Perplexity, Ollama, LM Studio, or bring your own API
 - **Browser Automation** — Built-in Chromium browser lets agents navigate websites, fill forms, and scrape data
 - **File System Access** — Agents read, write, and organize files and folders on your computer (with permission)
 - **Shell Commands** — Execute PowerShell, Bash, or any CLI tool from within tasks
@@ -64,6 +64,10 @@ NestCafe works with virtually every major AI provider:
 | MiniMax | | |
 | Nebius | | |
 | Z.AI | | |
+| Qwen (China) | | |
+| Qwen (International) | | |
+| Perplexity | | |
+| Xiaomi | | |
 
 ## Quick Start
 

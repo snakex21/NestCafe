@@ -86,7 +86,12 @@
     "venice": "Venice AI",
     "nim": "NVIDIA NIM",
     "custom": "Custom Endpoint",
-    "copilot": "GitHub Copilot"
+    "copilot": "GitHub Copilot",
+    "qwen-china": "Qwen (China)",
+    "qwen-international": "Qwen (International)",
+    "xiaomi": "Xiaomi",
+    "xiaomi-token": "Xiaomi (Token Plan)",
+    "perplexity": "Perplexity"
   },
   "providerLabels": {
     "anthropic": "Claude models",

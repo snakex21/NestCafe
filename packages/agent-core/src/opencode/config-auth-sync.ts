@@ -15,6 +15,7 @@ export const OPENAI_COMPATIBLE_PROVIDER_IDS = [
   'qwen-china',
   'qwen-international',
   'xiaomi',
+  'xiaomi-token',
   'perplexity',
 ] as const;
 
