@@ -439,13 +439,20 @@
     "colorMidnight": "Midnight",
     "colorNord": "Nord",
     "colorDracula": "Dracula",
+    "colorOcean": "Ocean",
+    "colorSunset": "Sunset",
+    "colorForest": "Forest",
+    "colorRose": "Rose",
     "fontTitle": "Font",
     "fontDescription": "Change the app interface font.",
     "fontGeist": "Geist",
     "fontApparat": "KMR Apparat",
+    "fontInter": "Inter",
     "fontSystem": "System",
     "fontSerif": "Serif",
-    "fontMono": "Monospace"
+    "fontLora": "Lora",
+    "fontMono": "Monospace",
+    "fontJetbrains": "JetBrains Mono"
   },
   "connectors": {
     "title": "Connectors",
@@ -793,5 +800,44 @@
     "save": "Save",
     "edit": "Edit",
     "delete": "Delete"
+  },
+  "workspaces": {
+    "createWorkspace": "Create Workspace",
+    "namePlaceholder": "Workspace name",
+    "descriptionPlaceholder": "Optional description",
+    "deleteConfirm": "Delete this workspace?"
+  },
+  "cloudBrowsers": {
+    "title": "Cloud Browsers",
+    "description": "Configure cloud browser providers. The active provider will be used instead of the local browser.",
+    "localBrowser": "Local Browser (default)",
+    "usingProvider": "Using {{provider}}",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "save": "Save",
+    "saving": "Saving...",
+    "remove": "Remove",
+    "expand": "Configure",
+    "loadFailed": "Failed to load configuration",
+    "saveFailed": "Failed to save configuration",
+    "providers": {
+      "browserbase": "Cloud browser infrastructure with CDP support",
+      "steel": "Managed browser sessions for AI agents",
+      "aws-agentcore": "Amazon Bedrock browser tool integration"
+    }
+  },
+  "whatsapp": {
+    "title": "WhatsApp",
+    "description": "Send and receive messages through WhatsApp",
+    "connected": "Connected",
+    "loggedOutMessage": "Your WhatsApp session was logged out. Reconnect to continue.",
+    "reconnect": "Reconnect WhatsApp",
+    "connecting": "Connecting...",
+    "confirmDisconnect": "Confirm disconnect?",
+    "disconnecting": "Disconnecting...",
+    "disconnect": "Disconnect",
+    "scanInstructions": "Open WhatsApp on your phone, go to Settings > Linked Devices and scan this code.",
+    "unofficialWarning": "⚠️ This integration uses an unofficial WhatsApp Web protocol. Use at your own risk.",
+    "connect": "Connect WhatsApp"
   }
 }

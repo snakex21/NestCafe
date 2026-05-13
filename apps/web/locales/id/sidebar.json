@@ -1,0 +1,21 @@
+{
+  "newTask": "Tugas baru",
+  "searchTasks": "Cari Tugas (Cmd+K)",
+  "noConversations": "Belum ada percakapan",
+  "settings": "Pengaturan",
+  "searchPlaceholder": "Cari tugas...",
+  "results": "Hasil",
+  "lastSevenDays": "7 hari terakhir",
+  "noTasksFound": "Tidak ada tugas ditemukan",
+  "navigate": "Navigasi",
+  "select": "Pilih",
+  "close": "Tutup",
+  "confirmDelete": "Anda yakin ingin menghapus tugas ini?",
+  "deleteTask": "Hapus tugas",
+  "deleteAllChats": "Hapus semua chat",
+  "confirmDeleteAll": "Hapus semua chat? Ini tidak dapat dibatalkan.",
+  "favorite": {
+    "add": "Tambahkan ke favorit",
+    "remove": "Hapus dari favorit"
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "api": {
+    "timeout": "요청 시간이 초과되었습니다. 인터넷 연결을 확인해 주세요.",
+    "timeoutRetry": "요청 시간이 초과되었습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.",
+    "invalidKey": "유효하지 않은 API 키",
+    "noKey": "API 키를 입력해 주세요.",
+    "validationFailed": "API 키 검증에 실패했습니다",
+    "networkError": "네트워크 오류입니다. 연결을 확인해 주세요.",
+    "connectionFailed": "API 키 검증에 실패했습니다. 인터넷 연결을 확인해 주세요.",
+    "unsupportedProvider": "지원되지 않는 제공자입니다"
+  },
+  "task": {
+    "notFound": "작업을 찾을 수 없습니다",
+    "startFailed": "작업 시작에 실패했습니다",
+    "cancelFailed": "작업 취소에 실패했습니다",
+    "taskFailed": "작업이 실패했습니다",
+    "noActiveTask": "계속할 활성 작업이 없습니다",
+    "noSession": "계속할 세션이 없습니다 - 새 작업을 시작해 주세요",
+    "sendMessageFailed": "메시지 전송에 실패했습니다"
+  },
+  "adapter": {
+    "cliNotFound": "OpenCode CLI를 사용할 수 없습니다. 번들 CLI가 없거나 손상되었을 수 있습니다. 앱을 다시 설치해 주세요.",
+    "disposed": "어댑터가 해제되어 새 작업을 시작할 수 없습니다",
+    "noActiveProcess": "활성 프로세스가 없습니다",
+    "exitWithCode": "OpenCode CLI가 코드 {{code}}(으)로 종료되었습니다"
+  },
+  "validation": {
+    "mustBeString": "{{field}}은(는) 문자열이어야 합니다",
+    "required": "{{field}}은(는) 필수 항목입니다",
+    "exceedsLength": "{{field}}이(가) 최대 길이를 초과했습니다",
+    "unsupportedProvider": "지원되지 않는 API 키 제공자입니다",
+    "untrustedWindow": "신뢰할 수 없는 창입니다",
+    "focusedWindowRequired": "IPC 요청은 포커스된 창에서 발생해야 합니다"
+  },
+  "provider": {
+    "notReady": "준비된 제공자가 없습니다. 설정에서 제공자를 연결하고 모델을 선택해 주세요.",
+    "noModelsEndpoint": "이 제공자에 대해 구성된 모델 엔드포인트가 없습니다",
+    "noApiKey": "이 제공자에 대한 API 키를 찾을 수 없습니다"
+  },
+  "ollama": {
+    "connectionFailed": "연결 실패",
+    "noModels": "모델을 찾을 수 없습니다",
+    "saveFailed": "저장에 실패했습니다",
+    "invalidUrl": "유효하지 않은 URL 형식",
+    "protocolNotAllowed": "http 및 https URL만 허용됩니다",
+    "invalidConfig": "유효하지 않은 Ollama 구성",
+    "modelsArray": "유효하지 않은 Ollama 구성: models는 배열이어야 합니다",
+    "invalidModelFormat": "유효하지 않은 Ollama 구성: 잘못된 모델 형식",
+    "connectionTimeout": "연결 시간이 초과되었습니다. Ollama가 실행 중인지 확인해 주세요.",
+    "cannotConnect": "Ollama에 연결할 수 없습니다: {{message}}"
+  },
+  "bedrock": {
+    "invalidCredentials": "유효하지 않은 자격 증명",
+    "saveFailed": "자격 증명 저장에 실패했습니다",
+    "invalidAuthType": "유효하지 않은 인증 유형",
+    "invalidAwsCredentials": "유효하지 않은 AWS 자격 증명입니다. 액세스 키 ID와 비밀 액세스 키를 확인해 주세요.",
+    "accessDenied": "액세스가 거부되었습니다. AWS 자격 증명에 Bedrock 권한이 있는지 확인해 주세요.",
+    "profileNotFound": "AWS 프로필을 찾을 수 없습니다. ~/.aws/credentials 파일을 확인해 주세요.",
+    "accessKeyRequired": "액세스 키 ID와 비밀 액세스 키가 필요합니다",
+    "profileNameRequired": "프로필 이름이 필요합니다",
+    "apiKeyRequired": "API 키가 필요합니다"
+  },
+  "model": {
+    "invalidConfig": "유효하지 않은 모델 구성"
+  },
+  "litellm": {
+    "invalidConfig": "유효하지 않은 LiteLLM 구성",
+    "modelsArray": "유효하지 않은 LiteLLM 구성: models는 배열이어야 합니다",
+    "invalidModelFormat": "유효하지 않은 LiteLLM 구성: 잘못된 모델 형식"
+  },
+  "lmstudio": {
+    "notConfigured": "LM Studio가 구성되지 않았습니다"
+  },
+  "azureFoundry": {
+    "baseUrlRequired": "유효하지 않은 Azure Foundry 구성: baseUrl이 필요합니다",
+    "deploymentRequired": "유효하지 않은 Azure Foundry 구성: deploymentName이 필요합니다",
+    "invalidAuthType": "유효하지 않은 Azure Foundry 구성: authType은 api-key 또는 entra-id여야 합니다",
+    "invalidEnabled": "유효하지 않은 Azure Foundry 구성: enabled는 boolean이어야 합니다",
+    "invalidBaseUrl": "유효하지 않은 Azure Foundry 구성: 잘못된 Base URL 형식"
+  },
+  "connector": {
+    "protocolRequired": "커넥터 URL은 http:// 또는 https://를 사용해야 합니다",
+    "invalidUrl": "유효하지 않은 커넥터 URL: {{url}}"
+  },
+  "settings": {
+    "invalidDebugFlag": "유효하지 않은 디버그 모드 플래그",
+    "invalidTheme": "유효하지 않은 테마 값",
+    "invalidBaseUrl": "유효하지 않은 Base URL"
+  },
+  "i18n": {
+    "unsupportedLanguage": "지원되지 않는 언어입니다"
+  },
+  "url": {
+    "protocolNotAllowed": "http 및 https URL만 허용됩니다"
+  },
+  "permission": {
+    "denied": "권한이 거부되었습니다",
+    "required": "권한이 필요합니다"
+  },
+  "generic": {
+    "unknown": "알 수 없는 오류가 발생했습니다",
+    "tryAgain": "다시 시도해 주세요"
+  },
+  "app": {
+    "mustRunInDesktop": "이 애플리케이션은 NestCafe 데스크톱 앱 안에서 실행되어야 합니다.",
+    "unableToStart": "시작할 수 없음",
+    "updateRequired": "업데이트 필요",
+    "schemaNewerMessage": "이 데이터는 최신 버전의 NestCafe에서 생성되었습니다 (스키마 v{{version}}).",
+    "schemaNewerDetail": "현재 앱은 스키마 v{{version}}까지 지원합니다. 계속하려면 NestCafe를 업데이트해 주세요."
+  },
+  "auth": {
+    "sessionExpired": "{{provider}} 세션이 만료되었습니다",
+    "reLoginTo": "{{provider}}에 다시 로그인해 주세요",
+    "connectorAttention": "{{provider}} 연결 확인 필요",
+    "openConnectorSettings": "설정 → 커넥터 → {{provider}} 열기"
+  },
+  "daemon": {
+    "disconnected": "데몬 연결 끊김",
+    "disconnectedMessage": "백그라운드 데몬과의 연결이 끊어졌습니다. 재연결 중...",
+    "reconnectFailed": "재연결 실패",
+    "reconnectFailedMessage": "데몬에 다시 연결할 수 없습니다. 작업이 중단될 수 있습니다.",
+    "openSettings": "설정 열기"
+  },
+  "boundary": {
+    "title": "문제가 발생했습니다",
+    "unexpectedError": "예상치 못한 오류가 발생했습니다.",
+    "compactMessage": "이 콘텐츠를 렌더링하는 중 문제가 발생했습니다.",
+    "errorPrefix": "오류:",
+    "tryAgain": "다시 시도",
+    "sidebarLoading": "네비게이션 로딩 중…"
+  }
+}

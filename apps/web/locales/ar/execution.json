@@ -1,0 +1,110 @@
+{
+  "status": {
+    "queued": "في الانتظار",
+    "running": "قيد التشغيل",
+    "completed": "مكتمل",
+    "failed": "فشل",
+    "cancelled": "ملغى",
+    "stopped": "متوقف",
+    "pending": "معلق",
+    "waiting_permission": "بانتظار الإذن"
+  },
+  "waiting": {
+    "title": "بانتظار مهمة أخرى",
+    "description": "مهمتك في قائمة الانتظار وستبدأ تلقائياً عند اكتمال المهمة الحالية.",
+    "followUpDescription": "ستستمر متابعتك تلقائياً",
+    "cancel": "إلغاء المهمة"
+  },
+  "thinking": "جارٍ التفكير...",
+  "thinkingBlock": "جارٍ التفكير…",
+  "thinkingPhrases": {
+    "doing": "جارٍ التنفيذ...",
+    "executing": "جارٍ التشغيل...",
+    "running": "جارٍ العمل...",
+    "handling": "جارٍ المعالجة...",
+    "accomplishing": "جارٍ الإنجاز مع NestCafe..."
+  },
+  "loadingAgent": "جارٍ تحميل الوكيل...",
+  "waitingForResponse": "بانتظار الرد...",
+  "connectingToModel": "جارٍ الاتصال بـ {{modelName}}...",
+  "coldStartHint": "المهمة الأولى تستغرق وقتاً أطول قليلاً...",
+  "agentWorking": "الوكيل يعمل...",
+  "stopAgent": "إيقاف الوكيل (Ctrl+C)",
+  "followUp": {
+    "interruptedPlaceholder": "أعطِ تعليمات جديدة...",
+    "noSessionPlaceholder": "أرسل تعليمة جديدة لإعادة المحاولة...",
+    "completedPlaceholder": "أعطِ تعليمات جديدة...",
+    "defaultPlaceholder": "اطلب شيئاً...",
+    "dropFilesToAttach": "أسقط الملفات للإرفاق"
+  },
+  "questionPrompt": {
+    "oauthConnecting": "جارٍ توصيل {{provider}}...",
+    "oauthConnected": "تم توصيل {{provider}}.",
+    "oauthFailed": "تعذر توصيل {{provider}}. حاول مرة أخرى.",
+    "oauthStillDisconnected": "{{provider}} لا يزال غير متصل. أكمل تسجيل الدخول وحاول مرة أخرى."
+  },
+  "taskStatus": "المهمة {{status}}",
+  "processing": "قيد المعالجة",
+  "system": "النظام",
+  "copyToClipboard": "نسخ إلى الحافظة",
+  "permission": {
+    "title": "الإذن مطلوب",
+    "fileTitle": "إذن الملف مطلوب",
+    "fileDeleteTitle": "تحذير حذف ملف",
+    "questionTitle": "سؤال",
+    "toolQuestion": "السماح لـ {{toolName}}؟",
+    "tool": "أداة",
+    "previewContent": "معاينة المحتوى",
+    "backToOptions": "← العودة للخيارات",
+    "typeResponse": "اكتب ردك...",
+    "orTypeOwn": "أو اكتب ردك الخاص",
+    "enterDifferentOption": "أدخل خياراً مختلفاً...",
+    "cannotBeUndone": "لا يمكن التراجع عن هذا الإجراء.",
+    "deleteWarningSingle": "سيتم حذف هذا الملف نهائياً:",
+    "deleteWarningMultiple": "سيتم حذف {{count}} ملفات نهائياً:",
+    "operations": {
+      "delete": "حذف",
+      "overwrite": "استبدال",
+      "modify": "تعديل",
+      "create": "إنشاء",
+      "rename": "إعادة تسمية",
+      "move": "نقل"
+    }
+  },
+  "browserInstall": {
+    "title": "Chrome غير مثبت",
+    "description": "جارٍ تثبيت المتصفح للتشغيل الآلي...",
+    "downloading": "جارٍ التحميل...",
+    "oneTimeSetup": "إعداد لمرة واحدة (~250 ميغابايت إجمالاً)"
+  },
+  "debug": {
+    "title": "سجلات التصحيح",
+    "noLogs": "لا توجد سجلات تصحيح بعد. شغّل مهمة لرؤية السجلات."
+  },
+  "browserScript": {
+    "title": "إجراءات المتصفح",
+    "actions": {
+      "navigateTo": "الانتقال إلى {{hostname}}",
+      "navigate": "تنقل",
+      "fill": "تعبئة \"{{text}}\"",
+      "fillField": "تعبئة حقل",
+      "click": "نقر {{target}}",
+      "press": "ضغط {{key}}",
+      "capturePage": "التقاط الصفحة",
+      "screenshot": "لقطة شاشة",
+      "waitForElement": "انتظار العنصر",
+      "waitForPage": "انتظار الصفحة",
+      "waitForNavigation": "انتظار التنقل",
+      "runScript": "تشغيل السكريبت"
+    },
+    "showMore": "+{{count}} المزيد",
+    "showLess": "عرض أقل",
+    "showFewerActions": "عرض إجراءات أقل",
+    "showMoreActions": "عرض {{count}} إجراءات إضافية"
+  },
+  "todos": {
+    "title": "المهام",
+    "progress": "{{completed}} من {{total}}"
+  },
+  "startNewTask": "مهمة جديدة"
+}

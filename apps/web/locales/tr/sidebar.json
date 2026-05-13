@@ -1,0 +1,21 @@
+{
+  "newTask": "Yeni görev",
+  "searchTasks": "Görev Ara (Cmd+K)",
+  "noConversations": "Henüz sohbet yok",
+  "settings": "Ayarlar",
+  "searchPlaceholder": "Görevlerde ara...",
+  "results": "Sonuçlar",
+  "lastSevenDays": "Son 7 gün",
+  "noTasksFound": "Görev bulunamadı",
+  "navigate": "Gezin",
+  "select": "Seç",
+  "close": "Kapat",
+  "confirmDelete": "Bu görevi silmek istediğine emin misin?",
+  "deleteTask": "Görevi sil",
+  "deleteAllChats": "Tüm sohbetleri sil",
+  "confirmDeleteAll": "Tüm sohbetler silinsin mi? Bu işlem geri alınamaz.",
+  "favorite": {
+    "add": "Favorilere ekle",
+    "remove": "Favorilerden kaldır"
+  }
+}

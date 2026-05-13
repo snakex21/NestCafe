@@ -124,6 +124,18 @@
   --app-font-family: 'Geist Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 }
 
+:root[data-font='inter'] {
+  --app-font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+:root[data-font='jetbrains'] {
+  --app-font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+:root[data-font='lora'] {
+  --app-font-family: 'Lora', Georgia, 'Times New Roman', Times, serif;
+}
+
 :root[data-color-theme='coffee'] {
   --background: 34 28% 94%;
   --foreground: 24 28% 14%;
@@ -218,6 +230,106 @@
   --accent: 326 100% 74%;
   --border: 232 14% 26%;
   --ring: 265 89% 78%;
+}
+
+/* Ocean — deep blue-teal */
+:root[data-color-theme='ocean'] {
+  --background: 195 28% 95%;
+  --foreground: 201 55% 14%;
+  --card: 195 24% 98%;
+  --primary: 192 60% 35%;
+  --secondary: 195 22% 86%;
+  --muted: 195 18% 90%;
+  --accent: 187 38% 88%;
+  --border: 195 18% 82%;
+  --ring: 192 60% 38%;
+}
+
+.dark[data-color-theme='ocean'] {
+  --background: 201 48% 8%;
+  --foreground: 195 28% 93%;
+  --card: 201 42% 11%;
+  --primary: 189 52% 55%;
+  --secondary: 201 32% 18%;
+  --muted: 201 28% 15%;
+  --accent: 193 34% 20%;
+  --border: 201 24% 22%;
+  --ring: 189 52% 55%;
+}
+
+/* Sunset — warm orange-red */
+:root[data-color-theme='sunset'] {
+  --background: 35 28% 95%;
+  --foreground: 18 35% 14%;
+  --card: 35 22% 98%;
+  --primary: 14 65% 48%;
+  --secondary: 30 25% 86%;
+  --muted: 32 20% 90%;
+  --accent: 22 42% 88%;
+  --border: 28 20% 82%;
+  --ring: 14 65% 50%;
+}
+
+.dark[data-color-theme='sunset'] {
+  --background: 18 28% 8%;
+  --foreground: 36 28% 93%;
+  --card: 18 24% 12%;
+  --primary: 14 72% 62%;
+  --secondary: 18 22% 19%;
+  --muted: 18 20% 16%;
+  --accent: 22 26% 21%;
+  --border: 18 20% 23%;
+  --ring: 14 72% 62%;
+}
+
+/* Forest — natural green */
+:root[data-color-theme='forest'] {
+  --background: 110 18% 94%;
+  --foreground: 120 18% 12%;
+  --card: 110 14% 98%;
+  --primary: 134 38% 32%;
+  --secondary: 115 18% 84%;
+  --muted: 115 14% 89%;
+  --accent: 125 26% 86%;
+  --border: 115 14% 80%;
+  --ring: 134 38% 35%;
+}
+
+.dark[data-color-theme='forest'] {
+  --background: 120 14% 7%;
+  --foreground: 110 22% 92%;
+  --card: 120 12% 11%;
+  --primary: 134 42% 52%;
+  --secondary: 120 14% 17%;
+  --muted: 120 12% 14%;
+  --accent: 128 18% 19%;
+  --border: 120 14% 22%;
+  --ring: 134 42% 52%;
+}
+
+/* Rose — soft pink */
+:root[data-color-theme='rose'] {
+  --background: 345 25% 96%;
+  --foreground: 340 22% 14%;
+  --card: 345 20% 99%;
+  --primary: 340 48% 44%;
+  --secondary: 342 22% 88%;
+  --muted: 342 18% 92%;
+  --accent: 350 32% 90%;
+  --border: 342 18% 84%;
+  --ring: 340 48% 46%;
+}
+
+.dark[data-color-theme='rose'] {
+  --background: 340 18% 8%;
+  --foreground: 348 28% 94%;
+  --card: 340 16% 12%;
+  --primary: 340 55% 65%;
+  --secondary: 340 16% 19%;
+  --muted: 340 14% 16%;
+  --accent: 346 22% 21%;
+  --border: 340 16% 23%;
+  --ring: 340 55% 65%;
 }
 
 .dark {

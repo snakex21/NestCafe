@@ -18,6 +18,14 @@ const AUTO_LABELS: Record<string, string> = {
   ru: 'Авто (Система)',
   fr: 'Auto (Système)',
   pl: 'Auto (System)',
+  ja: '自動（システム）',
+  ko: '자동 (시스템)',
+  es: 'Auto (Sistema)',
+  ar: 'تلقائي (النظام)',
+  hi: 'स्वतः (सिस्टम)',
+  id: 'Auto (Sistem)',
+  ta: 'தானியங்கு (கணினி)',
+  tr: 'Otomatik (Sistem)',
 };
 const AUTO_FALLBACK = 'Auto (System)';
 
@@ -35,6 +43,14 @@ const LANGUAGE_OPTIONS = [
   { value: 'ru' as const, label: 'Русский' },
   { value: 'fr' as const, label: 'Français' },
   { value: 'pl' as const, label: 'Polski' },
+  { value: 'ja' as const, label: '日本語' },
+  { value: 'ko' as const, label: '한국어' },
+  { value: 'es' as const, label: 'Español' },
+  { value: 'ar' as const, label: 'العربية' },
+  { value: 'hi' as const, label: 'हिन्दी' },
+  { value: 'id' as const, label: 'Bahasa Indonesia' },
+  { value: 'ta' as const, label: 'தமிழ்' },
+  { value: 'tr' as const, label: 'Türkçe' },
 ];
 
 type LanguageValue = (typeof LANGUAGE_OPTIONS)[number]['value'];

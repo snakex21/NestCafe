@@ -1,0 +1,110 @@
+{
+  "status": {
+    "queued": "कतार में",
+    "running": "चल रहा है",
+    "completed": "पूर्ण",
+    "failed": "विफल",
+    "cancelled": "रद्द किया गया",
+    "stopped": "रोका गया",
+    "pending": "लंबित",
+    "waiting_permission": "अनुमति की प्रतीक्षा"
+  },
+  "waiting": {
+    "title": "दूसरे कार्य की प्रतीक्षा",
+    "description": "आपका कार्य कतार में है और वर्तमान कार्य पूर्ण होने पर स्वतः शुरू होगा।",
+    "followUpDescription": "आपका फ़ॉलो-अप स्वतः जारी रहेगा",
+    "cancel": "कार्य रद्द करें"
+  },
+  "thinking": "सोच रहा है...",
+  "thinkingBlock": "सोच रहा है…",
+  "thinkingPhrases": {
+    "doing": "कर रहा है...",
+    "executing": "निष्पादित कर रहा है...",
+    "running": "चला रहा है...",
+    "handling": "संभाल रहा है...",
+    "accomplishing": "NestCafe कर रहा है..."
+  },
+  "loadingAgent": "एजेंट लोड हो रहा है...",
+  "waitingForResponse": "प्रतिक्रिया की प्रतीक्षा...",
+  "connectingToModel": "{{modelName}} से जुड़ रहा है...",
+  "coldStartHint": "पहले कार्य में थोड़ा अधिक समय लगता है...",
+  "agentWorking": "एजेंट काम कर रहा है...",
+  "stopAgent": "एजेंट रोकें (Ctrl+C)",
+  "followUp": {
+    "interruptedPlaceholder": "नए निर्देश दें...",
+    "noSessionPlaceholder": "पुनः प्रयास के लिए नया निर्देश भेजें...",
+    "completedPlaceholder": "नए निर्देश दें...",
+    "defaultPlaceholder": "कुछ पूछें...",
+    "dropFilesToAttach": "संलग्न करने के लिए फ़ाइलें छोड़ें"
+  },
+  "questionPrompt": {
+    "oauthConnecting": "{{provider}} जोड़ा जा रहा है...",
+    "oauthConnected": "{{provider}} जुड़ गया है।",
+    "oauthFailed": "{{provider}} नहीं जुड़ सका। पुनः प्रयास करें।",
+    "oauthStillDisconnected": "{{provider}} अभी भी नहीं जुड़ा है। साइन-इन पूरा करें और पुनः प्रयास करें।"
+  },
+  "taskStatus": "कार्य {{status}}",
+  "processing": "प्रसंस्करण",
+  "system": "सिस्टम",
+  "copyToClipboard": "क्लिपबोर्ड पर कॉपी करें",
+  "permission": {
+    "title": "अनुमति आवश्यक",
+    "fileTitle": "फ़ाइल अनुमति आवश्यक",
+    "fileDeleteTitle": "फ़ाइल हटाने की चेतावनी",
+    "questionTitle": "प्रश्न",
+    "toolQuestion": "{{toolName}} की अनुमति दें?",
+    "tool": "टूल",
+    "previewContent": "सामग्री का पूर्वावलोकन",
+    "backToOptions": "← विकल्पों पर वापस जाएँ",
+    "typeResponse": "अपनी प्रतिक्रिया लिखें...",
+    "orTypeOwn": "या अपनी खुद की लिखें",
+    "enterDifferentOption": "कोई अन्य विकल्प दर्ज करें...",
+    "cannotBeUndone": "यह क्रिया वापस नहीं ली जा सकती।",
+    "deleteWarningSingle": "यह फ़ाइल स्थायी रूप से हटाई जाएगी:",
+    "deleteWarningMultiple": "{{count}} फ़ाइलें स्थायी रूप से हटाई जाएँगी:",
+    "operations": {
+      "delete": "हटाएँ",
+      "overwrite": "अधिलेखित करें",
+      "modify": "संशोधित करें",
+      "create": "बनाएँ",
+      "rename": "नाम बदलें",
+      "move": "स्थानांतरित करें"
+    }
+  },
+  "browserInstall": {
+    "title": "Chrome स्थापित नहीं है",
+    "description": "स्वचालन के लिए ब्राउज़र स्थापित हो रहा है...",
+    "downloading": "डाउनलोड हो रहा है...",
+    "oneTimeSetup": "एक बार की सेटअप (~250 MB कुल)"
+  },
+  "debug": {
+    "title": "डीबग लॉग",
+    "noLogs": "अभी तक कोई डीबग लॉग नहीं। लॉग देखने के लिए कोई कार्य चलाएँ।"
+  },
+  "browserScript": {
+    "title": "ब्राउज़र क्रियाएँ",
+    "actions": {
+      "navigateTo": "{{hostname}} पर जाएँ",
+      "navigate": "नेविगेट करें",
+      "fill": "\"{{text}}\" भरें",
+      "fillField": "फ़ील्ड भरें",
+      "click": "{{target}} पर क्लिक करें",
+      "press": "{{key}} दबाएँ",
+      "capturePage": "पृष्ठ कैप्चर करें",
+      "screenshot": "स्क्रीनशॉट",
+      "waitForElement": "तत्व की प्रतीक्षा करें",
+      "waitForPage": "पृष्ठ की प्रतीक्षा करें",
+      "waitForNavigation": "नेविगेशन की प्रतीक्षा करें",
+      "runScript": "स्क्रिप्ट चलाएँ"
+    },
+    "showMore": "+{{count}} और",
+    "showLess": "कम दिखाएँ",
+    "showFewerActions": "कम क्रियाएँ दिखाएँ",
+    "showMoreActions": "{{count}} और क्रियाएँ दिखाएँ"
+  },
+  "todos": {
+    "title": "कार्य",
+    "progress": "{{completed}} में से {{total}} पूर्ण"
+  },
+  "startNewTask": "नया कार्य शुरू करें"
+}

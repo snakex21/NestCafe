@@ -1,0 +1,90 @@
+{
+  "title": "오늘 무엇을 NestCafe로 처리할까요?",
+  "inputPlaceholder": "원하는 작업을 설명하면 AI가 알아서 처리합니다",
+  "favorites": {
+    "title": "즐겨찾기",
+    "empty": "완료되거나 중단된 작업에 별표를 표시하면 여기에 나타납니다.",
+    "remove": "즐겨찾기에서 제거",
+    "showAll": "즐겨찾기 {{count}}개 모두 보기",
+    "showAll_one": "즐겨찾기 {{count}}개 보기",
+    "showAll_few": "즐겨찾기 {{count}}개 모두 보기",
+    "showAll_many": "즐겨찾기 {{count}}개 모두 보기",
+    "showAll_other": "즐겨찾기 {{count}}개 모두 보기"
+  },
+  "plusMenu": {
+    "addContent": "콘텐츠 추가",
+    "attachFiles": "파일 첨부",
+    "soon": "곧 출시",
+    "useSkills": "Skill 사용",
+    "connectors": "커넥터",
+    "noConnectors": "아직 커넥터가 없습니다",
+    "manage": "관리",
+    "dropFilesHere": "파일을 여기에 드롭하여 첨부",
+    "dropFilesHint": "(최대 {max}개 파일, 각 {size}MB)",
+    "fileTooLarge": "{name} 파일이 {limit} 크기 제한을 초과했습니다",
+    "tooManyFiles": "최대 {max}개 파일까지 첨부 가능합니다",
+    "attachFailed": "파일 첨부에 실패했습니다",
+    "selectFolder": "폴더 선택"
+  },
+  "examplePrompts": "예제 프롬프트",
+  "useCases": {
+    "calendarPrepNotes": {
+      "title": "캘린더 준비 노트",
+      "description": "내일의 미팅을 검토하고 준비 노트 문서를 작성합니다.",
+      "prompt": "Google 캘린더에서 내일 미팅을 확인하고 새 Google 문서에 준비 노트를 작성해 줘."
+    },
+    "inboxPromoCleanup": {
+      "title": "받은편지함 프로모션 정리",
+      "description": "지난 24시간 동안의 프로모션 이메일을 삭제합니다.",
+      "prompt": "내 Gmail 받은편지함에서 지난 24시간 동안의 모든 프로모션 이메일을 삭제해 줘."
+    },
+    "competitorPricingDeck": {
+      "title": "경쟁사 가격 분석 슬라이드",
+      "description": "경쟁사 가격을 분석하고 추천 슬라이드를 작성합니다.",
+      "prompt": "이 5개 경쟁사 사이트 [URL 목록]에서 가격과 기능을 가져와 CSV로 저장하고, 우리 가격 격차를 분석한 후 월요일 미팅용 추천 슬라이드를 Google Slides에 작성해 줘."
+    },
+    "notionApiAudit": {
+      "title": "Notion API 감사",
+      "description": "Notion 위키에서 오래된 API 언급을 찾고 직접 링크를 제공합니다.",
+      "prompt": "[URL]의 Notion 위키를 읽고, 이전 API에 대한 모든 언급을 찾아서 페이지 링크와 함께 나열해 줘."
+    },
+    "stagingVsProdVisual": {
+      "title": "스테이징 vs 프로덕션 시각 비교",
+      "description": "스테이징과 프로덕션의 시각적 차이를 스크린샷으로 비교합니다.",
+      "prompt": "스테이징 사이트 [URL]과 프로덕션 [URL]을 비교하여 시각적으로 다른 부분을 스크린샷으로 찍어줘."
+    },
+    "prodBrokenLinks": {
+      "title": "프로덕션 깨진 링크",
+      "description": "웹사이트의 깨진 링크를 확인합니다.",
+      "prompt": "[URL]을 열어서 모든 링크를 클릭하고 404 오류가 나는 링크를 보고해 줘."
+    },
+    "portfolioMonitoring": {
+      "title": "포트폴리오 모니터링",
+      "description": "주식 가격을 감시하고 급락/급등 시 알림을 보냅니다.",
+      "prompt": "[증권사 사이트]에서 내 주식 포트폴리오를 모니터링하다가 가격 급락이나 급등 시 알림을 보내줘."
+    },
+    "jobApplicationAutomation": {
+      "title": "구직 지원 자동화",
+      "description": "채용 공고를 필터링하고 저장된 프로필로 지원합니다.",
+      "prompt": "LinkedIn에서 [검색어] 관련 채용 공고를 찾아서 급여 순으로 정렬하고, 내 프로필로 상위 5개에 지원해 줘."
+    },
+    "eventCalendarBuilder": {
+      "title": "이벤트 캘린더 빌더",
+      "description": "주요 이벤트를 선별하여 캘린더에 추가합니다.",
+      "prompt": "Eventbrite에서 이벤트 목록을 가져와서 지역별로 필터링하고, 상위 5개를 내 캘린더에 추가해 줘."
+    }
+  },
+  "slashCommand": {
+    "title": "Skill",
+    "filtering": "\"{{query}}\"에 해당하는 Skill",
+    "navigate": "이동",
+    "select": "선택",
+    "dismiss": "닫기"
+  },
+  "selectFolder": "폴더 선택",
+  "selectedFolder": {
+    "badge": "📁 {folder}",
+    "clearAriaLabel": "선택한 폴더 지우기",
+    "clearButton": "✕"
+  }
+}

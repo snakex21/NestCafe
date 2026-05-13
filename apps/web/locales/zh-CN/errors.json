@@ -115,11 +115,11 @@
     "openConnectorSettings": "打开 设置 -> 连接器 -> {{provider}}"
   },
   "daemon": {
-    "disconnected": "Daemon Disconnected",
-    "disconnectedMessage": "Connection to the background daemon was lost. Reconnecting...",
-    "reconnectFailed": "Reconnection Failed",
-    "reconnectFailedMessage": "Could not reconnect to the daemon. Tasks may be interrupted.",
-    "openSettings": "Open Settings"
+    "disconnected": "守护进程已断开",
+    "disconnectedMessage": "与后台守护进程的连接已断开。正在重新连接...",
+    "reconnectFailed": "重新连接失败",
+    "reconnectFailedMessage": "无法重新连接到守护进程。任务可能会中断。",
+    "openSettings": "打开设置"
   },
   "boundary": {
     "title": "出现了一些问题",

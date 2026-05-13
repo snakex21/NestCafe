@@ -1,0 +1,90 @@
+{
+  "title": "Apa yang akan Anda NestCafe hari ini?",
+  "inputPlaceholder": "Deskripsikan tugas dan biarkan AI mengurus sisanya",
+  "favorites": {
+    "title": "Favorit",
+    "empty": "Bintangi tugas yang selesai atau terinterupsi untuk melihatnya di sini.",
+    "remove": "Hapus dari favorit",
+    "showAll": "Tampilkan semua {{count}} favorit",
+    "showAll_one": "Tampilkan {{count}} favorit",
+    "showAll_few": "Tampilkan semua {{count}} favorit",
+    "showAll_many": "Tampilkan semua {{count}} favorit",
+    "showAll_other": "Tampilkan semua {{count}} favorit"
+  },
+  "plusMenu": {
+    "addContent": "Tambah konten",
+    "attachFiles": "Lampirkan File",
+    "soon": "Segera",
+    "useSkills": "Gunakan Skill",
+    "connectors": "Konektor",
+    "noConnectors": "Belum ada konektor",
+    "manage": "Kelola",
+    "dropFilesHere": "Lepas file di sini untuk melampirkan",
+    "dropFilesHint": "(maks {max} file, {size}MB masing-masing)",
+    "fileTooLarge": "{name} melebihi batas ukuran {limit}",
+    "tooManyFiles": "Maksimal {max} file yang diizinkan",
+    "attachFailed": "Gagal melampirkan file",
+    "selectFolder": "Pilih Folder"
+  },
+  "examplePrompts": "Contoh Perintah",
+  "useCases": {
+    "calendarPrepNotes": {
+      "title": "Catatan Persiapan Kalender",
+      "description": "Tinjau rapat besok dan buat dokumen catatan persiapan.",
+      "prompt": "Periksa Google Calendar saya untuk rapat besok dan buat catatan persiapan di Google Doc baru."
+    },
+    "inboxPromoCleanup": {
+      "title": "Pembersihan Promo Kotak Masuk",
+      "description": "Hapus email promosi dari 24 jam terakhir.",
+      "prompt": "Buka kotak masuk Gmail saya dan hapus semua email promosi dari 24 jam terakhir."
+    },
+    "competitorPricingDeck": {
+      "title": "Dek Harga Kompetitor",
+      "description": "Analisis harga kompetitor dan buat slide dengan rekomendasi.",
+      "prompt": "Ambil harga dan fitur dari 5 situs kompetitor ini [daftar URL], simpan ke CSV, analisis kesenjangan harga kami, dan buat slide rekomendasi di Google Slides untuk rapat Senin."
+    },
+    "notionApiAudit": {
+      "title": "Audit API Notion",
+      "description": "Pindai wiki Notion untuk penyebutan API lama dengan tautan langsung.",
+      "prompt": "Baca wiki Notion di [URL] ini dan temukan semua penyebutan API lama, daftarkan dengan tautan halaman."
+    },
+    "stagingVsProdVisual": {
+      "title": "Pemeriksaan Visual Staging vs Produksi",
+      "description": "Bandingkan tampilan staging dan produksi dengan tangkapan layar.",
+      "prompt": "Bandingkan situs staging saya di [URL] dengan produksi di [URL] dan tangkap layar perbedaan visual apa pun."
+    },
+    "prodBrokenLinks": {
+      "title": "Tautan Rusak Produksi",
+      "description": "Periksa situs web saya untuk tautan rusak.",
+      "prompt": "Buka [URL], klik setiap tautan, dan laporkan error 404 yang ditemukan."
+    },
+    "portfolioMonitoring": {
+      "title": "Pemantauan Portofolio",
+      "description": "Pantau harga saham, dan beri peringatan penurunan dan lonjakan.",
+      "prompt": "Pantau portofolio saham saya di [situs broker], beri peringatan jika harga turun atau melonjak."
+    },
+    "jobApplicationAutomation": {
+      "title": "Otomatisasi Lamaran Kerja",
+      "description": "Filter pekerjaan dan kirim lamaran dengan profil tersimpan.",
+      "prompt": "Cari lowongan kerja dari LinkedIn untuk [kata kunci], urutkan berdasarkan gaji, dan lamar 5 teratas menggunakan profil saya."
+    },
+    "eventCalendarBuilder": {
+      "title": "Pembangun Kalender Acara",
+      "description": "Pilih acara teratas dan tambahkan ke kalender.",
+      "prompt": "Ambil daftar acara dari Eventbrite, filter berdasarkan lokasi, dan tambahkan 5 teratas ke kalender saya."
+    }
+  },
+  "slashCommand": {
+    "title": "Skill",
+    "filtering": "Skill yang cocok dengan \"{{query}}\"",
+    "navigate": "navigasi",
+    "select": "pilih",
+    "dismiss": "abaikan"
+  },
+  "selectFolder": "Pilih Folder",
+  "selectedFolder": {
+    "badge": "📁 {folder}",
+    "clearAriaLabel": "Hapus folder yang dipilih",
+    "clearButton": "✕"
+  }
+}

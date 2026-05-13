@@ -1,0 +1,21 @@
+{
+  "newTask": "新規タスク",
+  "searchTasks": "タスクを検索 (Cmd+K)",
+  "noConversations": "まだ会話がありません",
+  "settings": "設定",
+  "searchPlaceholder": "タスクを検索...",
+  "results": "結果",
+  "lastSevenDays": "過去7日間",
+  "noTasksFound": "タスクが見つかりません",
+  "navigate": "移動",
+  "select": "選択",
+  "close": "閉じる",
+  "confirmDelete": "このタスクを削除してもよろしいですか？",
+  "deleteTask": "タスクを削除",
+  "deleteAllChats": "すべてのチャットを削除",
+  "confirmDeleteAll": "すべてのチャットを削除しますか？この操作は元に戻せません。",
+  "favorite": {
+    "add": "お気に入りに追加",
+    "remove": "お気に入りから削除"
+  }
+}
