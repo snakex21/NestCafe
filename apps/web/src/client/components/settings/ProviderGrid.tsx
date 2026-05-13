@@ -215,11 +215,11 @@ export function ProviderGrid({
                       </span>
                       {providerReady ? (
                         <span className="shrink-0 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-medium text-emerald-400">
-                          Ready
+                          {t('status.ready')}
                         </span>
                       ) : isConnected ? (
                         <span className="shrink-0 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-medium text-amber-300">
-                          No model
+                          {t('status.noModel')}
                         </span>
                       ) : null}
                     </button>
