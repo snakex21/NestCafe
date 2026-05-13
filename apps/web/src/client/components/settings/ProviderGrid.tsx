@@ -32,6 +32,10 @@ const PROVIDER_ORDER: ProviderId[] = [
   'groq',
   'venice',
   'nim',
+  'qwen-china',
+  'qwen-international',
+  'xiaomi',
+  'perplexity',
   'custom',
 ];
 
@@ -101,8 +105,8 @@ export function ProviderGrid({
       (providerId) => settings?.connectedProviders?.[providerId]?.connectionStatus !== 'connected',
     );
     const sections = [
-      { label: 'Enabled', providers: connectedProviders },
-      { label: 'Disabled', providers: disconnectedProviders },
+      { label: t('providers.enabled'), providers: connectedProviders },
+      { label: t('providers.disabled'), providers: disconnectedProviders },
     ].filter((section) => section.providers.length > 0);
 
     return (

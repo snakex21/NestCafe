@@ -32,7 +32,11 @@ export type ProviderType =
   | 'venice'
   | 'nim'
   | 'copilot'
-  | 'nestcafe-ai';
+  | 'nestcafe-ai'
+  | 'qwen-china'
+  | 'qwen-international'
+  | 'xiaomi'
+  | 'perplexity';
 
 export type ApiKeyProvider =
   | 'anthropic'
@@ -505,6 +509,62 @@ export const DEFAULT_PROVIDERS: ProviderConfig[] = [
         supportsVision: true,
       },
     ],
+  },
+  {
+    id: 'qwen-china',
+    name: 'Qwen (China)',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'DASHSCOPE_API_KEY',
+    baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    modelsEndpoint: {
+      url: 'https://dashscope.aliyuncs.com/compatible-mode/v1/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'qwen-china/',
+    },
+    models: [],
+  },
+  {
+    id: 'qwen-international',
+    name: 'Qwen (International)',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'DASHSCOPE_API_KEY',
+    baseUrl: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
+    modelsEndpoint: {
+      url: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'qwen-international/',
+    },
+    models: [],
+  },
+  {
+    id: 'xiaomi',
+    name: 'Xiaomi',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'XIAOMI_API_KEY',
+    baseUrl: 'https://api.xiaomimimo.com/v1',
+    modelsEndpoint: {
+      url: 'https://api.xiaomimimo.com/v1/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'xiaomi/',
+    },
+    models: [],
+  },
+  {
+    id: 'perplexity',
+    name: 'Perplexity',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'PERPLEXITY_API_KEY',
+    baseUrl: 'https://api.perplexity.ai',
+    modelsEndpoint: {
+      url: 'https://api.perplexity.ai/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'perplexity/',
+    },
+    models: [],
   },
 ];
 
