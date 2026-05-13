@@ -1,0 +1,110 @@
+{
+  "status": {
+    "queued": "대기 중",
+    "running": "실행 중",
+    "completed": "완료됨",
+    "failed": "실패",
+    "cancelled": "취소됨",
+    "stopped": "중지됨",
+    "pending": "보류 중",
+    "waiting_permission": "권한 대기 중"
+  },
+  "waiting": {
+    "title": "다른 작업 대기 중",
+    "description": "현재 작업이 완료되면 자동으로 시작됩니다.",
+    "followUpDescription": "후속 작업이 자동으로 이어집니다",
+    "cancel": "작업 취소"
+  },
+  "thinking": "생각 중...",
+  "thinkingBlock": "생각 중\u2026",
+  "thinkingPhrases": {
+    "doing": "처리 중...",
+    "executing": "실행 중...",
+    "running": "구동 중...",
+    "handling": "처리하는 중...",
+    "accomplishing": "NestCafe 작업 중..."
+  },
+  "loadingAgent": "에이전트 로딩 중...",
+  "waitingForResponse": "응답 대기 중...",
+  "connectingToModel": "{{modelName}} 연결 중...",
+  "coldStartHint": "첫 작업은 조금 더 오래 걸립니다...",
+  "agentWorking": "에이전트 작동 중...",
+  "stopAgent": "에이전트 중지 (Ctrl+C)",
+  "followUp": {
+    "interruptedPlaceholder": "새로운 지시사항을 입력하세요...",
+    "noSessionPlaceholder": "재시도할 새 지시사항을 보내세요...",
+    "completedPlaceholder": "새로운 지시사항을 입력하세요...",
+    "defaultPlaceholder": "원하는 작업을 입력하세요...",
+    "dropFilesToAttach": "파일을 드롭하여 첨부"
+  },
+  "questionPrompt": {
+    "oauthConnecting": "{{provider}} 연결 중...",
+    "oauthConnected": "{{provider}} 연결 완료.",
+    "oauthFailed": "{{provider}}에 연결할 수 없습니다. 다시 시도해 주세요.",
+    "oauthStillDisconnected": "{{provider}}가 아직 연결되지 않았습니다. 로그인을 완료하고 다시 시도해 주세요."
+  },
+  "taskStatus": "작업 {{status}}",
+  "processing": "처리 중",
+  "system": "시스템",
+  "copyToClipboard": "클립보드에 복사",
+  "permission": {
+    "title": "권한 필요",
+    "fileTitle": "파일 권한 필요",
+    "fileDeleteTitle": "파일 삭제 경고",
+    "questionTitle": "질문",
+    "toolQuestion": "{{toolName}}을(를) 허용할까요?",
+    "tool": "도구",
+    "previewContent": "콘텐츠 미리보기",
+    "backToOptions": "← 옵션으로 돌아가기",
+    "typeResponse": "응답을 입력하세요...",
+    "orTypeOwn": "또는 직접 입력하세요",
+    "enterDifferentOption": "다른 옵션을 입력하세요...",
+    "cannotBeUndone": "이 작업은 되돌릴 수 없습니다.",
+    "deleteWarningSingle": "다음 파일이 영구 삭제됩니다:",
+    "deleteWarningMultiple": "{{count}}개의 파일이 영구 삭제됩니다:",
+    "operations": {
+      "delete": "삭제",
+      "overwrite": "덮어쓰기",
+      "modify": "수정",
+      "create": "생성",
+      "rename": "이름 변경",
+      "move": "이동"
+    }
+  },
+  "browserInstall": {
+    "title": "Chrome이 설치되지 않음",
+    "description": "자동화를 위한 브라우저 설치 중...",
+    "downloading": "다운로드 중...",
+    "oneTimeSetup": "최초 1회 설정 (총 약 250MB)"
+  },
+  "debug": {
+    "title": "디버그 로그",
+    "noLogs": "아직 디버그 로그가 없습니다. 작업을 실행하면 로그가 표시됩니다."
+  },
+  "browserScript": {
+    "title": "브라우저 동작",
+    "actions": {
+      "navigateTo": "{{hostname}}(으)로 이동",
+      "navigate": "이동",
+      "fill": "\"{{text}}\" 입력",
+      "fillField": "필드 입력",
+      "click": "{{target}} 클릭",
+      "press": "{{key}} 누르기",
+      "capturePage": "페이지 캡처",
+      "screenshot": "스크린샷",
+      "waitForElement": "요소 대기",
+      "waitForPage": "페이지 대기",
+      "waitForNavigation": "이동 대기",
+      "runScript": "스크립트 실행"
+    },
+    "showMore": "+{{count}}개 더 보기",
+    "showLess": "간략히 보기",
+    "showFewerActions": "동작 접기",
+    "showMoreActions": "{{count}}개 동작 더 보기"
+  },
+  "todos": {
+    "title": "작업 목록",
+    "progress": "{{completed}} / {{total}}"
+  },
+  "startNewTask": "새 작업 시작"
+}

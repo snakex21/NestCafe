@@ -32,7 +32,7 @@
 - [日本語 (Japanese)](readme/README.ja.md)
 - [한국어 (Korean)](readme/README.ko.md)
 - [Español (Spanish)](readme/README.es.md)
-- [Français (French)](readme/README.fr.md) *(coming soon)*
+- [Français (French)](readme/README.fr.md)
 - [العربية (Arabic)](readme/README.ar.md)
 - [हिन्दी (Hindi)](readme/README.hi.md)
 - [Bahasa Indonesia](readme/README.id.md)
@@ -60,7 +60,7 @@ Think of it as an AI coworker that actually _does_ things, not just talks about 
 - **Extensible Skills** — Load custom logic via Markdown-defined skills — teach your agents new tricks
 - **Sandbox Modes** — Run agents in Docker containers or natively with configurable safety controls
 - **Dark/Light Themes** — Beautiful UI with customizable appearance and theming
-- **Multi-language** — UI available in English, Polish, Chinese, Japanese, and more
+- **Multi-language** — UI available in 13 languages: English, Polish, Chinese, Russian, Japanese, Korean, Spanish, French, Arabic, Hindi, Indonesian, Tamil, Turkish
 
 ## Supported Providers
 

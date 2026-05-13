@@ -1,0 +1,110 @@
+{
+  "status": {
+    "queued": "வரிசையில்",
+    "running": "இயங்குகிறது",
+    "completed": "முடிந்தது",
+    "failed": "தோல்வி",
+    "cancelled": "ரத்துசெய்யப்பட்டது",
+    "stopped": "நிறுத்தப்பட்டது",
+    "pending": "நிலுவையில்",
+    "waiting_permission": "அனுமதிக்காக காத்திருக்கிறது"
+  },
+  "waiting": {
+    "title": "மற்றொரு பணிக்காக காத்திருக்கிறது",
+    "description": "உங்கள் பணி வரிசையில் உள்ளது, தற்போதைய பணி முடிந்ததும் தானாக தொடங்கும்.",
+    "followUpDescription": "உங்கள் பின்தொடர்தல் தானாக தொடரும்",
+    "cancel": "பணியை ரத்துசெய்"
+  },
+  "thinking": "யோசிக்கிறது...",
+  "thinkingBlock": "யோசிக்கிறது\u2026",
+  "thinkingPhrases": {
+    "doing": "செய்கிறது...",
+    "executing": "இயக்குகிறது...",
+    "running": "ஓடுகிறது...",
+    "handling": "கையாள்கிறது...",
+    "accomplishing": "NestCafe செய்கிறது..."
+  },
+  "loadingAgent": "முகவரை ஏற்றுகிறது...",
+  "waitingForResponse": "பதிலுக்காக காத்திருக்கிறது...",
+  "connectingToModel": "{{modelName}} உடன் இணைக்கிறது...",
+  "coldStartHint": "முதல் பணி சற்று நேரம் எடுக்கும்...",
+  "agentWorking": "முகவர் வேலை செய்கிறது...",
+  "stopAgent": "முகவரை நிறுத்து (Ctrl+C)",
+  "followUp": {
+    "interruptedPlaceholder": "புதிய வழிமுறைகளைக் கொடுங்கள்...",
+    "noSessionPlaceholder": "மீண்டும் முயற்சிக்க புதிய வழிமுறையை அனுப்பவும்...",
+    "completedPlaceholder": "புதிய வழிமுறைகளைக் கொடுங்கள்...",
+    "defaultPlaceholder": "ஏதாவது கேளுங்கள்...",
+    "dropFilesToAttach": "இணைக்க கோப்புகளை விடுங்கள்"
+  },
+  "questionPrompt": {
+    "oauthConnecting": "{{provider}} இணைக்கிறது...",
+    "oauthConnected": "{{provider}} இணைக்கப்பட்டது.",
+    "oauthFailed": "{{provider}} இணைக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+    "oauthStillDisconnected": "{{provider}} இன்னும் இணைக்கப்படவில்லை. உள்நுழைவை முடித்து மீண்டும் முயற்சிக்கவும்."
+  },
+  "taskStatus": "பணி {{status}}",
+  "processing": "செயலாக்குகிறது",
+  "system": "கணினி",
+  "copyToClipboard": "கிளிப்போர்டுக்கு நகலெடு",
+  "permission": {
+    "title": "அனுமதி தேவை",
+    "fileTitle": "கோப்பு அனுமதி தேவை",
+    "fileDeleteTitle": "கோப்பு நீக்க எச்சரிக்கை",
+    "questionTitle": "கேள்வி",
+    "toolQuestion": "{{toolName}} அனுமதிக்கவா?",
+    "tool": "கருவி",
+    "previewContent": "உள்ளடக்கத்தை முன்னோட்டமிடு",
+    "backToOptions": "← விருப்பங்களுக்குத் திரும்பு",
+    "typeResponse": "உங்கள் பதிலைத் தட்டச்சிடவும்...",
+    "orTypeOwn": "அல்லது உங்களுடையதைத் தட்டச்சிடவும்",
+    "enterDifferentOption": "வேறு விருப்பத்தை உள்ளிடவும்...",
+    "cannotBeUndone": "இந்தச் செயலை மீட்டெடுக்க முடியாது.",
+    "deleteWarningSingle": "இந்தக் கோப்பு நிரந்தரமாக நீக்கப்படும்:",
+    "deleteWarningMultiple": "{{count}} கோப்புகள் நிரந்தரமாக நீக்கப்படும்:",
+    "operations": {
+      "delete": "நீக்கு",
+      "overwrite": "மேலெழுது",
+      "modify": "மாற்று",
+      "create": "உருவாக்கு",
+      "rename": "மறுபெயரிடு",
+      "move": "நகர்த்து"
+    }
+  },
+  "browserInstall": {
+    "title": "Chrome நிறுவப்படவில்லை",
+    "description": "தானியக்கத்திற்காக உலாவியை நிறுவுகிறது...",
+    "downloading": "பதிவிறக்குகிறது...",
+    "oneTimeSetup": "ஒருமுறை அமைப்பு (~250 MB மொத்தம்)"
+  },
+  "debug": {
+    "title": "பிழைதிருத்த பதிவுகள்",
+    "noLogs": "இதுவரை பிழைதிருத்த பதிவுகள் இல்லை. பதிவுகளைப் பார்க்க ஒரு பணியை இயக்கவும்."
+  },
+  "browserScript": {
+    "title": "உலாவி செயல்கள்",
+    "actions": {
+      "navigateTo": "{{hostname}} க்குச் செல்",
+      "navigate": "வழிசெலுத்து",
+      "fill": "\"{{text}}\" நிரப்பு",
+      "fillField": "புலத்தை நிரப்பு",
+      "click": "{{target}} கிளிக் செய்",
+      "press": "{{key}} அழுத்து",
+      "capturePage": "பக்கத்தைப் பிடி",
+      "screenshot": "திரைப்பிடிப்பு",
+      "waitForElement": "உறுப்புக்காக காத்திரு",
+      "waitForPage": "பக்கத்திற்காக காத்திரு",
+      "waitForNavigation": "வழிசெலுத்தலுக்காக காத்திரு",
+      "runScript": "ஸ்கிரிப்டை இயக்கு"
+    },
+    "showMore": "+{{count}} மேலும்",
+    "showLess": "குறைவாகக் காட்டு",
+    "showFewerActions": "குறைவான செயல்களைக் காட்டு",
+    "showMoreActions": "{{count}} மேலும் செயல்களைக் காட்டு"
+  },
+  "todos": {
+    "title": "பணிகள்",
+    "progress": "{{completed}} / {{total}}"
+  },
+  "startNewTask": "புதிய பணியைத் தொடங்கு"
+}

@@ -115,11 +115,11 @@
     "openConnectorSettings": "Ouvrir Paramètres -> Connecteurs -> {{provider}}"
   },
   "daemon": {
-    "disconnected": "Daemon Disconnected",
-    "disconnectedMessage": "Connection to the background daemon was lost. Reconnecting...",
-    "reconnectFailed": "Reconnection Failed",
-    "reconnectFailedMessage": "Could not reconnect to the daemon. Tasks may be interrupted.",
-    "openSettings": "Open Settings"
+    "disconnected": "Service déconnecté",
+    "disconnectedMessage": "La connexion au service d'arrière-plan a été perdue. Reconnexion...",
+    "reconnectFailed": "Échec de la reconnexion",
+    "reconnectFailedMessage": "Impossible de se reconnecter au service. Les tâches peuvent être interrompues.",
+    "openSettings": "Ouvrir les paramètres"
   },
   "boundary": {
     "title": "Quelque chose s'est mal passé",

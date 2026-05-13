@@ -24,14 +24,21 @@ const COLOR_THEMES: Array<{ value: ColorThemePreference; label: string }> = [
   { value: 'midnight', label: 'appearance.colorMidnight' },
   { value: 'nord', label: 'appearance.colorNord' },
   { value: 'dracula', label: 'appearance.colorDracula' },
+  { value: 'ocean', label: 'appearance.colorOcean' },
+  { value: 'sunset', label: 'appearance.colorSunset' },
+  { value: 'forest', label: 'appearance.colorForest' },
+  { value: 'rose', label: 'appearance.colorRose' },
 ];
 
 const FONTS: Array<{ value: FontPreference; label: string }> = [
   { value: 'geist', label: 'appearance.fontGeist' },
   { value: 'apparat', label: 'appearance.fontApparat' },
+  { value: 'inter', label: 'appearance.fontInter' },
   { value: 'system', label: 'appearance.fontSystem' },
   { value: 'serif', label: 'appearance.fontSerif' },
+  { value: 'lora', label: 'appearance.fontLora' },
   { value: 'mono', label: 'appearance.fontMono' },
+  { value: 'jetbrains', label: 'appearance.fontJetbrains' },
 ];
 
 function isColorTheme(value: string): value is ColorThemePreference {

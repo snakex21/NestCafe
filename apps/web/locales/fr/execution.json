@@ -12,7 +12,8 @@
   "waiting": {
     "title": "En attente d'une autre tâche",
     "description": "Votre tâche est en file d'attente et démarrera automatiquement lorsque la tâche en cours sera terminée.",
-    "followUpDescription": "Votre suivi continuera automatiquement"
+    "followUpDescription": "Votre suivi continuera automatiquement",
+    "cancel": "Annuler la tâche"
   },
   "thinking": "Réflexion...",
   "thinkingBlock": "Réflexion…",

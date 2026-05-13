@@ -12,7 +12,8 @@
   "waiting": {
     "title": "等待其他任务完成",
     "description": "您的任务已排队，将在当前任务完成后自动开始。",
-    "followUpDescription": "您的后续操作将自动继续"
+    "followUpDescription": "您的后续操作将自动继续",
+    "cancel": "取消任务"
   },
   "thinking": "思考中...",
   "thinkingBlock": "思考中…",

@@ -1,0 +1,100 @@
+{
+  "app": {
+    "name": "NestCafe"
+  },
+  "buttons": {
+    "send": "إرسال",
+    "submit": "تأكيد",
+    "stop": "إيقاف",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "save": "حفظ",
+    "delete": "حذف",
+    "deleteAll": "حذف الكل",
+    "allow": "سماح",
+    "deny": "رفض",
+    "continue": "متابعة",
+    "doneContinue": "تم، متابعة",
+    "goHome": "الرئيسية",
+    "startNewTask": "مهمة جديدة",
+    "test": "اختبار",
+    "testing": "جارٍ الاختبار...",
+    "saving": "جارٍ الحفظ...",
+    "validating": "جارٍ التحقق...",
+    "export": "تصدير",
+    "exported": "تم التصدير",
+    "clear": "مسح",
+    "clearAll": "مسح الكل",
+    "yes": "نعم",
+    "no": "لا",
+    "retry": "إعادة المحاولة",
+    "saveApiKey": "حفظ مفتاح API",
+    "copyToClipboard": "نسخ إلى الحافظة",
+    "dismiss": "تجاهل",
+    "messageTooLong": "الرسالة طويلة جداً",
+    "enterMessage": "أدخل رسالة",
+    "quit": "خروج"
+  },
+  "aria": {
+    "scrollToBottom": "التمرير للأسفل",
+    "customResponse": "رد مخصص"
+  },
+  "status": {
+    "running": "قيد التشغيل",
+    "completed": "مكتمل",
+    "failed": "فشل",
+    "cancelled": "ملغى",
+    "queued": "في الانتظار",
+    "pending": "معلق",
+    "waiting": "بالانتظار",
+    "stopped": "متوقف",
+    "interrupted": "متقطع"
+  },
+  "time": {
+    "justNow": "الآن",
+    "minutesAgo": "منذ {{count}}د",
+    "hoursAgo": "منذ {{count}}س",
+    "daysAgo": "منذ {{count}}ي",
+    "today": "اليوم",
+    "yesterday": "أمس"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "history": "السجل",
+    "settings": "الإعدادات"
+  },
+  "labels": {
+    "awsCredentials": "بيانات اعتماد AWS",
+    "gcpCredentials": "بيانات اعتماد GCP",
+    "localApiKey": "مفتاح API محلي",
+    "azureFoundryEntraId": "Azure Foundry (Entra ID)",
+    "bedrockApiKey": "مفتاح Bedrock API",
+    "awsAccessKeys": "مفاتيح وصول AWS",
+    "awsProfile": "ملف AWS: {{name}}"
+  },
+  "contextMenu": {
+    "addToDictionary": "إضافة إلى القاموس"
+  },
+  "fileFilters": {
+    "text": "ملفات نصية",
+    "log": "ملفات السجل",
+    "skill": "ملفات المهارات",
+    "all": "جميع الملفات"
+  },
+  "model": {
+    "selectModel": "اختيار نموذج",
+    "current": "الحالي",
+    "configureModel": "إعداد النموذج",
+    "changeModel": "تغيير النموذج"
+  },
+  "messages": "{{count}} رسائل",
+  "favorite": "مفضلة",
+  "theme": {
+    "switchToLight": "التبديل إلى الوضع الفاتح",
+    "switchToDark": "التبديل إلى الوضع الداكن",
+    "switchToSystem": "التبديل إلى إعدادات النظام",
+    "lightMode": "الوضع الفاتح",
+    "darkMode": "الوضع الداكن",
+    "systemMode": "النظام"
+  }
+}
