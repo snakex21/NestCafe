@@ -118,6 +118,10 @@ export function createMainWindow(opts: {
     if (url.startsWith('https:') || url.startsWith('http:')) {
       shell.openExternal(url);
     }
+    if (url.startsWith('file://')) {
+      const filePath = url.replace(/^file:\/\/\//, '').replace(/^file:\/\//, '');
+      shell.openPath(filePath);
+    }
     return { action: 'deny' };
   });
 
