@@ -9,7 +9,7 @@ import {
   FormError,
   ModelSelector,
 } from '../shared';
-import huggingfaceLogo from '/assets/ai-logos/huggingface.svg';
+import huggingfaceLogo from '/assets/ai-logos/huggingface.png';
 import { useHuggingFaceProviderConnect } from './useHuggingFaceProviderConnect';
 
 interface HuggingFaceProviderFormProps {

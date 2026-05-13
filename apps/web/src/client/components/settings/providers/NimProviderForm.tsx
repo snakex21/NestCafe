@@ -6,7 +6,7 @@ import { ProviderFormHeader } from '../shared';
 import { getNestCafe } from '@/lib/nestcafe';
 import { DisconnectedNimForm, ConnectedNimDetails, NIM_DEFAULT_BASE_URL } from './NimFormSections';
 
-import nimLogo from '/assets/ai-logos/nim.svg';
+import nimLogo from '/assets/ai-logos/nim.png';
 
 interface NimProviderFormProps {
   connectedProvider?: ConnectedProvider;
