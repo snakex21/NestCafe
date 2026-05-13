@@ -3,6 +3,7 @@ import electron from 'vite-plugin-electron';
 import path from 'path';
 import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
+import { existsSync } from 'node:fs';
 import esbuild from 'esbuild';
 import pkg from './package.json';
 
@@ -72,6 +73,17 @@ export default defineConfig(() => ({
             ? `--inspect=${process.env.ELECTRON_DEBUG_PORT || '9229'}`
             : undefined;
           const argv = ['.', '--no-sandbox', ...(inspectArg ? [inspectArg] : [])];
+
+          // Wait for the compiled entry point to actually land on disk.
+          // On Windows and slow filesystems, vite-plugin-electron may fire the
+          // onstart callback before the build output is fully flushed, causing
+          // Electron to fail with "Cannot find module".
+          const entryPath = path.resolve(__dirname, 'dist-electron/main/index.js');
+          const deadline = Date.now() + 10_000;
+          while (!existsSync(entryPath) && Date.now() < deadline) {
+            // busy-wait — file typically appears within 100ms
+          }
+
           startup(argv);
         },
         vite: {
