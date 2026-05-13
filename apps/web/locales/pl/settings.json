@@ -9,7 +9,7 @@
     "listTitle": "Lista modeli",
     "cloudProviders": "Dostawcy chmurowi",
     "localModels": "Modele lokalne",
-    "cloudDescription": "Wybierz model AI w chmurze. Wymaga API Key dostawcy.",
+    "cloudDescription": "Wybierz model AI w chmurze. Wymaga klucza API dostawcy.",
     "selectModel": "Wybierz model...",
     "searchModels": "Szukaj modeli...",
     "enabledCount": "{{enabled}} / {{total}} włączone",
@@ -17,29 +17,31 @@
     "disableAll": "Wyłącz wszystkie",
     "fetchModels": "Pobierz modele",
     "scanning": "Skanowanie…",
-    "noApiKey": "(Brak API Key)",
+    "noApiKey": "(Brak klucza API)",
     "modelUpdated": "Model zmieniony na {{model}}",
-    "noApiKeyWarning": "Brak API Key dla {{provider}}. Dodaj go poniżej.",
+    "noApiKeyWarning": "Brak klucza API dla {{provider}}. Dodaj go poniżej.",
     "noModelsFound": "Nie znaleziono modeli",
     "required": "Wybierz model, aby kontynuować"
   },
   "apiKey": {
-    "title": "API Key",
-    "bringYourOwn": "Użyj własnego modelu / API Key",
-    "description": "Skonfiguruj API Key i model dla swojego asystenta AI.",
+    "title": "Klucz API",
+    "bringYourOwn": "Użyj własnego modelu / klucza API",
+    "description": "Skonfiguruj klucz API i model dla swojego asystenta AI.",
     "provider": "Dostawca",
-    "apiKeyLabel": "API Key {{provider}}",
-    "saveButton": "Zapisz API Key",
-    "invalidFormat": "Nieprawidłowy format API Key. Klucz powinien zaczynać się od {{prefix}}",
-    "savedMessage": "API Key {{provider}} zapisany bezpiecznie.",
-    "removedMessage": "API Key {{provider}} usunięty.",
+    "apiKeyLabel": "Klucz API {{provider}}",
+    "saveButton": "Zapisz klucz API",
+    "invalidFormat": "Nieprawidłowy format klucza API. Klucz powinien zaczynać się od {{prefix}}",
+    "savedMessage": "Klucz API {{provider}} zapisany bezpiecznie.",
+    "removedMessage": "Klucz API {{provider}} usunięty.",
     "savedKeys": "Zapisane klucze",
     "confirmDelete": "Jesteś pewien?",
-    "enterKey": "Wprowadź API Key",
-    "invalidKey": "Nieprawidłowy API Key",
-    "enterKeyRequired": "Wprowadź API Key",
-    "saved": "API Key zapisany",
-    "savedReconnectToSee": "API Key zapisany (połącz ponownie, by zobaczyć prefiks)"
+    "enterKey": "Wprowadź klucz API",
+    "invalidKey": "Klucz niepoprawny",
+    "validKey": "Klucz poprawny",
+    "scanning": "Sprawdzanie…",
+    "enterKeyRequired": "Wprowadź klucz API",
+    "saved": "Klucz API zapisany",
+    "savedReconnectToSee": "Klucz API zapisany (połącz ponownie, by zobaczyć prefiks)"
   },
   "providers": {
     "title": "Dostawcy",
@@ -74,7 +76,7 @@
     "groq": "Groq",
     "accomplish-ai": "NestCafe AI",
     "NestcafeAi": {
-      "description": "Użyj wbudowanego modelu od NestCafe — bez API Key.\nZawiera 200 darmowych kredytów miesięcznie na start.",
+      "description": "Użyj wbudowanego modelu od NestCafe — bez klucza API.\nZawiera 200 darmowych kredytów miesięcznie na start.",
       "disconnect": "Rozłącz",
       "exhaustedMessage": "Kredyty wyczerpane. Zresetują się {{date}}.",
       "exhaustedMessageSoon": "Kredyty wyczerpane. Zresetują się wkrótce."
@@ -210,7 +212,7 @@
     "refreshModels": "Odśwież listę modeli"
   },
   "azure": {
-    "apiKey": "API Key",
+    "apiKey": "Klucz API",
     "entraId": "Entra ID",
     "entraIdHelp": "Używa poświadczeń Azure CLI. Uruchom",
     "entraIdHelpCommand": "az login",
@@ -219,18 +221,18 @@
     "endpointPlaceholder": "https://twoj-zasob.openai.azure.com",
     "deploymentName": "Nazwa wdrożenia",
     "deploymentPlaceholder": "np. gpt-4o, gpt-5",
-    "apiKeyPlaceholder": "Wprowadź swój Azure API Key",
+    "apiKeyPlaceholder": "Wprowadź swój klucz API Azure",
     "endpointLabel": "Endpoint",
     "deploymentLabel": "Wdrożenie",
     "authentication": "Uwierzytelnianie",
     "entraIdDisplay": "Entra ID (Azure CLI)",
     "endpointAndDeploymentRequired": "URL Endpoint i nazwa wdrożenia są wymagane",
-    "apiKeyRequired": "API Key jest wymagany dla uwierzytelniania API Key"
+    "apiKeyRequired": "Klucz API jest wymagany dla uwierzytelniania kluczem API"
   },
   "bedrockApiKey": {
-    "label": "API Key",
+    "label": "Klucz API",
     "howToGetIt": "Jak go zdobyć?",
-    "placeholder": "Wprowadź Bedrock API Key"
+    "placeholder": "Wprowadź klucz API Bedrock"
   },
   "toolBadge": {
     "supported": "Narzędzia",
@@ -557,7 +559,7 @@
     "region": "Region",
     "china": "Chiny",
     "international": "Międzynarodowy",
-    "apiKeySaved": "API Key zapisany"
+    "apiKeySaved": "Klucz API zapisany"
   },
   "openrouter": {
     "description": "Dostęp do ponad 200 modeli AI przez ujednolicone API OpenRouter.",
@@ -574,7 +576,7 @@
   "litellm": {
     "description": "Połącz z serwerem proxy LiteLLM dla ujednoliconego dostępu do modeli.",
     "serverUrl": "URL serwera",
-    "optionalApiKey": "Opcjonalny API Key"
+    "optionalApiKey": "Opcjonalny klucz API"
   },
   "skills": {
     "createTitle": "Utwórz nową umiejętność",
@@ -666,20 +668,20 @@
     "title": "Zamiana mowy na tekst",
     "description": "Włącz wprowadzanie głosowe przez lokalny Whisper lub ElevenLabs Speech-to-Text.",
     "localWhisperTitle": "Lokalny Whisper",
-    "localWhisperDescription": "Działa na tym urządzeniu. Nie wymaga API Key; model pobiera się przy pierwszym użyciu.",
+    "localWhisperDescription": "Działa na tym urządzeniu. Nie wymaga klucza API; model pobiera się przy pierwszym użyciu.",
     "localWhisperReady": "Lokalny Whisper jest włączony. Pierwsza transkrypcja może potrwać dłużej podczas pobierania modelu.",
     "elevenLabsTitle": "ElevenLabs",
-    "elevenLabsDescription": "Transkrypcja w chmurze z użyciem Twojego API Key ElevenLabs.",
-    "apiKeyRequired": "API Key jest wymagany",
-    "apiKeySaved": "API Key zapisany pomyślnie",
-    "apiKeySaveFailed": "Nie udało się zapisać API Key",
-    "setupInstructions": "Aby korzystać z wprowadzania głosowego, potrzebujesz API Key ElevenLabs. Zdobądź go na",
+    "elevenLabsDescription": "Transkrypcja w chmurze z użyciem Twojego klucza API ElevenLabs.",
+    "apiKeyRequired": "Klucz API jest wymagany",
+    "apiKeySaved": "Klucz API zapisany pomyślnie",
+    "apiKeySaveFailed": "Nie udało się zapisać klucza API",
+    "setupInstructions": "Aby korzystać z wprowadzania głosowego, potrzebujesz klucza API ElevenLabs. Zdobądź go na",
     "elevenlabsLink": "elevenlabs.io",
-    "apiKeyConfigured": "API Key ElevenLabs jest skonfigurowany. Wprowadź nowy klucz poniżej, aby go zastąpić.",
-    "apiKeyLabel": "API Key ElevenLabs",
+    "apiKeyConfigured": "Klucz API ElevenLabs jest skonfigurowany. Wprowadź nowy klucz poniżej, aby go zastąpić.",
+    "apiKeyLabel": "Klucz API ElevenLabs",
     "apiKeyPlaceholder": "xi-...",
     "apiKeyMasked": "••••••••••••••••",
-    "secureStorage": "Twój API Key jest bezpiecznie przechowywany w pęku kluczy systemu.",
+    "secureStorage": "Twój klucz API jest bezpiecznie przechowywany w pęku kluczy systemu.",
     "howToUse": "Jak używać:",
     "clickMicButton": "Kliknij przycisk mikrofonu",
     "tooltipSetup": "Kliknij, aby skonfigurować wprowadzanie głosowe",

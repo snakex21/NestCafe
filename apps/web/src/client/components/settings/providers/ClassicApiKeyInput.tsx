@@ -29,11 +29,11 @@ export function ClassicApiKeyInput({
 
   let status: { label: string; className: string } | null = null;
   if (connecting) {
-    status = { label: 'Scanning…', className: 'text-muted-foreground' };
+    status = { label: t('apiKey.scanning'), className: 'text-muted-foreground' };
   } else if (error) {
-    status = { label: 'Invalid key', className: 'text-destructive' };
+    status = { label: t('apiKey.invalidKey'), className: 'text-destructive' };
   } else if (isConnected) {
-    status = { label: 'Valid key', className: 'text-emerald-500' };
+    status = { label: t('apiKey.validKey'), className: 'text-emerald-500' };
   }
 
   return (

@@ -2,11 +2,11 @@
   "api": {
     "timeout": "Przekroczono czas żądania. Sprawdź połączenie z internetem.",
     "timeoutRetry": "Przekroczono czas żądania. Sprawdź połączenie z internetem i spróbuj ponownie.",
-    "invalidKey": "Nieprawidłowy API Key",
-    "noKey": "Wprowadź API Key.",
-    "validationFailed": "Walidacja API Key nie powiodła się",
+    "invalidKey": "Klucz niepoprawny",
+    "noKey": "Wprowadź klucz API.",
+    "validationFailed": "Walidacja klucza API nie powiodła się",
     "networkError": "Błąd sieci. Sprawdź połączenie.",
-    "connectionFailed": "Nie udało się zwalidować API Key. Sprawdź połączenie z internetem.",
+    "connectionFailed": "Nie udało się zwalidować klucza API. Sprawdź połączenie z internetem.",
     "unsupportedProvider": "Nieobsługiwany dostawca"
   },
   "task": {
@@ -28,14 +28,14 @@
     "mustBeString": "{{field}} musi być tekstem",
     "required": "{{field}} jest wymagane",
     "exceedsLength": "{{field}} przekracza maksymalną długość",
-    "unsupportedProvider": "Nieobsługiwany dostawca API Key",
+    "unsupportedProvider": "Nieobsługiwany dostawca klucza API",
     "untrustedWindow": "Niezaufane okno",
     "focusedWindowRequired": "Żądanie IPC musi pochodzić z aktywnego okna"
   },
   "provider": {
     "notReady": "Żaden dostawca nie jest gotowy. Połącz dostawcę i wybierz model w Ustawieniach.",
     "noModelsEndpoint": "Brak skonfigurowanego endpointu modeli dla tego dostawcy",
-    "noApiKey": "Nie znaleziono API Key dla tego dostawcy"
+    "noApiKey": "Nie znaleziono klucza API dla tego dostawcy"
   },
   "ollama": {
     "connectionFailed": "Połączenie nieudane",
@@ -58,7 +58,7 @@
     "profileNotFound": "Nie znaleziono profilu AWS. Sprawdź plik ~/.aws/credentials.",
     "accessKeyRequired": "Access Key ID i Secret Access Key są wymagane",
     "profileNameRequired": "Nazwa profilu jest wymagana",
-    "apiKeyRequired": "API Key jest wymagany"
+    "apiKeyRequired": "Klucz API jest wymagany"
   },
   "model": {
     "invalidConfig": "Nieprawidłowa konfiguracja modelu"
