@@ -27,6 +27,7 @@ export type ProviderId =
   | 'qwen-china'
   | 'qwen-international'
   | 'xiaomi'
+  | 'xiaomi-token'
   | 'perplexity'
   | (string & {}); // Allow custom:uuid pattern while preserving autocomplete
 
@@ -253,6 +254,13 @@ export const PROVIDER_META: Record<ProviderId, ProviderMeta> = {
     label: 'Service',
     logoKey: 'xiaomi',
   },
+  'xiaomi-token': {
+    id: 'xiaomi-token',
+    name: 'Xiaomi (Token Plan)',
+    category: 'classic',
+    label: 'Service',
+    logoKey: 'xiaomi',
+  },
   perplexity: {
     id: 'perplexity',
     name: 'Perplexity',
@@ -444,6 +452,7 @@ export const DEFAULT_MODELS: Partial<Record<ProviderId, string>> = {
   'qwen-china': 'qwen-china/qwen-turbo',
   'qwen-international': 'qwen-international/qwen-turbo',
   xiaomi: 'xiaomi/mixtral-8x7b',
+  'xiaomi-token': 'xiaomi-token/mixtral-8x7b',
   perplexity: 'perplexity/llama-3.1-sonar-small-128k-online',
 };
 
@@ -485,6 +494,7 @@ export const PROVIDER_ID_TO_OPENCODE: Record<ProviderId, string> = {
   'qwen-china': 'qwen-china',
   'qwen-international': 'qwen-international',
   xiaomi: 'xiaomi',
+  'xiaomi-token': 'xiaomi-token',
   perplexity: 'perplexity',
 };
 

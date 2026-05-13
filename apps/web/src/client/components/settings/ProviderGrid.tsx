@@ -35,6 +35,7 @@ const PROVIDER_ORDER: ProviderId[] = [
   'qwen-china',
   'qwen-international',
   'xiaomi',
+  'xiaomi-token',
   'perplexity',
   'custom',
 ];

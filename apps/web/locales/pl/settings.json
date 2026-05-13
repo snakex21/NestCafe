@@ -86,7 +86,12 @@
     "venice": "Venice AI",
     "nim": "NVIDIA NIM",
     "custom": "Niestandardowy endpoint",
-    "copilot": "GitHub Copilot"
+    "copilot": "GitHub Copilot",
+    "qwen-china": "Qwen (Chiny)",
+    "qwen-international": "Qwen (Międzynarodowy)",
+    "xiaomi": "Xiaomi",
+    "xiaomi-token": "Xiaomi (Token Plan)",
+    "perplexity": "Perplexity"
   },
   "providerLabels": {
     "anthropic": "Modele Claude",
@@ -117,7 +122,7 @@
   },
   "status": {
     "connected": "Połączony",
-    "ready": "Gotowy",
+    "ready": "Gotowe",
     "notConfigured": "Nie skonfigurowany",
     "connecting": "Łączenie...",
     "disconnecting": "Rozłączanie...",
