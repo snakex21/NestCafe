@@ -24,6 +24,23 @@
 
 ---
 
+## Translations
+
+- [Polski (Polish)](readme/README.pl.md)
+- [中文 (Chinese)](readme/README.zh-CN.md)
+- [Русский (Russian)](readme/README.ru.md)
+- [日本語 (Japanese)](readme/README.ja.md)
+- [한국어 (Korean)](readme/README.ko.md)
+- [Español (Spanish)](readme/README.es.md)
+- [Français (French)](readme/README.fr.md) *(coming soon)*
+- [العربية (Arabic)](readme/README.ar.md)
+- [हिन्दी (Hindi)](readme/README.hi.md)
+- [Bahasa Indonesia](readme/README.id.md)
+- [தமிழ் (Tamil)](readme/README.ta.md)
+- [Türkçe (Turkish)](readme/README.tr.md)
+
+---
+
 ## What is NestCafe?
 
 NestCafe is a **local AI desktop agent** that gives AI models direct access to your computer — with your permission. Unlike cloud-only chatbots, NestCafe can read and write files, browse the web, execute shell commands, send emails, manage your calendar, and more.
@@ -144,16 +161,6 @@ See [AGENTS.md](AGENTS.md) for detailed development instructions, code conventio
 | Package Manager | pnpm (monorepo) |
 | AI Runtime | OpenCode SDK |
 
-## Translations
-
-README in other languages: [readme/](readme/)
-
 ## License
 
 MIT — see [LICENSE](LICENSE).
-
----
-
-<p align="center">
-  Built with ❤️ by the NestCafe community
-</p>
