@@ -6,7 +6,7 @@ import {
   ListToolsRequestSchema,
   type CallToolResult,
 } from '@modelcontextprotocol/sdk/types.js';
-import { listEmails, readEmail, sendEmail, searchEmails, listFolders } from './powershell.js';
+import { listEmails, readEmail, sendEmail, searchEmails, listFolders, getAttachments } from './powershell.js';
 
 const server = new Server(
   { name: 'outlook-mcp', version: '1.0.0' },
@@ -19,8 +19,9 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       name: 'outlook_mail',
       description:
         'Read, send, and manage Microsoft Outlook emails on this computer. ' +
-        'Supports listing emails from folders, reading specific emails, ' +
-        'searching by subject/sender/body, sending emails, and listing folders. ' +
+        'Supports listing emails from folders, reading specific emails (with attachments), ' +
+        'searching by subject/sender/body, sending emails with attachments, and listing folders. ' +
+        'Use "attachments" command to preview/download attachments from an email before sending. ' +
         'Requires Outlook to be installed and configured with at least one account.',
       inputSchema: {
         type: 'object',
@@ -29,7 +30,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
             type: 'string',
             description:
               "The operation to perform. One of: 'list', 'read', 'send', 'search', 'folders'. " +
-              "For 'send': provide --to, --subject, --body, and optionally --cc, --bcc. " +
+              "For 'send': provide --to, --subject, --body, optionally --cc, --bcc, and comma-separated --attachments (file paths). " +
+              "For 'attachments': provide the email --index and optionally --folder to list/save attachments locally.",
               "For 'list': optionally --folder (default: Inbox), --count (default: 20). " +
               "For 'read': provide the email index and optionally --folder. " +
               "For 'search': provide --query, optionally --folder and --count. " +
@@ -70,6 +72,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           bcc: {
             type: 'string',
             description: 'BCC recipient for sending.',
+          },
+          attachments: {
+            type: 'string',
+            description: 'Comma-separated file paths for email attachments.',
           },
         },
         required: ['command'],
@@ -141,8 +147,25 @@ server.setRequestHandler(CallToolRequestSchema, async (request): Promise<CallToo
           isError: true,
         };
       }
-      const result = sendEmail(to, subject, body, String(args.cc ?? ''), String(args.bcc ?? ''));
+      const attachments = args.attachments
+        ? String(args.attachments)
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
+      const result = sendEmail(to, subject, body, String(args.cc ?? ''), String(args.bcc ?? ''), attachments);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    }
+
+    if (command === 'attachments') {
+      if (!index) {
+        return {
+          content: [{ type: 'text', text: 'Error: --index is required for attachments' }],
+          isError: true,
+        };
+      }
+      const files = getAttachments(index, folder);
+      return { content: [{ type: 'text', text: JSON.stringify(files, null, 2) }] };
     }
 
     if (command === 'folders') {
@@ -151,7 +174,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request): Promise<CallToo
     }
 
     return {
-      content: [{ type: 'text', text: `Unknown command: ${command}. Use list, read, send, search, or folders.` }],
+      content: [{ type: 'text', text: `Unknown command: ${command}. Use list, read, send, search, attachments, or folders.` }],
       isError: true,
     };
   } catch (err) {
