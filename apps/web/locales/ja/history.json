@@ -1,0 +1,8 @@
+{
+  "title": "タスク履歴",
+  "recentTasks": "最近のタスク",
+  "noTasks": "まだタスクはありません。NestCafeでやりたいことを説明してください。",
+  "viewAll": "{{count}}件のタスクをすべて表示",
+  "confirmClear": "タスク履歴をすべてクリアしてもよろしいですか？",
+  "confirmDelete": "このタスクを削除しますか？"
+}

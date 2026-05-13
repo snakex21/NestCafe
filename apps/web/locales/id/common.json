@@ -1,0 +1,100 @@
+{
+  "app": {
+    "name": "NestCafe"
+  },
+  "buttons": {
+    "send": "Kirim",
+    "submit": "Kirim",
+    "stop": "Hentikan",
+    "cancel": "Batal",
+    "close": "Tutup",
+    "save": "Simpan",
+    "delete": "Hapus",
+    "deleteAll": "Hapus Semua",
+    "allow": "Izinkan",
+    "deny": "Tolak",
+    "continue": "Lanjutkan",
+    "doneContinue": "Selesai, Lanjutkan",
+    "goHome": "Ke Beranda",
+    "startNewTask": "Mulai Tugas Baru",
+    "test": "Uji",
+    "testing": "Menguji...",
+    "saving": "Menyimpan...",
+    "validating": "Memvalidasi...",
+    "export": "Ekspor",
+    "exported": "Terekspor",
+    "clear": "Bersihkan",
+    "clearAll": "Bersihkan semua",
+    "yes": "Ya",
+    "no": "Tidak",
+    "retry": "Coba Lagi",
+    "saveApiKey": "Simpan API Key",
+    "copyToClipboard": "Salin ke papan klip",
+    "dismiss": "Abaikan",
+    "messageTooLong": "Pesan terlalu panjang",
+    "enterMessage": "Masukkan pesan",
+    "quit": "Keluar"
+  },
+  "aria": {
+    "scrollToBottom": "Gulir ke bawah",
+    "customResponse": "Respons kustom"
+  },
+  "status": {
+    "running": "Berjalan",
+    "completed": "Selesai",
+    "failed": "Gagal",
+    "cancelled": "Dibatalkan",
+    "queued": "Antrean",
+    "pending": "Tertunda",
+    "waiting": "Menunggu",
+    "stopped": "Dihentikan",
+    "interrupted": "Terinterupsi"
+  },
+  "time": {
+    "justNow": "baru saja",
+    "minutesAgo": "{{count}}m lalu",
+    "hoursAgo": "{{count}}j lalu",
+    "daysAgo": "{{count}}h lalu",
+    "today": "Hari Ini",
+    "yesterday": "Kemarin"
+  },
+  "nav": {
+    "home": "Beranda",
+    "history": "Riwayat",
+    "settings": "Pengaturan"
+  },
+  "labels": {
+    "awsCredentials": "Kredensial AWS",
+    "gcpCredentials": "Kredensial GCP",
+    "localApiKey": "API Key Lokal",
+    "azureFoundryEntraId": "Azure Foundry (Entra ID)",
+    "bedrockApiKey": "API Key Bedrock",
+    "awsAccessKeys": "Kunci Akses AWS",
+    "awsProfile": "Profil AWS: {{name}}"
+  },
+  "contextMenu": {
+    "addToDictionary": "Tambahkan ke Kamus"
+  },
+  "fileFilters": {
+    "text": "File Teks",
+    "log": "File Log",
+    "skill": "File Skill",
+    "all": "Semua File"
+  },
+  "model": {
+    "selectModel": "Pilih model",
+    "current": "Saat Ini",
+    "configureModel": "Konfigurasi model",
+    "changeModel": "Ganti model"
+  },
+  "messages": "{{count}} pesan",
+  "favorite": "Favorit",
+  "theme": {
+    "switchToLight": "Beralih ke mode terang",
+    "switchToDark": "Beralih ke mode gelap",
+    "switchToSystem": "Beralih ke sistem",
+    "lightMode": "Mode terang",
+    "darkMode": "Mode gelap",
+    "systemMode": "Sistem"
+  }
+}

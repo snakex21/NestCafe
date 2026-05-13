@@ -1,0 +1,132 @@
+{
+  "api": {
+    "timeout": "La solicitud expiró. Verifica tu conexión a internet.",
+    "timeoutRetry": "La solicitud expiró. Verifica tu conexión a internet e inténtalo de nuevo.",
+    "invalidKey": "Clave API no válida",
+    "noKey": "Por favor ingresa una clave API.",
+    "validationFailed": "Falló la validación de la clave API",
+    "networkError": "Error de red. Verifica tu conexión.",
+    "connectionFailed": "No se pudo validar la clave API. Verifica tu conexión a internet.",
+    "unsupportedProvider": "Proveedor no compatible"
+  },
+  "task": {
+    "notFound": "Tarea no encontrada",
+    "startFailed": "No se pudo iniciar la tarea",
+    "cancelFailed": "No se pudo cancelar la tarea",
+    "taskFailed": "La tarea falló",
+    "noActiveTask": "No hay una tarea activa para continuar",
+    "noSession": "No hay sesión para continuar — inicia una nueva tarea",
+    "sendMessageFailed": "No se pudo enviar el mensaje"
+  },
+  "adapter": {
+    "cliNotFound": "OpenCode CLI no está disponible. La CLI incluida puede faltar o estar dañada. Reinstala la aplicación.",
+    "disposed": "El adaptador ha sido descartado y no puede iniciar nuevas tareas",
+    "noActiveProcess": "No hay proceso activo",
+    "exitWithCode": "OpenCode CLI terminó con código {{code}}"
+  },
+  "validation": {
+    "mustBeString": "{{field}} debe ser una cadena de texto",
+    "required": "{{field}} es obligatorio",
+    "exceedsLength": "{{field}} excede la longitud máxima",
+    "unsupportedProvider": "Proveedor de clave API no compatible",
+    "untrustedWindow": "Ventana no confiable",
+    "focusedWindowRequired": "La solicitud IPC debe originarse desde la ventana activa"
+  },
+  "provider": {
+    "notReady": "Ningún proveedor está listo. Conecta un proveedor y selecciona un modelo en Ajustes.",
+    "noModelsEndpoint": "No hay endpoint de modelos configurado para este proveedor",
+    "noApiKey": "No se encontró clave API para este proveedor"
+  },
+  "ollama": {
+    "connectionFailed": "Conexión fallida",
+    "noModels": "No se encontraron modelos",
+    "saveFailed": "No se pudo guardar",
+    "invalidUrl": "Formato de URL no válido",
+    "protocolNotAllowed": "Solo se permiten URLs http y https",
+    "invalidConfig": "Configuración de Ollama no válida",
+    "modelsArray": "Configuración de Ollama no válida: models debe ser un array",
+    "invalidModelFormat": "Configuración de Ollama no válida: formato de modelo no válido",
+    "connectionTimeout": "Tiempo de conexión agotado. Asegúrate de que Ollama esté en ejecución.",
+    "cannotConnect": "No se puede conectar con Ollama: {{message}}"
+  },
+  "bedrock": {
+    "invalidCredentials": "Credenciales no válidas",
+    "saveFailed": "No se pudieron guardar las credenciales",
+    "invalidAuthType": "Tipo de autenticación no válido",
+    "invalidAwsCredentials": "Credenciales de AWS no válidas. Verifica tu ID de clave de acceso y clave secreta.",
+    "accessDenied": "Acceso denegado. Asegúrate de que tus credenciales de AWS tengan permisos de Bedrock.",
+    "profileNotFound": "Perfil de AWS no encontrado. Revisa tu archivo ~/.aws/credentials.",
+    "accessKeyRequired": "Se requieren ID de clave de acceso y clave secreta",
+    "profileNameRequired": "El nombre del perfil es obligatorio",
+    "apiKeyRequired": "Se requiere clave API"
+  },
+  "model": {
+    "invalidConfig": "Configuración de modelo no válida"
+  },
+  "litellm": {
+    "invalidConfig": "Configuración de LiteLLM no válida",
+    "modelsArray": "Configuración de LiteLLM no válida: models debe ser un array",
+    "invalidModelFormat": "Configuración de LiteLLM no válida: formato de modelo no válido"
+  },
+  "lmstudio": {
+    "notConfigured": "No hay LM Studio configurado"
+  },
+  "azureFoundry": {
+    "baseUrlRequired": "Configuración de Azure Foundry no válida: baseUrl es obligatorio",
+    "deploymentRequired": "Configuración de Azure Foundry no válida: deploymentName es obligatorio",
+    "invalidAuthType": "Configuración de Azure Foundry no válida: authType debe ser api-key o entra-id",
+    "invalidEnabled": "Configuración de Azure Foundry no válida: enabled debe ser un booleano",
+    "invalidBaseUrl": "Configuración de Azure Foundry no válida: formato de URL base no válido"
+  },
+  "connector": {
+    "protocolRequired": "La URL del conector debe usar http:// o https://",
+    "invalidUrl": "URL de conector no válida: {{url}}"
+  },
+  "settings": {
+    "invalidDebugFlag": "Indicador de modo depuración no válido",
+    "invalidTheme": "Valor de tema no válido",
+    "invalidBaseUrl": "URL base no válida"
+  },
+  "i18n": {
+    "unsupportedLanguage": "Idioma no compatible"
+  },
+  "url": {
+    "protocolNotAllowed": "Solo se permiten URLs http y https"
+  },
+  "permission": {
+    "denied": "Permiso denegado",
+    "required": "Permiso requerido"
+  },
+  "generic": {
+    "unknown": "Ocurrió un error desconocido",
+    "tryAgain": "Por favor inténtalo de nuevo"
+  },
+  "app": {
+    "mustRunInDesktop": "Esta aplicación debe ejecutarse dentro de la app de escritorio de NestCafe.",
+    "unableToStart": "No se puede iniciar",
+    "updateRequired": "Actualización requerida",
+    "schemaNewerMessage": "Estos datos fueron creados por una versión más reciente de NestCafe (esquema v{{version}}).",
+    "schemaNewerDetail": "Tu app soporta hasta el esquema v{{version}}. Actualiza NestCafe para continuar."
+  },
+  "auth": {
+    "sessionExpired": "Sesión de {{provider}} expirada",
+    "reLoginTo": "Volver a iniciar sesión en {{provider}}",
+    "connectorAttention": "{{provider}} necesita atención",
+    "openConnectorSettings": "Abrir Ajustes → Conectores → {{provider}}"
+  },
+  "daemon": {
+    "disconnected": "Demonio desconectado",
+    "disconnectedMessage": "Se perdió la conexión con el demonio en segundo plano. Reconectando...",
+    "reconnectFailed": "Reconexión fallida",
+    "reconnectFailedMessage": "No se pudo reconectar con el demonio. Las tareas pueden haberse interrumpido.",
+    "openSettings": "Abrir ajustes"
+  },
+  "boundary": {
+    "title": "Algo salió mal",
+    "unexpectedError": "Ocurrió un error inesperado.",
+    "compactMessage": "Algo salió mal al renderizar este contenido.",
+    "errorPrefix": "Error:",
+    "tryAgain": "Intentar de nuevo",
+    "sidebarLoading": "Cargando navegación…"
+  }
+}

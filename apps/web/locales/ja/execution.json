@@ -1,0 +1,110 @@
+{
+  "status": {
+    "queued": "待機中",
+    "running": "実行中",
+    "completed": "完了",
+    "failed": "失敗",
+    "cancelled": "キャンセル済み",
+    "stopped": "停止済み",
+    "pending": "保留中",
+    "waiting_permission": "許可待ち"
+  },
+  "waiting": {
+    "title": "別のタスクを待機中",
+    "description": "タスクは待機中です。現在のタスクが完了すると自動的に開始されます。",
+    "followUpDescription": "フォローアップは自動的に続行されます",
+    "cancel": "タスクをキャンセル"
+  },
+  "thinking": "思考中...",
+  "thinkingBlock": "思考中\u2026",
+  "thinkingPhrases": {
+    "doing": "処理中...",
+    "executing": "実行中...",
+    "running": "動作中...",
+    "handling": "対応中...",
+    "accomplishing": "NestCafeしています..."
+  },
+  "loadingAgent": "エージェントを読み込み中...",
+  "waitingForResponse": "応答を待っています...",
+  "connectingToModel": "{{modelName}}に接続中...",
+  "coldStartHint": "初回のタスクは少し時間がかかります...",
+  "agentWorking": "エージェントが作業中...",
+  "stopAgent": "エージェントを停止 (Ctrl+C)",
+  "followUp": {
+    "interruptedPlaceholder": "新しい指示を入力...",
+    "noSessionPlaceholder": "再試行する指示を送信...",
+    "completedPlaceholder": "新しい指示を入力...",
+    "defaultPlaceholder": "依頼内容を入力...",
+    "dropFilesToAttach": "ファイルをドロップして添付"
+  },
+  "questionPrompt": {
+    "oauthConnecting": "{{provider}}に接続中...",
+    "oauthConnected": "{{provider}}が接続されました。",
+    "oauthFailed": "{{provider}}に接続できませんでした。再試行してください。",
+    "oauthStillDisconnected": "{{provider}}がまだ接続されていません。サインインを完了してから再試行してください。"
+  },
+  "taskStatus": "タスク{{status}}",
+  "processing": "処理中",
+  "system": "システム",
+  "copyToClipboard": "クリップボードにコピー",
+  "permission": {
+    "title": "許可が必要です",
+    "fileTitle": "ファイル操作の許可が必要です",
+    "fileDeleteTitle": "ファイル削除の警告",
+    "questionTitle": "質問",
+    "toolQuestion": "{{toolName}}を許可しますか？",
+    "tool": "ツール",
+    "previewContent": "内容をプレビュー",
+    "backToOptions": "← オプションに戻る",
+    "typeResponse": "応答を入力...",
+    "orTypeOwn": "または直接入力",
+    "enterDifferentOption": "別のオプションを入力...",
+    "cannotBeUndone": "この操作は取り消せません。",
+    "deleteWarningSingle": "このファイルは完全に削除されます:",
+    "deleteWarningMultiple": "{{count}}個のファイルが完全に削除されます:",
+    "operations": {
+      "delete": "削除",
+      "overwrite": "上書き",
+      "modify": "変更",
+      "create": "作成",
+      "rename": "名前変更",
+      "move": "移動"
+    }
+  },
+  "browserInstall": {
+    "title": "Chromeがインストールされていません",
+    "description": "自動化用ブラウザをインストール中...",
+    "downloading": "ダウンロード中...",
+    "oneTimeSetup": "初回セットアップ（合計約250MB）"
+  },
+  "debug": {
+    "title": "デバッグログ",
+    "noLogs": "デバッグログはまだありません。タスクを実行するとログが表示されます。"
+  },
+  "browserScript": {
+    "title": "ブラウザ操作",
+    "actions": {
+      "navigateTo": "{{hostname}}に移動",
+      "navigate": "移動",
+      "fill": "\"{{text}}\"を入力",
+      "fillField": "フィールドに入力",
+      "click": "{{target}}をクリック",
+      "press": "{{key}}を押す",
+      "capturePage": "ページをキャプチャ",
+      "screenshot": "スクリーンショット",
+      "waitForElement": "要素を待機",
+      "waitForPage": "ページを待機",
+      "waitForNavigation": "画面遷移を待機",
+      "runScript": "スクリプトを実行"
+    },
+    "showMore": "+{{count}}件を表示",
+    "showLess": "表示を減らす",
+    "showFewerActions": "操作を少なく表示",
+    "showMoreActions": "さらに{{count}}件の操作を表示"
+  },
+  "todos": {
+    "title": "タスク",
+    "progress": "{{completed}} / {{total}}"
+  },
+  "startNewTask": "新規タスク開始"
+}

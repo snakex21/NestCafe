@@ -1,0 +1,100 @@
+{
+  "app": {
+    "name": "NestCafe"
+  },
+  "buttons": {
+    "send": "보내기",
+    "submit": "제출",
+    "stop": "중지",
+    "cancel": "취소",
+    "close": "닫기",
+    "save": "저장",
+    "delete": "삭제",
+    "deleteAll": "전체 삭제",
+    "allow": "허용",
+    "deny": "거부",
+    "continue": "계속",
+    "doneContinue": "완료, 계속",
+    "goHome": "홈으로",
+    "startNewTask": "새 작업 시작",
+    "test": "테스트",
+    "testing": "테스트 중...",
+    "saving": "저장 중...",
+    "validating": "검증 중...",
+    "export": "내보내기",
+    "exported": "내보내기 완료",
+    "clear": "지우기",
+    "clearAll": "모두 지우기",
+    "yes": "예",
+    "no": "아니요",
+    "retry": "재시도",
+    "saveApiKey": "API 키 저장",
+    "copyToClipboard": "클립보드에 복사",
+    "dismiss": "닫기",
+    "messageTooLong": "메시지가 너무 깁니다",
+    "enterMessage": "메시지를 입력하세요",
+    "quit": "종료"
+  },
+  "aria": {
+    "scrollToBottom": "하단으로 스크롤",
+    "customResponse": "직접 응답 입력"
+  },
+  "status": {
+    "running": "실행 중",
+    "completed": "완료됨",
+    "failed": "실패",
+    "cancelled": "취소됨",
+    "queued": "대기 중",
+    "pending": "보류 중",
+    "waiting": "대기 중",
+    "stopped": "중지됨",
+    "interrupted": "중단됨"
+  },
+  "time": {
+    "justNow": "방금 전",
+    "minutesAgo": "{{count}}분 전",
+    "hoursAgo": "{{count}}시간 전",
+    "daysAgo": "{{count}}일 전",
+    "today": "오늘",
+    "yesterday": "어제"
+  },
+  "nav": {
+    "home": "홈",
+    "history": "기록",
+    "settings": "설정"
+  },
+  "labels": {
+    "awsCredentials": "AWS 자격 증명",
+    "gcpCredentials": "GCP 자격 증명",
+    "localApiKey": "로컬 API 키",
+    "azureFoundryEntraId": "Azure Foundry (Entra ID)",
+    "bedrockApiKey": "Bedrock API 키",
+    "awsAccessKeys": "AWS 액세스 키",
+    "awsProfile": "AWS 프로필: {{name}}"
+  },
+  "contextMenu": {
+    "addToDictionary": "사전에 추가"
+  },
+  "fileFilters": {
+    "text": "텍스트 파일",
+    "log": "로그 파일",
+    "skill": "Skill 파일",
+    "all": "모든 파일"
+  },
+  "model": {
+    "selectModel": "모델 선택",
+    "current": "현재",
+    "configureModel": "모델 구성",
+    "changeModel": "모델 변경"
+  },
+  "messages": "{{count}}개의 메시지",
+  "favorite": "즐겨찾기",
+  "theme": {
+    "switchToLight": "라이트 모드로 전환",
+    "switchToDark": "다크 모드로 전환",
+    "switchToSystem": "시스템 설정으로 전환",
+    "lightMode": "라이트 모드",
+    "darkMode": "다크 모드",
+    "systemMode": "시스템"
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "status": {
+    "queued": "Antrean",
+    "running": "Berjalan",
+    "completed": "Selesai",
+    "failed": "Gagal",
+    "cancelled": "Dibatalkan",
+    "stopped": "Dihentikan",
+    "pending": "Tertunda",
+    "waiting_permission": "Menunggu izin"
+  },
+  "waiting": {
+    "title": "Menunggu tugas lain",
+    "description": "Tugas Anda sedang dalam antrean dan akan dimulai otomatis saat tugas saat ini selesai.",
+    "followUpDescription": "Tindak lanjut Anda akan berlanjut secara otomatis",
+    "cancel": "Batalkan tugas"
+  },
+  "thinking": "Berpikir...",
+  "thinkingBlock": "Berpikir\u2026",
+  "thinkingPhrases": {
+    "doing": "Mengerjakan...",
+    "executing": "Menjalankan...",
+    "running": "Berjalan...",
+    "handling": "Menanganinya...",
+    "accomplishing": "Menyelesaikan..."
+  },
+  "loadingAgent": "Memuat agen...",
+  "waitingForResponse": "Menunggu respons...",
+  "connectingToModel": "Menghubungkan ke {{modelName}}...",
+  "coldStartHint": "Tugas pertama agak lebih lama...",
+  "agentWorking": "Agen sedang bekerja...",
+  "stopAgent": "Hentikan agen (Ctrl+C)",
+  "followUp": {
+    "interruptedPlaceholder": "Berikan instruksi baru...",
+    "noSessionPlaceholder": "Kirim instruksi baru untuk mencoba lagi...",
+    "completedPlaceholder": "Berikan instruksi baru...",
+    "defaultPlaceholder": "Minta sesuatu...",
+    "dropFilesToAttach": "Lepas file untuk dilampirkan"
+  },
+  "questionPrompt": {
+    "oauthConnecting": "Menghubungkan {{provider}}...",
+    "oauthConnected": "{{provider}} telah terhubung.",
+    "oauthFailed": "Tidak dapat menghubungkan {{provider}}. Coba lagi.",
+    "oauthStillDisconnected": "{{provider}} masih belum terhubung. Selesaikan login dan coba lagi."
+  },
+  "taskStatus": "Tugas {{status}}",
+  "processing": "Memproses",
+  "system": "Sistem",
+  "copyToClipboard": "Salin ke papan klip",
+  "permission": {
+    "title": "Izin Diperlukan",
+    "fileTitle": "Izin File Diperlukan",
+    "fileDeleteTitle": "Peringatan Penghapusan File",
+    "questionTitle": "Pertanyaan",
+    "toolQuestion": "Izinkan {{toolName}}?",
+    "tool": "Alat",
+    "previewContent": "Pratinjau konten",
+    "backToOptions": "← Kembali ke opsi",
+    "typeResponse": "Ketik respons Anda...",
+    "orTypeOwn": "atau ketik sendiri",
+    "enterDifferentOption": "Masukkan opsi yang berbeda...",
+    "cannotBeUndone": "Tindakan ini tidak dapat dibatalkan.",
+    "deleteWarningSingle": "File ini akan dihapus secara permanen:",
+    "deleteWarningMultiple": "{{count}} file akan dihapus secara permanen:",
+    "operations": {
+      "delete": "HAPUS",
+      "overwrite": "TIMPA",
+      "modify": "UBAH",
+      "create": "BUAT",
+      "rename": "GANTI NAMA",
+      "move": "PINDAHKAN"
+    }
+  },
+  "browserInstall": {
+    "title": "Chrome belum terinstal",
+    "description": "Menginstal browser untuk otomatisasi...",
+    "downloading": "Mengunduh...",
+    "oneTimeSetup": "Pengaturan satu kali (~250 MB total)"
+  },
+  "debug": {
+    "title": "Log Debug",
+    "noLogs": "Belum ada log debug. Jalankan tugas untuk melihat log."
+  },
+  "browserScript": {
+    "title": "Tindakan Browser",
+    "actions": {
+      "navigateTo": "Navigasi ke {{hostname}}",
+      "navigate": "Navigasi",
+      "fill": "Isi \"{{text}}\"",
+      "fillField": "Isi bidang",
+      "click": "Klik {{target}}",
+      "press": "Tekan {{key}}",
+      "capturePage": "Tangkap halaman",
+      "screenshot": "Tangkapan layar",
+      "waitForElement": "Tunggu elemen",
+      "waitForPage": "Tunggu halaman",
+      "waitForNavigation": "Tunggu navigasi",
+      "runScript": "Jalankan skrip"
+    },
+    "showMore": "+{{count}} lagi",
+    "showLess": "Sembunyikan",
+    "showFewerActions": "Tampilkan lebih sedikit",
+    "showMoreActions": "Tampilkan {{count}} tindakan lagi"
+  },
+  "todos": {
+    "title": "Tugas",
+    "progress": "{{completed}} dari {{total}}"
+  },
+  "startNewTask": "Mulai Tugas Baru"
+}

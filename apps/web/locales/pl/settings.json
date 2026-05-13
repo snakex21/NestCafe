@@ -338,7 +338,7 @@
       "starting": "Uruchamianie..."
     },
     "closeBehavior": {
-      "label": "Window Close Behavior",
+      "label": "Zachowanie przy zamykaniu okna",
       "keepDescription": "Zamknięcie okna ukrywa je do zasobnika. Daemon działa dalej i zadania są kontynuowane w tle.",
       "stopDescription": "Zamknięcie okna zatrzymuje daemon i zamyka aplikację. Działające zadania zostaną zakończone.",
       "warning": "Funkcje tła (integracje zewnętrzne) nie będą działać, gdy okno jest zamknięte."
@@ -439,13 +439,20 @@
     "colorMidnight": "Midnight",
     "colorNord": "Nord",
     "colorDracula": "Dracula",
+    "colorOcean": "Ocean",
+    "colorSunset": "Zachód",
+    "colorForest": "Las",
+    "colorRose": "Róża",
     "fontTitle": "Czcionka",
     "fontDescription": "Zmień czcionkę interfejsu aplikacji.",
+    "fontInter": "Inter",
     "fontGeist": "Geist",
     "fontApparat": "KMR Apparat",
     "fontSystem": "Systemowa",
     "fontSerif": "Szeryfowa",
-    "fontMono": "Monospace"
+    "fontLora": "Lora",
+    "fontMono": "Monospace",
+    "fontJetbrains": "JetBrains Mono"
   },
   "connectors": {
     "title": "Połączenia",

@@ -1,13 +1,9 @@
 /**
  * Web i18n Configuration (Platform-Agnostic, Optional Electron IPC)
  *
- * All translations are bundled as static imports. Language preference is
- * persisted in localStorage. This module remains platform-agnostic, but when running
- * in an Electron renderer, it will call window.nestcafe.setLanguage() (IPC to main process)
- * if present, to sync the language preference with the main process. This integration is
- * fully optional: calls are guarded by (typeof window !== 'undefined' && window.nestcafe?.setLanguage)
- * and are fire-and-forget with error logging. See the symbols window.nestcafe.setLanguage and
- * getLanguagePreference in this module for the conditional Electron integration logic.
+ * Only English is bundled statically as the fallback. All other languages
+ * are loaded on demand via dynamic imports (code-split by Vite).
+ * Language preference is persisted in localStorage.
  */
 
 import i18n from 'i18next';
@@ -17,7 +13,7 @@ const logger = createLogger('i18n');
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-// Static English locale imports
+// Static English fallback — always available, never code-split
 import enCommon from '@locales/en/common.json';
 import enHome from '@locales/en/home.json';
 import enSettings from '@locales/en/settings.json';
@@ -26,52 +22,33 @@ import enHistory from '@locales/en/history.json';
 import enErrors from '@locales/en/errors.json';
 import enSidebar from '@locales/en/sidebar.json';
 
-// Static Chinese locale imports
-import zhCNCommon from '@locales/zh-CN/common.json';
-import zhCNHome from '@locales/zh-CN/home.json';
-import zhCNSettings from '@locales/zh-CN/settings.json';
-import zhCNExecution from '@locales/zh-CN/execution.json';
-import zhCNHistory from '@locales/zh-CN/history.json';
-import zhCNErrors from '@locales/zh-CN/errors.json';
-import zhCNSidebar from '@locales/zh-CN/sidebar.json';
+// Dynamic locale loader: Vite splits each file into its own chunk.
+// Paths are relative to this source file.
+const localeModules = import.meta.glob<Record<string, unknown>>(
+  '../../../locales/*/*.json',
+);
 
-// Static Russian locale imports
-import ruCommon from '@locales/ru/common.json';
-import ruHome from '@locales/ru/home.json';
-import ruSettings from '@locales/ru/settings.json';
-import ruExecution from '@locales/ru/execution.json';
-import ruHistory from '@locales/ru/history.json';
-import ruErrors from '@locales/ru/errors.json';
-import ruSidebar from '@locales/ru/sidebar.json';
-
-// Static French locale imports
-import frCommon from '@locales/fr/common.json';
-import frHome from '@locales/fr/home.json';
-import frSettings from '@locales/fr/settings.json';
-import frExecution from '@locales/fr/execution.json';
-import frHistory from '@locales/fr/history.json';
-import frErrors from '@locales/fr/errors.json';
-import frSidebar from '@locales/fr/sidebar.json';
-
-// Static Polish locale imports
-import plCommon from '@locales/pl/common.json';
-import plHome from '@locales/pl/home.json';
-import plSettings from '@locales/pl/settings.json';
-import plExecution from '@locales/pl/execution.json';
-import plHistory from '@locales/pl/history.json';
-import plErrors from '@locales/pl/errors.json';
-import plSidebar from '@locales/pl/sidebar.json';
+// Build a lookup map: { "zh-CN:settings": loader, ... }
+const bundleLoaders: Record<string, () => Promise<Record<string, unknown>>> = {};
+for (const [filePath, loader] of Object.entries(localeModules)) {
+  const match = filePath.match(/locales\/([^/]+)\/([^/]+)\.json$/);
+  if (match) {
+    const lang = match[1];
+    const ns = match[2];
+    if (lang !== 'en') {
+      bundleLoaders[`${lang}:${ns}`] = loader;
+    }
+  }
+}
 
 // Supported languages and namespaces
-export const SUPPORTED_LANGUAGES = ['en', 'zh-CN', 'ru', 'fr', 'pl'] as const;
+export const SUPPORTED_LANGUAGES = [
+  'en', 'zh-CN', 'ru', 'fr', 'pl',
+  'ja', 'ko', 'es', 'ar', 'hi', 'id', 'ta', 'tr',
+] as const;
 export const NAMESPACES = [
-  'common',
-  'home',
-  'execution',
-  'settings',
-  'history',
-  'errors',
-  'sidebar',
+  'common', 'home', 'execution', 'settings',
+  'history', 'errors', 'sidebar',
 ] as const;
 
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
@@ -79,7 +56,10 @@ export type Namespace = (typeof NAMESPACES)[number];
 
 export const LANGUAGE_STORAGE_KEY = 'openwork-language';
 
-// Flag to track initialization
+// Track which languages have already been loaded to avoid re-fetching
+const loadedLanguages = new Set<string>(['en']);
+
+// Initialization guards
 let isInitialized = false;
 let initializationPromise: Promise<void> | null = null;
 
@@ -91,6 +71,44 @@ function updateDocumentDirection(language: string): void {
 }
 
 /**
+ * Dynamically load a language bundle (all 7 namespaces) from code-split chunks.
+ * Returns immediately if the language is already loaded.
+ */
+async function loadLanguageBundle(lang: string): Promise<void> {
+  if (loadedLanguages.has(lang)) {
+    return;
+  }
+
+  const namespaces = NAMESPACES as readonly string[];
+  const results = await Promise.all(
+    namespaces.map(async (ns) => {
+      const key = `${lang}:${ns}`;
+      const loader = bundleLoaders[key];
+      if (!loader) {
+        logger.warn(`No bundle found for ${key}`);
+        return { ns, data: null };
+      }
+      try {
+        const data = await loader();
+        return { ns, data };
+      } catch (err) {
+        logger.warn(`Failed to load locale bundle ${key}`, err);
+        return { ns, data: null };
+      }
+    }),
+  );
+
+  for (const { ns, data } of results) {
+    if (data) {
+      i18n.addResourceBundle(lang, ns, data, true, true);
+    }
+  }
+
+  loadedLanguages.add(lang);
+  logger.info(`Language bundle loaded: ${lang}`);
+}
+
+/**
  * Read the stored language preference from localStorage.
  * Returns the concrete language to use (resolves 'auto' via navigator).
  */
@@ -99,34 +117,14 @@ function resolveStoredLanguage(): SupportedLanguage {
     return 'en';
   }
   const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-  if (
-    stored === 'en' ||
-    stored === 'zh-CN' ||
-    stored === 'ru' ||
-    stored === 'fr' ||
-    stored === 'pl'
-  ) {
-    return stored;
+  if (SUPPORTED_LANGUAGES.includes(stored as SupportedLanguage)) {
+    return stored as SupportedLanguage;
   }
-  // 'auto' or missing — detect from browser
-  const nav = typeof navigator !== 'undefined' ? navigator.language : 'en';
-  if (nav.startsWith('zh')) {
-    return 'zh-CN';
-  }
-  if (nav.startsWith('ru')) {
-    return 'ru';
-  }
-  if (nav.startsWith('fr')) {
-    return 'fr';
-  }
-  if (nav.startsWith('pl')) {
-    return 'pl';
-  }
-  return 'en';
+  return resolveAutoLanguage();
 }
 
 /**
- * Initialize i18n with bundled translations
+ * Initialize i18n with English fallback, then load the user's preferred language.
  */
 export async function initI18n(): Promise<void> {
   if (isInitialized) {
@@ -139,6 +137,7 @@ export async function initI18n(): Promise<void> {
   initializationPromise = (async () => {
     const initialLanguage = resolveStoredLanguage();
 
+    // Init with English only — instant, no network needed
     await i18n
       .use(LanguageDetector)
       .use(initReactI18next)
@@ -153,44 +152,8 @@ export async function initI18n(): Promise<void> {
             errors: enErrors as Record<string, unknown>,
             sidebar: enSidebar as Record<string, unknown>,
           },
-          'zh-CN': {
-            common: zhCNCommon as Record<string, unknown>,
-            home: zhCNHome as Record<string, unknown>,
-            settings: zhCNSettings as Record<string, unknown>,
-            execution: zhCNExecution as Record<string, unknown>,
-            history: zhCNHistory as Record<string, unknown>,
-            errors: zhCNErrors as Record<string, unknown>,
-            sidebar: zhCNSidebar as Record<string, unknown>,
-          },
-          ru: {
-            common: ruCommon as Record<string, unknown>,
-            home: ruHome as Record<string, unknown>,
-            settings: ruSettings as Record<string, unknown>,
-            execution: ruExecution as Record<string, unknown>,
-            history: ruHistory as Record<string, unknown>,
-            errors: ruErrors as Record<string, unknown>,
-            sidebar: ruSidebar as Record<string, unknown>,
-          },
-          fr: {
-            common: frCommon as Record<string, unknown>,
-            home: frHome as Record<string, unknown>,
-            settings: frSettings as Record<string, unknown>,
-            execution: frExecution as Record<string, unknown>,
-            history: frHistory as Record<string, unknown>,
-            errors: frErrors as Record<string, unknown>,
-            sidebar: frSidebar as Record<string, unknown>,
-          },
-          pl: {
-            common: plCommon as Record<string, unknown>,
-            home: plHome as Record<string, unknown>,
-            settings: plSettings as Record<string, unknown>,
-            execution: plExecution as Record<string, unknown>,
-            history: plHistory as Record<string, unknown>,
-            errors: plErrors as Record<string, unknown>,
-            sidebar: plSidebar as Record<string, unknown>,
-          },
         },
-        lng: initialLanguage,
+        lng: 'en', // Start with English for instant render
         fallbackLng: 'en',
         defaultNS: 'common',
         ns: NAMESPACES as unknown as string[],
@@ -206,7 +169,6 @@ export async function initI18n(): Promise<void> {
         },
 
         debug: false,
-
         returnEmptyString: false,
 
         react: {
@@ -214,9 +176,22 @@ export async function initI18n(): Promise<void> {
         },
       });
 
-    updateDocumentDirection(initialLanguage);
     isInitialized = true;
-    logger.info(`Initialized with language: ${initialLanguage}`);
+    updateDocumentDirection('en');
+
+    // Load the user's preferred language in the background, then switch
+    if (initialLanguage !== 'en') {
+      loadLanguageBundle(initialLanguage)
+        .then(() => {
+          i18n.changeLanguage(initialLanguage);
+          updateDocumentDirection(initialLanguage);
+          logger.info(`Switched to preferred language: ${initialLanguage}`);
+        })
+        .catch((error) => {
+          logger.warn('Failed to load preferred language, staying on English', error);
+        });
+    }
+
     // Sync initial language to main process so the agent reflects the stored preference
     if (typeof window !== 'undefined' && window.nestcafe?.setLanguage) {
       const storedPref = getLanguagePreference();
@@ -230,15 +205,20 @@ export async function initI18n(): Promise<void> {
 }
 
 /**
- * Change language and persist to localStorage and main-process DB (Electron only)
+ * Change language and persist to localStorage and main-process DB (Electron only).
+ * Dynamically loads the language bundle if not already cached.
  */
 export async function changeLanguage(
-  language: 'en' | 'zh-CN' | 'ru' | 'fr' | 'pl' | 'auto',
+  language: SupportedLanguage | 'auto',
 ): Promise<void> {
   const resolvedLanguage = language === 'auto' ? resolveAutoLanguage() : language;
   localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+
+  // Load the bundle first if needed, then switch
+  await loadLanguageBundle(resolvedLanguage);
   await i18n.changeLanguage(resolvedLanguage);
   updateDocumentDirection(resolvedLanguage);
+
   // Persist to main process so the agent reads the correct language
   if (typeof window !== 'undefined' && window.nestcafe?.setLanguage) {
     window.nestcafe.setLanguage(language).catch((error) => {
@@ -250,38 +230,31 @@ export async function changeLanguage(
 /**
  * Get the current language preference from localStorage
  */
-export function getLanguagePreference(): 'en' | 'zh-CN' | 'ru' | 'fr' | 'pl' | 'auto' {
+export function getLanguagePreference(): SupportedLanguage | 'auto' {
   if (typeof localStorage === 'undefined') {
     return 'auto';
   }
   const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-  if (
-    stored === 'en' ||
-    stored === 'zh-CN' ||
-    stored === 'ru' ||
-    stored === 'fr' ||
-    stored === 'pl' ||
-    stored === 'auto'
-  ) {
-    return stored;
+  if (SUPPORTED_LANGUAGES.includes(stored as SupportedLanguage) || stored === 'auto') {
+    return stored as SupportedLanguage | 'auto';
   }
   return 'auto';
 }
 
 function resolveAutoLanguage(): SupportedLanguage {
   const nav = typeof navigator !== 'undefined' ? navigator.language : 'en';
-  if (nav.startsWith('zh')) {
-    return 'zh-CN';
-  }
-  if (nav.startsWith('ru')) {
-    return 'ru';
-  }
-  if (nav.startsWith('fr')) {
-    return 'fr';
-  }
-  if (nav.startsWith('pl')) {
-    return 'pl';
-  }
+  if (nav.startsWith('zh')) return 'zh-CN';
+  if (nav.startsWith('ja')) return 'ja';
+  if (nav.startsWith('ko')) return 'ko';
+  if (nav.startsWith('ru')) return 'ru';
+  if (nav.startsWith('fr')) return 'fr';
+  if (nav.startsWith('pl')) return 'pl';
+  if (nav.startsWith('es')) return 'es';
+  if (nav.startsWith('ar')) return 'ar';
+  if (nav.startsWith('hi')) return 'hi';
+  if (nav.startsWith('id')) return 'id';
+  if (nav.startsWith('ta')) return 'ta';
+  if (nav.startsWith('tr')) return 'tr';
   return 'en';
 }
 
