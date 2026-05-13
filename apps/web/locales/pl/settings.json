@@ -118,7 +118,12 @@
     "venice": "Usługa",
     "nim": "Modele hostowane NVIDIA",
     "custom": "Niestandardowy",
-    "copilot": "Modele Copilot"
+    "copilot": "Modele Copilot",
+    "qwen-china": "Modele Qwen (Chiny)",
+    "qwen-international": "Modele Qwen (Globalne)",
+    "xiaomi": "Modele Xiaomi",
+    "xiaomi-token": "Xiaomi Token Plan",
+    "perplexity": "Wyszukiwanie AI"
   },
   "status": {
     "connected": "Połączony",

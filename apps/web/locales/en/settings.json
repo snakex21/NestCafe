@@ -118,7 +118,12 @@
     "venice": "Service",
     "nim": "NVIDIA-hosted models",
     "custom": "Custom",
-    "copilot": "Copilot models"
+    "copilot": "Copilot models",
+    "qwen-china": "Qwen models (China)",
+    "qwen-international": "Qwen models (Global)",
+    "xiaomi": "Xiaomi models",
+    "xiaomi-token": "Xiaomi Token Plan",
+    "perplexity": "AI-powered search"
   },
   "status": {
     "connected": "Connected",
