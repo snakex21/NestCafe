@@ -12,7 +12,10 @@ import { connect, type Socket } from 'node:net';
 import type { DaemonTransport, JsonRpcMessage } from '../common/types/daemon.js';
 import { getSocketPath } from './socket-path.js';
 
-const MAX_BUFFER_BYTES = 1 * 1024 * 1024; // 1 MB — matches DaemonRpcServer
+// OCR and module-history RPC payloads can legitimately exceed 1 MB (for example
+// image base64 or restored document text). Keep a guard against runaway payloads,
+// but make it large enough for expected desktop IPC traffic.
+const MAX_BUFFER_BYTES = 32 * 1024 * 1024; // 32 MB
 
 type MessageHandler = (message: JsonRpcMessage) => void;
 type DisconnectHandler = () => void;

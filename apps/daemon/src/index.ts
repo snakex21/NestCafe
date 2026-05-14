@@ -282,6 +282,7 @@ async function main(): Promise<void> {
     legacyImportService,
     googleAccountService,
     skillsService,
+    resourcesPath,
   };
   registerRpcMethods(routeServices);
   registerTaskEventForwarding(routeServices);

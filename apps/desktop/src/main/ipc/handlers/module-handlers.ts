@@ -32,6 +32,11 @@ export function registerModuleHandlers(): void {
     return client.call('module.getSettings', { moduleId });
   });
 
+  handle('module:getSetting', async (_event, moduleId: string, key: string) => {
+    const client = getDaemonClient();
+    return client.call('module.getSetting', { moduleId, key });
+  });
+
   handle('module:setSetting', async (_event, moduleId: string, key: string, value: string) => {
     const client = getDaemonClient();
     return client.call('module.setSetting', { moduleId, key, value });

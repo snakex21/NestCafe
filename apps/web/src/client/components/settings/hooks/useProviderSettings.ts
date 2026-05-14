@@ -65,6 +65,9 @@ export function useProviderSettings() {
         connectionStatus: 'disconnected',
       };
       await nestcafe.setConnectedProvider(providerId, disconnectedProvider);
+      // Clean up the API key from secure storage so expired/invalid
+      // keys don't linger and block removal later.
+      await nestcafe.removeApiKey(providerId).catch(() => {});
       if (currentSettings.activeProviderId === providerId) {
         await nestcafe.setActiveProvider(null);
       }
@@ -85,6 +88,7 @@ export function useProviderSettings() {
     }
 
     await nestcafe.removeConnectedProvider(providerId);
+    await nestcafe.removeApiKey(providerId).catch(() => {});
     setSettings((prev) => {
       if (!prev) {
         return null;

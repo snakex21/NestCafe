@@ -10,7 +10,7 @@
   var e = R.createElement;
 
   var LANGUAGES = [
-    { id: 'original', label: 'Orgina\u0142 (bez zmian)' },
+    { id: 'original', label: 'Orygina\u0142 (bez zmian)' },
     { id: 'pl', label: 'Polski' },
     { id: 'en', label: 'Angielski' },
     { id: 'de', label: 'Niemiecki' },
@@ -500,6 +500,26 @@
     );
   }
 
+  function formatHistoryDate(value) {
+    if (!value) return '';
+    var date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleString(undefined, {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  function languageLabel(value) {
+    var found = LANGUAGES.find(function (lang) {
+      return lang.id === value;
+    });
+    return found ? found.label.replace(/\s*\(bez zmian\)\s*$/, '') : value || 'Orygina\u0142';
+  }
+
   function OCRViewer() {
     var _s = useState(null),
       image = _s[0],
@@ -540,6 +560,9 @@
     var _hn = useState(''),
       docName = _hn[0],
       setDocName = _hn[1];
+    var _sf = useState(null),
+      sourceFile = _sf[0],
+      setSourceFile = _sf[1];
     var _vw = useState('markdown'),
       viewMode = _vw[0],
       setViewMode = _vw[1];
@@ -569,6 +592,30 @@
     var langOptions = LANGUAGES.map(function (l) {
       return { value: l.id, label: l.label };
     });
+
+    useEffect(
+      function () {
+        if (!dragging) return undefined;
+
+        function handleMove(ev) {
+          ev.preventDefault();
+          setPanX(ev.clientX - dragStart.x);
+          setPanY(ev.clientY - dragStart.y);
+        }
+
+        function handleUp() {
+          setDragging(false);
+        }
+
+        window.addEventListener('mousemove', handleMove, { passive: false });
+        window.addEventListener('mouseup', handleUp);
+        return function () {
+          window.removeEventListener('mousemove', handleMove);
+          window.removeEventListener('mouseup', handleUp);
+        };
+      },
+      [dragging, dragStart],
+    );
 
     useEffect(function () {
       var modId = window.__module_current_id;
@@ -609,7 +656,10 @@
     var saveToHistory = useCallback(
       function (name, txt, imageDataUrl) {
         var preview = txt.slice(0, 120).replace(/\n/g, ' ');
-        var key = 'doc_' + Date.now();
+        var stamp = Date.now();
+        var key = 'doc_' + stamp;
+        var imageKey = 'docimg_' + stamp;
+        var fullImage = imageDataUrl || image || null;
         var entry = {
           _key: key,
           name: name,
@@ -617,19 +667,54 @@
           preview: preview,
           lang: targetLang,
           text: txt,
-          image: imageDataUrl || image,
+          imageKey: fullImage ? imageKey : undefined,
+          image: fullImage || undefined,
         };
         setHistory(function (h) {
           return [entry].concat(h).slice(0, 20);
         });
         var modId = window.__module_current_id;
-        if (modId)
+        if (modId) {
+          var persisted = Object.assign({}, entry);
+          delete persisted.image;
           window.nestcafe
-            .setModuleSetting(modId, key, JSON.stringify(entry))
+            .setModuleSetting(modId, key, JSON.stringify(persisted))
             .catch(function () {});
+          if (fullImage) {
+            window.nestcafe.setModuleSetting(modId, imageKey, fullImage).catch(function () {});
+          }
+        }
       },
       [targetLang, image],
     );
+
+    var openHistoryItem = useCallback(function (item) {
+      setText(item.text || '');
+      setDocName(item.name);
+      setTargetLang(item.lang);
+      setSourceFile(null);
+      setHistorySession(true);
+      setChatHistory([]);
+      setZoom(100);
+      setPanX(0);
+      setPanY(0);
+      setError(null);
+
+      if (item.image) {
+        setImage(item.image);
+        return;
+      }
+
+      setImage(null);
+      var modId = window.__module_current_id;
+      if (!modId || !item.imageKey || !window.nestcafe.getModuleSetting) return;
+      window.nestcafe
+        .getModuleSetting(modId, item.imageKey)
+        .then(function (savedImage) {
+          if (savedImage) setImage(savedImage);
+        })
+        .catch(function () {});
+    }, []);
 
     var deleteHistoryItem = useCallback(function (item) {
       setHistory(function (h) {
@@ -638,8 +723,12 @@
         });
       });
       var modId = window.__module_current_id;
-      if (modId && item._key)
+      if (modId && item._key) {
         window.nestcafe.setModuleSetting(modId, item._key, '').catch(function () {});
+        if (item.imageKey) {
+          window.nestcafe.setModuleSetting(modId, item.imageKey, '').catch(function () {});
+        }
+      }
     }, []);
 
     var goHome = useCallback(function () {
@@ -651,6 +740,7 @@
       setPanX(0);
       setPanY(0);
       setDocName('');
+      setSourceFile(null);
       setHistorySession(false);
     }, []);
 
@@ -674,7 +764,8 @@
           });
           p += ' Translate the transcription to ' + (lang ? lang.label : targetLang) + '.';
         }
-        p += ' Return ONLY the transcribed text, no commentary.';
+        p +=
+          ' Return ONLY the transcribed text, no commentary. Do not write reasoning or analysis. /no_think';
         return p;
       },
       [targetLang],
@@ -694,6 +785,13 @@
             parts.modelId,
           )
           .then(function (r) {
+            if (!r.text || !String(r.text).trim()) {
+              setError(
+                'Model nie zwr\u00f3ci\u0142 tekstu. Spr\u00f3buj innego modelu lub ponownie.',
+              );
+              setLoading(false);
+              return;
+            }
             setText(r.text);
             setLoading(false);
             saveToHistory(name || 'Dokument', r.text, imageDataUrl);
@@ -720,7 +818,7 @@
           .visionTranscribe(
             '',
             null,
-            'You are a text editor. User wants to correct a transcribed document.\n\nCURRENT TEXT:\n"""\n' +
+            '/no_think\nYou are a text editor. User wants to correct a transcribed document. Do not write reasoning or analysis.\n\nCURRENT TEXT:\n"""\n' +
               text +
               '\n"""\n\nUSER REQUEST: ' +
               msg +
@@ -750,6 +848,7 @@
     var processFile = useCallback(
       function (file) {
         if (!file) return;
+        setSourceFile(file);
         var name = (file.name || '').toLowerCase();
         var isImage = file.type && file.type.startsWith('image/');
         var isImageExt = /\.(png|jpe?g|webp|bmp)$/i.test(name);
@@ -808,6 +907,23 @@
         reader.readAsDataURL(file);
       },
       [handleTranscribe],
+    );
+
+    var handleRetranscribe = useCallback(
+      function () {
+        setError(null);
+        setChatHistory([]);
+        if (image) {
+          setText('');
+          handleTranscribe(image.split(',')[1] || '', 'image/png', docName || 'Dokument', image);
+          return;
+        }
+        if (sourceFile) {
+          setText('');
+          processFile(sourceFile);
+        }
+      },
+      [image, sourceFile, docName, handleTranscribe, processFile],
     );
 
     var onDrop = useCallback(
@@ -911,16 +1027,7 @@
                         className:
                           'flex-1 text-left text-xs px-3 py-2 rounded hover:bg-accent border min-w-0',
                         onClick: function () {
-                          setText(h.text || '');
-                          setDocName(h.name);
-                          setTargetLang(h.lang);
-                          setImage(h.image || null);
-                          setHistorySession(true);
-                          setChatHistory([]);
-                          setZoom(100);
-                          setPanX(0);
-                          setPanY(0);
-                          setError(null);
+                          openHistoryItem(h);
                         },
                         type: 'button',
                       },
@@ -928,9 +1035,7 @@
                       e(
                         'div',
                         { className: 'text-muted-foreground truncate' },
-                        (h.date || '').slice(0, 16).replace('T', ' ') +
-                          ' \u2022 ' +
-                          (h.preview || ''),
+                        formatHistoryDate(h.date) + ' \u2022 ' + (h.preview || ''),
                       ),
                     ),
                     e(
@@ -1003,14 +1108,24 @@
           e(
             'div',
             { className: 'flex items-center justify-between mb-2 gap-2 flex-wrap' },
-            e('h3', { className: 'text-sm font-medium' }, docName || 'Orygina\u0142'),
+            e(
+              'div',
+              { className: 'min-w-0' },
+              e('h3', { className: 'text-sm font-medium' }, 'Orygina\u0142'),
+              e(
+                'div',
+                { className: 'text-xs text-muted-foreground truncate' },
+                docName || 'Dokument źródłowy',
+              ),
+            ),
             e(
               'div',
               { className: 'flex gap-1 items-center' },
               e(
                 'button',
                 {
-                  className: 'text-xs border rounded px-1.5 py-0.5 hover:bg-accent',
+                  className:
+                    'inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background/80 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors',
                   onClick: function () {
                     setZoom(function (z) {
                       return Math.max(25, z - 25);
@@ -1021,13 +1136,14 @@
               ),
               e(
                 'span',
-                { className: 'text-xs text-muted-foreground w-10 text-center' },
+                { className: 'text-xs text-muted-foreground w-12 text-center font-medium' },
                 zoom + '%',
               ),
               e(
                 'button',
                 {
-                  className: 'text-xs border rounded px-1.5 py-0.5 hover:bg-accent',
+                  className:
+                    'inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background/80 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors',
                   onClick: function () {
                     setZoom(function (z) {
                       return Math.min(400, z + 25);
@@ -1039,9 +1155,10 @@
               e(
                 'button',
                 {
-                  className: 'text-xs border rounded px-1.5 py-0.5 hover:bg-accent ml-1',
+                  className:
+                    'inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background/80 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors ml-1',
+                  title: 'Wyśrodkuj obraz bez zmiany powiększenia',
                   onClick: function () {
-                    setZoom(100);
                     setPanX(0);
                     setPanY(0);
                   },
@@ -1065,19 +1182,21 @@
                 'button',
                 {
                   className:
-                    'text-xs text-muted-foreground hover:text-foreground px-2 py-0.5 rounded border',
-                  onClick: goHome,
+                    'inline-flex h-8 items-center gap-1.5 rounded-lg border border-border bg-background/80 px-3 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:cursor-not-allowed disabled:opacity-40',
+                  onClick: handleRetranscribe,
+                  disabled: loading || (!image && !sourceFile),
+                  title: 'Transkrybuj ponownie ten sam dokument',
                 },
-                '\u2190 Wr\u00F3\u0107',
+                '\u21bb Ponownie',
               ),
               e(
                 'button',
                 {
                   className:
-                    'text-xs text-muted-foreground hover:text-foreground px-2 py-0.5 rounded border',
+                    'inline-flex h-8 items-center gap-1.5 rounded-lg border border-border bg-background/80 px-3 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors',
                   onClick: goHome,
                 },
-                'Nowy',
+                '\u2190 Wr\u00F3\u0107',
               ),
             ),
           ),
@@ -1085,13 +1204,22 @@
             'div',
             {
               className: 'overflow-hidden',
-              style: { maxHeight: 'calc(100vh - 120px)', cursor: dragging ? 'grabbing' : 'grab' },
+              style: {
+                maxHeight: 'calc(100vh - 120px)',
+                cursor: dragging ? 'grabbing' : 'grab',
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
+                touchAction: 'none',
+              },
               onMouseDown: function (ev) {
+                if (ev.button !== 0) return;
+                ev.preventDefault();
                 setDragging(true);
                 setDragStart({ x: ev.clientX - panX, y: ev.clientY - panY });
               },
               onMouseMove: function (ev) {
                 if (!dragging) return;
+                ev.preventDefault();
                 setPanX(ev.clientX - dragStart.x);
                 setPanY(ev.clientY - dragStart.y);
               },
@@ -1099,7 +1227,14 @@
                 setDragging(false);
               },
               onMouseLeave: function () {
-                setDragging(false);
+                // Keep dragging active while the cursor leaves the image pane;
+                // the window-level mouseup handler ends the drag.
+              },
+              onDragStart: function (ev) {
+                ev.preventDefault();
+              },
+              onSelectStart: function (ev) {
+                ev.preventDefault();
               },
             },
             highlightLine &&
@@ -1125,8 +1260,14 @@
                     transform: 'translate(' + panX + 'px, ' + panY + 'px)',
                     transition: dragging ? 'none' : 'transform 0.1s',
                     pointerEvents: 'none',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    WebkitUserDrag: 'none',
                   },
                   draggable: false,
+                  onDragStart: function (ev) {
+                    ev.preventDefault();
+                  },
                 })
               : e(
                   'div',
@@ -1146,7 +1287,18 @@
             e(
               'div',
               { className: 'flex items-center gap-2' },
-              e('h3', { className: 'text-sm font-medium' }, 'Tekst'),
+              e(
+                'div',
+                {},
+                e('h3', { className: 'text-sm font-medium' }, 'Orygina\u0142'),
+                e(
+                  'div',
+                  { className: 'text-xs text-muted-foreground' },
+                  targetLang === 'original'
+                    ? 'Bez tłumaczenia'
+                    : 'Tłumaczenie: ' + languageLabel(targetLang),
+                ),
+              ),
               text &&
                 e('span', { className: 'text-xs text-muted-foreground' }, text.length + ' zn'),
             ),

@@ -13,7 +13,7 @@ import {
   authOpenAiAwaitCompletionSchema,
   validate,
 } from '@nestcafe_ai/agent-core';
-import type { NestcafeRuntime, StorageDeps } from '@nestcafe_ai/agent-core';
+import type { NestcafeRuntime, StorageAPI, StorageDeps } from '@nestcafe_ai/agent-core';
 import { discoverModules, getDefaultModuleDirs } from '@nestcafe_ai/agent-core/modules/loader';
 import { z } from 'zod';
 import { homedir } from 'node:os';
@@ -78,6 +78,46 @@ function trimTrailingSlash(value: string): string {
   return value.replace(/\/+$/u, '');
 }
 
+function extractChatCompletionText(data: unknown): string {
+  const choice = (data as { choices?: Array<{ message?: Record<string, unknown> }> }).choices?.[0];
+  const message = choice?.message;
+  const content = message?.content;
+  if (typeof content === 'string' && content.trim()) {
+    return content;
+  }
+
+  const reasoningContent = message?.reasoning_content;
+  if (typeof reasoningContent !== 'string' || !reasoningContent.trim()) {
+    return '';
+  }
+
+  const finalMarkers = [
+    '```',
+    'Final output:',
+    'Final answer:',
+    'Odpowiedź końcowa:',
+    'I will output only the translated text with preserved line breaks as requested.',
+  ];
+  for (const marker of finalMarkers) {
+    const index = reasoningContent.lastIndexOf(marker);
+    if (index >= 0) {
+      const candidate = reasoningContent.slice(index + marker.length).trim();
+      if (candidate) {
+        return candidate
+          .replace(/^```[a-zA-Z]*\s*/u, '')
+          .replace(/```$/u, '')
+          .trim();
+      }
+    }
+  }
+
+  return reasoningContent.trim();
+}
+
+function withNoThink(prompt: string): string {
+  return `/no_think\n${prompt}\n\nDo not write reasoning or analysis. Put the final answer in the message content.`;
+}
+
 function toOpenAiCompatibleBaseUrl(baseUrl: string): string {
   const clean = trimTrailingSlash(baseUrl);
   return /\/v\d+(?:beta)?$/u.test(clean) ? clean : `${clean}/v1`;
@@ -125,6 +165,137 @@ export interface RouteServices {
   // Milestone 4 — daemon takes over Google accounts + skills ownership.
   googleAccountService: GoogleAccountService;
   skillsService: SkillsService;
+  resourcesPath?: string;
+}
+
+function getModuleSearchDirs(storage: StorageAPI, resourcesPath?: string): string[] {
+  const userDataPath = path.dirname(storage.getDatabasePath() || '');
+  return getDefaultModuleDirs(process.cwd(), userDataPath, resourcesPath);
+}
+
+function installDiscoveredModule(storage: StorageAPI, sourcePath: string) {
+  const manifestPath = path.join(sourcePath, 'manifest.json');
+
+  if (!fs.existsSync(manifestPath)) {
+    throw new Error(`No manifest.json found at ${sourcePath}`);
+  }
+
+  let manifest: {
+    name: string;
+    entry: string;
+    title?: string;
+    version?: string;
+    description?: string;
+    icon?: string;
+    permissions?: string[];
+    mcpTools?: string[];
+  };
+  try {
+    manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  } catch {
+    throw new Error(`Invalid manifest.json at ${sourcePath}`);
+  }
+
+  if (!manifest.name || !manifest.entry) {
+    throw new Error('manifest.json missing required fields: name, entry');
+  }
+
+  const entryPath = path.join(sourcePath, manifest.entry);
+  if (!fs.existsSync(entryPath)) {
+    throw new Error(`Module entry file not found: ${manifest.entry}`);
+  }
+
+  return storage.installModule(
+    {
+      name: manifest.name,
+      title: manifest.title || manifest.name,
+      version: manifest.version || '0.0.0',
+      description: manifest.description || '',
+      icon: manifest.icon || 'box',
+      entry: manifest.entry,
+      permissions: manifest.permissions || [],
+      mcpTools: manifest.mcpTools || [],
+    },
+    sourcePath,
+    entryPath,
+  );
+}
+
+function ensureBundledModulesInstalled(storage: StorageAPI, resourcesPath?: string): void {
+  const discovered = discoverModules(getModuleSearchDirs(storage, resourcesPath));
+  for (const item of discovered) {
+    if (!storage.getModuleByName(item.manifest.name)) {
+      installDiscoveredModule(storage, item.sourcePath);
+    }
+  }
+}
+
+const MAX_OCR_SETTINGS_RPC_BYTES = 2 * 1024 * 1024;
+const MAX_OCR_HISTORY_TEXT_CHARS = 250_000;
+
+function byteLength(value: string): number {
+  return Buffer.byteLength(value, 'utf8');
+}
+
+function truncateOcrHistoryText(text: string): string {
+  if (text.length <= MAX_OCR_HISTORY_TEXT_CHARS) {
+    return text;
+  }
+  return `${text.slice(0, MAX_OCR_HISTORY_TEXT_CHARS)}\n\n[Historia OCR została skrócona do podglądu.]`;
+}
+
+function sanitizeOcrSettingsForRpc(
+  settings: Record<string, string>,
+  storage: StorageAPI,
+  moduleId: string,
+): Record<string, string> {
+  const result: Record<string, string> = {};
+  if (settings.model) {
+    result.model = settings.model;
+  }
+  if (settings.lang) {
+    result.lang = settings.lang;
+  }
+
+  let totalBytes = byteLength(JSON.stringify(result));
+  const docs = Object.entries(settings)
+    .filter(([key, value]) => key.startsWith('doc_') && value)
+    .sort(([a], [b]) => b.localeCompare(a))
+    .slice(0, 20);
+
+  for (const [key, value] of docs) {
+    try {
+      const parsed = JSON.parse(value) as {
+        image?: string;
+        name?: string;
+        preview?: string;
+        text?: string;
+      };
+      if (!parsed.name || !parsed.text) {
+        continue;
+      }
+
+      if (parsed.image) {
+        delete parsed.image;
+        const sanitized = JSON.stringify(parsed);
+        storage.setModuleSetting(moduleId, key, sanitized);
+      }
+
+      parsed.text = truncateOcrHistoryText(parsed.text);
+      const rpcValue = JSON.stringify(parsed);
+      const entryBytes = byteLength(key) + byteLength(rpcValue) + 8;
+      if (totalBytes + entryBytes > MAX_OCR_SETTINGS_RPC_BYTES) {
+        break;
+      }
+
+      result[key] = rpcValue;
+      totalBytes += entryBytes;
+    } catch {
+      continue;
+    }
+  }
+
+  return result;
 }
 
 /**
@@ -146,6 +317,7 @@ export function registerRpcMethods(services: RouteServices): void {
     legacyImportService,
   } = services;
   const storage = services.storageService.getStorage();
+  const resourcesPath = services.resourcesPath;
 
   rpc.registerMethod(
     'task.start',
@@ -1417,7 +1589,9 @@ export function registerRpcMethods(services: RouteServices): void {
         'Transcribe all text from this document image. Return ONLY the transcribed text, preserving line breaks and paragraphs.';
 
       // Build messages based on whether we have an image
-      const userContent: Array<Record<string, unknown>> = [{ type: 'text', text: userPrompt }];
+      const userContent: Array<Record<string, unknown>> = [
+        { type: 'text', text: withNoThink(userPrompt) },
+      ];
       if (v.imageBase64) {
         userContent.push({
           type: 'image_url',
@@ -1439,7 +1613,6 @@ export function registerRpcMethods(services: RouteServices): void {
               content: userContent.length === 1 ? userContent[0].text : userContent,
             },
           ],
-          max_tokens: 4096,
         }),
       });
 
@@ -1448,11 +1621,8 @@ export function registerRpcMethods(services: RouteServices): void {
         throw new Error(`Vision API error ${response.status}: ${errText}`);
       }
 
-      const data = (await response.json()) as {
-        choices: Array<{ message: { content: string } }>;
-      };
-
-      const text = data.choices?.[0]?.message?.content || '';
+      const data = await response.json();
+      const text = extractChatCompletionText(data);
       return { text };
     }),
   );
@@ -1464,12 +1634,17 @@ export function registerRpcMethods(services: RouteServices): void {
       const v = validate(z.object({ prompt: z.string().min(1) }), params);
       const activeModel = storage.getActiveProviderModel();
       if (!activeModel) throw new Error('No active AI provider configured');
+      const providerSettings = storage.getConnectedProvider(activeModel.provider as never);
+      const credentials = providerSettings?.credentials;
+      const apiKeyOptional =
+        credentials?.type === 'lmstudio' ||
+        credentials?.type === 'ollama' ||
+        (credentials?.type === 'custom' && !credentials.hasApiKey);
       const apiKey = storage.getApiKey(activeModel.provider);
-      if (!apiKey) throw new Error(`No API key for ${activeModel.provider}`);
+      if (!apiKey && !apiKeyOptional) throw new Error(`No API key for ${activeModel.provider}`);
 
       // Use the active provider's endpoint. Some provider rows do not persist
       // a custom base URL, so fall back to DEFAULT_PROVIDERS before OpenAI.
-      const providerSettings = storage.getConnectedProvider(activeModel.provider as never);
       const baseUrl =
         activeModel.baseUrl ||
         providerSettings?.customBaseUrl ||
@@ -1483,16 +1658,15 @@ export function registerRpcMethods(services: RouteServices): void {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
         body: JSON.stringify({
           model: modelId,
-          messages: [{ role: 'user', content: v.prompt }],
-          max_tokens: 2048,
+          messages: [{ role: 'user', content: withNoThink(v.prompt) }],
         }),
       });
       if (!response.ok) {
         const err = await response.text().catch(() => '');
         throw new Error(`AI API error ${response.status}: ${err.slice(0, 300)}`);
       }
-      const data = (await response.json()) as { choices: Array<{ message: { content: string } }> };
-      return { text: data.choices?.[0]?.message?.content || '' };
+      const data = await response.json();
+      return { text: extractChatCompletionText(data) };
     }),
   );
 
@@ -1500,6 +1674,7 @@ export function registerRpcMethods(services: RouteServices): void {
   rpc.registerMethod(
     'module.list',
     safeHandler(async () => {
+      ensureBundledModulesInstalled(storage, resourcesPath);
       return storage.listModules();
     }),
   );
@@ -1516,49 +1691,7 @@ export function registerRpcMethods(services: RouteServices): void {
     'module.install',
     safeHandler(async (params) => {
       const v = validate(z.object({ sourcePath: z.string().min(1) }), params);
-      const manifestPath = path.join(v.sourcePath, 'manifest.json');
-
-      if (!fs.existsSync(manifestPath)) {
-        throw new Error(`No manifest.json found at ${v.sourcePath}`);
-      }
-
-      let manifest: {
-        name: string;
-        entry: string;
-        title?: string;
-        version?: string;
-        description?: string;
-        icon?: string;
-      };
-      try {
-        manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-      } catch {
-        throw new Error(`Invalid manifest.json at ${v.sourcePath}`);
-      }
-
-      if (!manifest.name || !manifest.entry) {
-        throw new Error('manifest.json missing required fields: name, entry');
-      }
-
-      const entryPath = path.join(v.sourcePath, manifest.entry);
-      if (!fs.existsSync(entryPath)) {
-        throw new Error(`Module entry file not found: ${manifest.entry}`);
-      }
-
-      return storage.installModule(
-        {
-          name: manifest.name,
-          title: manifest.title || manifest.name,
-          version: manifest.version || '0.0.0',
-          description: manifest.description || '',
-          icon: manifest.icon || 'box',
-          entry: manifest.entry,
-          permissions: [],
-          mcpTools: [],
-        },
-        v.sourcePath,
-        entryPath,
-      );
+      return installDiscoveredModule(storage, v.sourcePath);
     }),
   );
 
@@ -1582,7 +1715,56 @@ export function registerRpcMethods(services: RouteServices): void {
     'module.getSettings',
     safeHandler(async (params) => {
       const v = validate(z.object({ moduleId: z.string().min(1) }), params);
-      return storage.getModuleSettings(v.moduleId);
+      const settings = storage.getModuleSettings(v.moduleId);
+      const hasSavedDocs = Object.keys(settings).some((key) => key.startsWith('doc_'));
+      const mod = storage.getModule(v.moduleId);
+
+      if (mod?.name === 'ocr-viewer' && !hasSavedDocs) {
+        const db = services.storageService.getRawDatabase();
+        const rows = db
+          .prepare(
+            `SELECT key, value
+             FROM module_settings
+             WHERE module_id <> ?
+               AND (key = 'model' OR key = 'lang' OR key LIKE 'doc_%')
+             ORDER BY rowid ASC`,
+          )
+          .all(v.moduleId) as Array<{ key: string; value: string }>;
+
+        for (const row of rows) {
+          if (!row.value) {
+            continue;
+          }
+          if (row.key.startsWith('doc_')) {
+            try {
+              const parsed = JSON.parse(row.value) as { name?: string; text?: string };
+              if (!parsed.name || !parsed.text) {
+                continue;
+              }
+            } catch {
+              continue;
+            }
+          }
+          if (!(row.key in settings)) {
+            settings[row.key] = row.value;
+            storage.setModuleSetting(v.moduleId, row.key, row.value);
+          }
+        }
+      }
+
+      if (mod?.name === 'ocr-viewer') {
+        return sanitizeOcrSettingsForRpc(settings, storage, v.moduleId);
+      }
+
+      return settings;
+    }),
+  );
+
+  rpc.registerMethod(
+    'module.getSetting',
+    safeHandler(async (params) => {
+      const v = validate(z.object({ moduleId: z.string().min(1), key: z.string() }), params);
+      return storage.getModuleSetting(v.moduleId, v.key) ?? null;
     }),
   );
 
@@ -1606,8 +1788,18 @@ export function registerRpcMethods(services: RouteServices): void {
         throw new Error(`Module not found: ${v.id}`);
       }
 
-      const sourceRoot = path.resolve(mod.sourcePath);
-      const entryPath = path.resolve(mod.entry);
+      let sourceRoot = path.resolve(mod.sourcePath);
+      let entryPath = path.resolve(mod.entry);
+
+      if (!fs.existsSync(entryPath)) {
+        const fallback = discoverModules(getModuleSearchDirs(storage, resourcesPath)).find(
+          (item) => item.manifest.name === mod.name,
+        );
+        if (fallback) {
+          sourceRoot = path.resolve(fallback.sourcePath);
+          entryPath = path.resolve(fallback.entryPath);
+        }
+      }
       const relativeEntry = path.relative(sourceRoot, entryPath);
       if (relativeEntry.startsWith('..') || path.isAbsolute(relativeEntry)) {
         throw new Error('Module entry is outside its source directory');
@@ -1633,8 +1825,8 @@ export function registerRpcMethods(services: RouteServices): void {
   rpc.registerMethod(
     'module.discover',
     safeHandler(async () => {
-      const userDataPath = path.dirname(storage.getDatabasePath() || '');
-      const dirs = getDefaultModuleDirs(process.cwd(), userDataPath);
+      ensureBundledModulesInstalled(storage, resourcesPath);
+      const dirs = getModuleSearchDirs(storage, resourcesPath);
       return discoverModules(dirs).map((d) => ({
         name: d.manifest.name,
         title: d.manifest.title,

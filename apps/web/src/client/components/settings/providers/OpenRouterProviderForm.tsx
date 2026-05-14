@@ -171,7 +171,10 @@ export function OpenRouterProviderForm({
                   className="flex-1 rounded-md border border-input bg-background px-3 py-2.5 text-sm disabled:opacity-50"
                 />
                 <button
-                  onClick={() => setApiKey('')}
+                  onClick={() => {
+                    setApiKey('');
+                    getNestCafe().removeApiKey('openrouter').catch(() => {});
+                  }}
                   className="rounded-md border border-border p-2.5 text-muted-foreground hover:text-foreground transition-colors"
                   type="button"
                   disabled={!apiKey}

@@ -1,12 +1,14 @@
 import { useTranslation } from 'react-i18next';
-import type { ToolSupportStatus } from '@nestcafe_ai/agent-core/common';
-import { ModelList, ToolSupportBadge, AlertCallout } from '../shared';
+import { ModelList } from '../shared';
 import type { LMStudioModel } from './useLMStudioProviderConnect';
+
+type LMStudioSelectorModel = { id: string; name: string; enabled?: boolean };
 
 export function LMStudioModelSelector({
   models,
   value,
   onChange,
+  onModelsChange,
   error,
   onRefresh,
   refreshing,
@@ -14,25 +16,15 @@ export function LMStudioModelSelector({
   models: LMStudioModel[];
   value: string | null;
   onChange: (modelId: string) => void;
+  onModelsChange?: (models: LMStudioSelectorModel[]) => void;
   error: boolean;
   onRefresh?: () => void;
   refreshing?: boolean;
 }) {
   const { t } = useTranslation('settings');
-  const sortedModels = [...models].sort((a, b) => {
-    const order: Record<ToolSupportStatus, number> = { supported: 0, unknown: 1, unsupported: 2 };
-    return order[a.toolSupport] - order[b.toolSupport];
+  const selectorModels = models.map((model) => {
+    return { id: `lmstudio/${model.id}`, name: model.name, enabled: model.enabled };
   });
-
-  const TOOL_ICON_MAP: Record<string, string> = { supported: '✓', unsupported: '✗' };
-  const selectorModels = sortedModels.map((model) => {
-    const toolIcon = TOOL_ICON_MAP[model.toolSupport] ?? '?';
-    return { id: `lmstudio/${model.id}`, name: `${model.name} ${toolIcon}` };
-  });
-
-  const selectedModel = models.find((m) => `lmstudio/${m.id}` === value);
-  const hasUnsupportedSelected = selectedModel?.toolSupport === 'unsupported';
-  const hasUnknownSelected = selectedModel?.toolSupport === 'unknown';
 
   return (
     <div>
@@ -40,30 +32,16 @@ export function LMStudioModelSelector({
         models={selectorModels}
         value={value}
         onChange={onChange}
+        onModelsChange={onModelsChange}
         error={error}
         onRefresh={onRefresh}
         refreshing={refreshing}
       />
-      {hasUnsupportedSelected && (
-        <AlertCallout
-          variant="warning"
-          title={t('common.toolUnsupported')}
-          detail={t('common.toolUnsupportedDetail')}
-        />
-      )}
-      {hasUnknownSelected && (
-        <AlertCallout
-          variant="info"
-          title={t('common.toolUnknown')}
-          detail={t('common.toolUnknownDetail')}
-        />
-      )}
-      <div className="flex items-center gap-3 pt-2 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1">
-          <ToolSupportBadge status="supported" t={t} />
-          <span>{t('common.functionCallingVerified')}</span>
-        </span>
-      </div>
+      <p className="pt-2 text-xs text-muted-foreground">
+        {t('lmstudio.toolVerificationSkipped', {
+          defaultValue: 'LM Studio models are not filtered by tool-calling verification.',
+        })}
+      </p>
     </div>
   );
 }

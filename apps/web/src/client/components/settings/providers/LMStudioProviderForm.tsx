@@ -39,6 +39,42 @@ export function LMStudioProviderForm({
 
   const isConnected = connectedProvider?.connectionStatus === 'connected';
 
+  const handleModelsChange = (
+    nextModels: Array<{ id: string; name: string; enabled?: boolean }>,
+  ) => {
+    if (!connectedProvider) {
+      return;
+    }
+
+    const selectedModelId = nextModels.some(
+      (model) => model.id === connectedProvider.selectedModelId && model.enabled !== false,
+    )
+      ? connectedProvider.selectedModelId
+      : (nextModels.find((model) => model.enabled !== false)?.id ?? nextModels[0]?.id ?? null);
+
+    const currentModelsById = new Map(
+      (connectedProvider.availableModels || []).map((model) => [model.id, model]),
+    );
+    const availableModels = nextModels.map((model) => ({
+      ...currentModelsById.get(model.id),
+      id: model.id,
+      name: model.name,
+      enabled: model.enabled,
+    }));
+
+    const updatedProvider: ConnectedProvider = {
+      ...connectedProvider,
+      selectedModelId,
+      availableModels,
+    };
+
+    if (onUpdateProvider) {
+      onUpdateProvider(updatedProvider);
+    } else {
+      onConnect(updatedProvider);
+    }
+  };
+
   return (
     <div
       className="rounded-xl border border-border bg-card p-5"
@@ -119,6 +155,7 @@ export function LMStudioProviderForm({
                 models={models}
                 value={connectedProvider?.selectedModelId || null}
                 onChange={onModelChange}
+                onModelsChange={handleModelsChange}
                 error={showModelError && !connectedProvider?.selectedModelId}
                 onRefresh={handleRefresh}
                 refreshing={refreshing}

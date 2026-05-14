@@ -142,7 +142,12 @@ export function ClassicProviderForm({
     <ClassicApiKeyInput
       apiKey={conn.apiKey}
       onChange={conn.setApiKey}
-      onClear={() => conn.setApiKey('')}
+      onClear={() => {
+        conn.setApiKey('');
+        // Also delete the stored key from secure storage so an expired
+        // key doesn't linger and block later reconnection.
+        getNestCafe().removeApiKey(providerId).catch(() => {});
+      }}
       connecting={conn.connecting}
       error={conn.error}
       isConnected={conn.isConnected}
@@ -282,6 +287,7 @@ export function ClassicProviderForm({
           refreshing={refreshingModels}
         />
       )}
+
     </div>
   );
 }

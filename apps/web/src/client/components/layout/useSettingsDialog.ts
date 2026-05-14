@@ -221,11 +221,15 @@ export function useSettingsDialog({
   }, [onOpenChange]);
 
   const handleDelete = useCallback(async () => {
-    if (!selectedProvider || !selectedProvider.startsWith('custom:')) {
+    if (!selectedProvider) {
       return;
     }
+    const nestcafe = getNestCafe();
     const wasActive = settings?.activeProviderId === selectedProvider;
-    await disconnectProvider(selectedProvider);
+    // Fully remove provider row from SQLite + API key from secure storage.
+    // Works regardless of key validity / expiration / active status.
+    await nestcafe.removeConnectedProvider(selectedProvider);
+    await nestcafe.removeApiKey(selectedProvider).catch(() => {});
     setSelectedProvider(null);
     if (wasActive && settings?.connectedProviders) {
       const readyId = Object.keys(settings.connectedProviders).find(
@@ -236,7 +240,7 @@ export function useSettingsDialog({
         await setActiveProvider(readyId);
       }
     }
-  }, [selectedProvider, disconnectProvider, settings, setActiveProvider]);
+  }, [selectedProvider, settings, setActiveProvider]);
 
   const handleAddCustomProvider = useCallback(async (): Promise<ProviderId> => {
     const customProviderIds = Object.keys(settings?.connectedProviders ?? {}).filter((id) =>

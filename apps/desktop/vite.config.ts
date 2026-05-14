@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import electron from 'vite-plugin-electron';
+import electronPlugin from 'vite-plugin-electron';
 import path from 'path';
 import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
@@ -66,7 +66,7 @@ function buildThemeInit(): import('vite').Plugin {
 export default defineConfig(() => ({
   plugins: [
     buildThemeInit(),
-    electron([
+    electronPlugin([
       {
         entry: 'src/main/index.ts',
         async onstart({ startup }) {

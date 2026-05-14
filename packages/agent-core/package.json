@@ -1,6 +1,6 @@
 {
   "name": "@nestcafe_ai/agent-core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "description": "Core logic for Accomplish - OpenCode adapter, storage, providers, MCP tools, and skills",
   "type": "module",

@@ -15,6 +15,24 @@ import { createTaskLifecycleActions } from './task-lifecycle-actions';
 type SetFn = (partial: Partial<TaskState> | ((state: TaskState) => Partial<TaskState>)) => void;
 type GetFn = () => TaskState;
 
+function buildHistoricalFollowUpPrompt(task: Task, message: string): string {
+  const history = task.messages
+    .slice(-12)
+    .map((item) => `${item.type.toUpperCase()}: ${item.content}`)
+    .join('\n\n');
+
+  return [
+    'Continue this historical conversation. The original runtime session is not available, so use the transcript below as context.',
+    '',
+    `Original task: ${task.prompt}`,
+    '',
+    'Conversation transcript:',
+    history || '(no saved messages)',
+    '',
+    `User follow-up: ${message}`,
+  ].join('\n');
+}
+
 /** Task execution slice: startTask, sendFollowUp, permission handling. */
 export function createTaskExecutionActions(set: SetFn, get: GetFn) {
   return {
@@ -73,23 +91,18 @@ export function createTaskExecutionActions(set: SetFn, get: GetFn) {
         return false;
       }
       const sessionId = currentTask.result?.sessionId || currentTask.sessionId;
-      if (!sessionId && currentTask.status === 'interrupted') {
+      if (!sessionId) {
         void nestcafe.logEvent({
           level: 'info',
-          message: 'UI follow-up: starting fresh task (no session from interrupted task)',
+          message: 'UI follow-up: starting fresh task (no resumable session)',
           context: { taskId: currentTask.id },
         });
-        const newTask = await startTask({ prompt: message, files: attachments });
+        const prompt =
+          currentTask.status === 'interrupted'
+            ? message
+            : buildHistoricalFollowUpPrompt(currentTask, message);
+        const newTask = await startTask({ prompt, files: attachments });
         return newTask !== null;
-      }
-      if (!sessionId) {
-        set({ error: 'No session to continue - please start a new task' });
-        void nestcafe.logEvent({
-          level: 'warn',
-          message: 'UI follow-up failed: missing session',
-          context: { taskId: currentTask.id },
-        });
-        return false;
       }
       const userMessage = {
         id: createMessageId(),

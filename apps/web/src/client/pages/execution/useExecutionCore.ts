@@ -120,7 +120,7 @@ export function useExecutionCore() {
   const result = currentTask?.result;
   const isAuthPause = result && 'pauseReason' in result && result.pauseReason === 'oauth';
   const pauseAction = result && 'pauseAction' in result ? result.pauseAction : undefined;
-  const canFollowUp = isComplete && (hasSession || currentTask?.status === 'interrupted');
+  const canFollowUp = isComplete;
   const canEditUserMessages = !!hasSession && !isLoading && currentTask?.status !== 'running';
   const isConnectorAuthPause: boolean = !!(
     currentTask?.status === 'completed' &&
