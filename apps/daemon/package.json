@@ -1,6 +1,6 @@
 {
   "name": "@nestcafe/daemon",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "description": "Accomplish background daemon process",
   "main": "dist/index.js",

@@ -699,6 +699,8 @@ const NestCafeAPI = {
   uninstallModule: (id: string): Promise<void> => ipcRenderer.invoke('module:uninstall', id),
   getModuleSettings: (moduleId: string): Promise<Record<string, string>> =>
     ipcRenderer.invoke('module:getSettings', moduleId),
+  getModuleSetting: (moduleId: string, key: string): Promise<string | null> =>
+    ipcRenderer.invoke('module:getSetting', moduleId, key),
   setModuleSetting: (moduleId: string, key: string, value: string): Promise<void> =>
     ipcRenderer.invoke('module:setSetting', moduleId, key, value),
   getModuleSource: (id: string): Promise<{ source: string }> =>

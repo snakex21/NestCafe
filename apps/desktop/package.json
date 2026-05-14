@@ -1,7 +1,7 @@
 {
   "//": "WARNING: Before upgrading opencode-ai, check sst/opencode for prompt changes (title.txt, compaction.txt, prompt.ts, compaction.ts). Downstream prompt-validation (if any) may need to be re-aligned if prefixes drift.",
   "name": "@nestcafe/desktop",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "author": {
     "name": "NestCafe"
@@ -181,6 +181,13 @@
       {
         "from": "../web/dist/client",
         "to": "web-ui"
+      },
+      {
+        "from": "../../modules",
+        "to": "modules",
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "bundled-skills",

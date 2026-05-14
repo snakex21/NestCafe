@@ -545,6 +545,7 @@ interface NestCafeAPI {
   enableModule(id: string, enabled: boolean): Promise<void>;
   uninstallModule(id: string): Promise<void>;
   getModuleSettings(moduleId: string): Promise<Record<string, string>>;
+  getModuleSetting(moduleId: string, key: string): Promise<string | null>;
   setModuleSetting(moduleId: string, key: string, value: string): Promise<void>;
   getModuleSource(id: string): Promise<{ source: string }>;
   discoverModules(): Promise<

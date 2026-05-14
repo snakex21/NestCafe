@@ -35,12 +35,32 @@ export function handle<Args extends unknown[], ReturnType = unknown>(
     try {
       return await handler(event, ...(args as Args));
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+
+      // During shutdown, the daemon client is torn down before pending IPC
+      // handlers resolve. These races are benign — the renderer is closing
+      // anyway. Do NOT re-throw: Electron would log a scary console error
+      // for every handler that fires during the shutdown window.
+      if (message === 'Client closed' || message === 'Daemon not bootstrapped') {
+        try {
+          const l = getLogCollector();
+          if (l?.log) {
+            l.log('INFO', 'ipc', `IPC handler ${channel} skipped during shutdown`, {
+              reason: message,
+            });
+          }
+        } catch {
+          /* best-effort logging */
+        }
+        return undefined as unknown as ReturnType;
+      }
+
       try {
         const l = getLogCollector();
         if (l?.log) {
-          l.log('ERROR', 'ipc', `IPC handler ${channel} failed`, { error: String(error) });
+          l.log('ERROR', 'ipc', `IPC handler ${channel} failed`, { error: message });
         }
-      } catch (_e) {
+      } catch {
         /* best-effort logging */
       }
       throw normalizeIpcError(error);

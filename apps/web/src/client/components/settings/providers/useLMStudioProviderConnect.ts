@@ -11,6 +11,7 @@ export interface LMStudioModel {
   id: string;
   name: string;
   toolSupport: ToolSupportStatus;
+  enabled?: boolean;
 }
 
 interface UseLMStudioProviderConnectOptions {
@@ -80,6 +81,7 @@ export function useLMStudioProviderConnect({
           id: `lmstudio/${m.id}`,
           name: m.name,
           toolSupport: m.toolSupport,
+          enabled: m.enabled ?? true,
         })),
       };
 
@@ -123,6 +125,9 @@ export function useLMStudioProviderConnect({
       setAvailableModels(freshModels);
 
       const freshModelIds = new Set(freshModels.map((m) => `lmstudio/${m.id}`));
+      const currentModelsById = new Map(
+        (latestProvider.availableModels || []).map((m) => [m.id, m]),
+      );
       const keepSelectedModel =
         latestProvider.selectedModelId && freshModelIds.has(latestProvider.selectedModelId)
           ? latestProvider.selectedModelId
@@ -135,6 +140,7 @@ export function useLMStudioProviderConnect({
           id: `lmstudio/${m.id}`,
           name: m.name,
           toolSupport: m.toolSupport,
+          enabled: currentModelsById.get(`lmstudio/${m.id}`)?.enabled ?? m.enabled ?? true,
         })),
       };
 
@@ -153,6 +159,7 @@ export function useLMStudioProviderConnect({
         id,
         name: m.name,
         toolSupport: (m as { toolSupport?: ToolSupportStatus }).toolSupport || 'unknown',
+        enabled: m.enabled,
       };
     },
   );

@@ -87,13 +87,7 @@ export async function buildLMStudioConfig(ctx: ProviderBuildContext): Promise<Pr
     lmstudioProvider.selectedModelId
   ) {
     const modelId = lmstudioProvider.selectedModelId.replace(/^lmstudio\//, '');
-    const modelInfo = lmstudioProvider.availableModels?.find(
-      (m) => m.id === lmstudioProvider.selectedModelId || m.id === modelId,
-    );
-    const supportsTools = (modelInfo as { toolSupport?: string })?.toolSupport === 'supported';
-    log.info(
-      `[OpenCode Config Builder] LM Studio configured: ${modelId} (tools: ${supportsTools})`,
-    );
+    log.info(`[OpenCode Config Builder] LM Studio configured: ${modelId} (tools: true)`);
     return {
       configs: [
         {
@@ -101,7 +95,7 @@ export async function buildLMStudioConfig(ctx: ProviderBuildContext): Promise<Pr
           npm: '@ai-sdk/openai-compatible',
           name: 'LM Studio',
           options: { baseURL: `${lmstudioProvider.credentials.serverUrl}/v1` },
-          models: { [modelId]: buildLocalModelConfig(modelId, supportsTools) },
+          models: { [modelId]: buildLocalModelConfig(modelId, true) },
         },
       ],
       enableToAdd: ['lmstudio'],
@@ -114,7 +108,7 @@ export async function buildLMStudioConfig(ctx: ProviderBuildContext): Promise<Pr
   if (lmstudioConfig?.enabled && lmstudioModels && lmstudioModels.length > 0) {
     const models: Record<string, ProviderModelConfig> = {};
     for (const model of lmstudioModels) {
-      models[model.id] = buildLocalModelConfig(model.name, model.toolSupport === 'supported');
+      models[model.id] = buildLocalModelConfig(model.name, true);
     }
     log.info(`[OpenCode Config Builder] LM Studio (legacy) configured: ${Object.keys(models)}`);
     return {

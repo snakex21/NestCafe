@@ -50,13 +50,17 @@ export function discoverModules(searchDirs: string[]): DiscoveredModule[] {
       }
 
       if (!manifest.name || !manifest.entry) {
-        console.warn(`[ModuleLoader] Skipping ${moduleDir}: manifest missing required fields (name, entry)`);
+        console.warn(
+          `[ModuleLoader] Skipping ${moduleDir}: manifest missing required fields (name, entry)`,
+        );
         continue;
       }
 
       const entryPath = path.join(moduleDir, manifest.entry);
       if (!fs.existsSync(entryPath)) {
-        console.warn(`[ModuleLoader] Skipping ${moduleDir}: entry file not found (${manifest.entry})`);
+        console.warn(
+          `[ModuleLoader] Skipping ${moduleDir}: entry file not found (${manifest.entry})`,
+        );
         continue;
       }
 
@@ -70,8 +74,17 @@ export function discoverModules(searchDirs: string[]): DiscoveredModule[] {
 /**
  * Returns default module search directories:
  *   1. <projectRoot>/modules        (dev mode, checked into repo)
- *   2. <userData>/modules           (user-installed modules)
+ *   2. <resourcesPath>/modules      (packaged built-in modules)
+ *   3. <userData>/modules           (user-installed modules)
  */
-export function getDefaultModuleDirs(projectRoot: string, userDataPath: string): string[] {
-  return [path.join(projectRoot, 'modules'), path.join(userDataPath, 'modules')];
+export function getDefaultModuleDirs(
+  projectRoot: string,
+  userDataPath: string,
+  resourcesPath?: string,
+): string[] {
+  return [
+    path.join(projectRoot, 'modules'),
+    ...(resourcesPath ? [path.join(resourcesPath, 'modules')] : []),
+    path.join(userDataPath, 'modules'),
+  ];
 }

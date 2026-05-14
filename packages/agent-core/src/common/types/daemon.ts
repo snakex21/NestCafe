@@ -772,6 +772,10 @@ export interface DaemonMethodMap {
     params: { moduleId: string };
     result: Record<string, string>;
   };
+  'module.getSetting': {
+    params: { moduleId: string; key: string };
+    result: string | null;
+  };
   'module.setSetting': {
     params: { moduleId: string; key: string; value: string };
     result: void;
