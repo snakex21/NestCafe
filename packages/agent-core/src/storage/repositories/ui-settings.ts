@@ -8,13 +8,16 @@ interface AppSettingsUiRow {
   notifications_enabled: number;
   close_behavior: string;
   language: string;
+  update_auto_check: number;
+  update_auto_download: number;
+  update_auto_install: number;
 }
 
 function getUiRow(): AppSettingsUiRow {
   const db = getDatabase();
   return db
     .prepare(
-      'SELECT debug_mode, onboarding_complete, theme, notifications_enabled, close_behavior, language FROM app_settings WHERE id = 1',
+      'SELECT debug_mode, onboarding_complete, theme, notifications_enabled, close_behavior, language, update_auto_check, update_auto_download, update_auto_install FROM app_settings WHERE id = 1',
     )
     .get() as AppSettingsUiRow;
 }
@@ -112,4 +115,31 @@ export function setLanguage(language: LanguagePreference): void {
   }
   const db = getDatabase();
   db.prepare('UPDATE app_settings SET language = ? WHERE id = 1').run(language);
+}
+
+export function getUpdateAutoCheck(): boolean {
+  return getUiRow().update_auto_check === 1;
+}
+
+export function setUpdateAutoCheck(enabled: boolean): void {
+  const db = getDatabase();
+  db.prepare('UPDATE app_settings SET update_auto_check = ? WHERE id = 1').run(enabled ? 1 : 0);
+}
+
+export function getUpdateAutoDownload(): boolean {
+  return getUiRow().update_auto_download === 1;
+}
+
+export function setUpdateAutoDownload(enabled: boolean): void {
+  const db = getDatabase();
+  db.prepare('UPDATE app_settings SET update_auto_download = ? WHERE id = 1').run(enabled ? 1 : 0);
+}
+
+export function getUpdateAutoInstall(): boolean {
+  return getUiRow().update_auto_install === 1;
+}
+
+export function setUpdateAutoInstall(enabled: boolean): void {
+  const db = getDatabase();
+  db.prepare('UPDATE app_settings SET update_auto_install = ? WHERE id = 1').run(enabled ? 1 : 0);
 }

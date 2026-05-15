@@ -1,7 +1,7 @@
 {
   "//": "WARNING: Before upgrading opencode-ai, check sst/opencode for prompt changes (title.txt, compaction.txt, prompt.ts, compaction.ts). Downstream prompt-validation (if any) may need to be re-aligned if prefixes drift.",
   "name": "@nestcafe/desktop",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "author": {
     "name": "NestCafe"
@@ -158,6 +158,10 @@
       {
         "from": "resources/icon.png",
         "to": "icon.png"
+      },
+      {
+        "from": "resources/icon.ico",
+        "to": "icon.ico"
       },
       {
         "from": "resources/google-search-mcp",

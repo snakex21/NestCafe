@@ -1,6 +1,6 @@
 {
   "name": "nestcafe",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "description": "The open source AI coworker that lives on your desktop",
   "author": "NestCafe",
@@ -21,7 +21,8 @@
     "dev:kill": "node scripts/dev-kill.cjs",
     "dev:remote": "node scripts/dev-remote.cjs",
     "postinstall": "node scripts/save-lockfile-hash.cjs",
-    "build": "pnpm -r --workspace-concurrency=1 build",
+    "sync-version": "node scripts/sync-version.cjs",
+    "build": "node scripts/sync-version.cjs && pnpm -r --workspace-concurrency=1 build",
     "build:desktop": "pnpm -F @nestcafe/desktop build",
     "dev:web": "pnpm -F @nestcafe/web dev",
     "build:web": "pnpm -F @nestcafe/web build",

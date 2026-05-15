@@ -957,6 +957,27 @@ const NestCafeAPI = {
     return () => ipcRenderer.removeListener('nestcafe-ai:usage-updated', listener);
   },
 
+  // ── Updater ───────────────────────────────────────────────────────────────
+  getUpdateAutoCheck: (): Promise<boolean> => ipcRenderer.invoke('update:get-auto-check'),
+  setUpdateAutoCheck: (enabled: boolean): Promise<void> =>
+    ipcRenderer.invoke('update:set-auto-check', enabled),
+  getUpdateAutoDownload: (): Promise<boolean> => ipcRenderer.invoke('update:get-auto-download'),
+  setUpdateAutoDownload: (enabled: boolean): Promise<void> =>
+    ipcRenderer.invoke('update:set-auto-download', enabled),
+  getUpdateAutoInstall: (): Promise<boolean> => ipcRenderer.invoke('update:get-auto-install'),
+  setUpdateAutoInstall: (enabled: boolean): Promise<void> =>
+    ipcRenderer.invoke('update:set-auto-install', enabled),
+  getUpdateState: (): Promise<{
+    enabled: boolean;
+    updateAvailable: boolean;
+    downloadedVersion: string | null;
+    availableVersion: string | null;
+  }> => ipcRenderer.invoke('update:get-state'),
+  checkForUpdates: (): Promise<{ success: boolean; error?: string }> =>
+    ipcRenderer.invoke('update:check'),
+  quitAndInstall: (): Promise<{ success: boolean; error?: string }> =>
+    ipcRenderer.invoke('update:quit-and-install'),
+
   // ── Build Capabilities ───────────────────────────────────────────────────
   getBuildCapabilities: (): Promise<{ hasFreeMode: boolean; hasAnalytics: boolean }> =>
     ipcRenderer.invoke('app:get-build-capabilities'),

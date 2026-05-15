@@ -48,6 +48,12 @@ export {
   setCloseBehavior,
   getLanguage,
   setLanguage,
+  getUpdateAutoCheck,
+  setUpdateAutoCheck,
+  getUpdateAutoDownload,
+  setUpdateAutoDownload,
+  getUpdateAutoInstall,
+  setUpdateAutoInstall,
   VALID_THEMES,
   VALID_LANGUAGES,
 } from './ui-settings.js';
@@ -75,6 +81,9 @@ interface AppSettingsRow {
   messaging_config: string | null;
   notifications_enabled: number;
   nim_config: string | null;
+  update_auto_check: number;
+  update_auto_download: number;
+  update_auto_install: number;
 }
 
 export interface AppSettings {
@@ -90,6 +99,9 @@ export interface AppSettings {
   theme: ThemePreference;
   language: LanguagePreference;
   folderIndexingConfig: FolderIndexingConfig;
+  updateAutoCheck: boolean;
+  updateAutoDownload: boolean;
+  updateAutoInstall: boolean;
 }
 
 const VALID_THEMES_LOCAL: ThemePreference[] = ['system', 'light', 'dark'];
@@ -176,6 +188,9 @@ export function getAppSettings(): AppSettings {
       : 'system',
     language: _getLanguage(),
     folderIndexingConfig: _getFolderIndexingConfig(),
+    updateAutoCheck: row.update_auto_check === 1,
+    updateAutoDownload: row.update_auto_download === 1,
+    updateAutoInstall: row.update_auto_install === 1,
   };
 }
 
@@ -197,7 +212,10 @@ export function clearAppSettings(): void {
       sandbox_config = '${JSON.stringify(DEFAULT_SANDBOX_CONFIG)}',
       cloud_browser_config = NULL,
       messaging_config = NULL,
-      notifications_enabled = 1
+      notifications_enabled = 1,
+      update_auto_check = 1,
+      update_auto_download = 1,
+      update_auto_install = 1
     WHERE id = 1`,
   ).run();
 }

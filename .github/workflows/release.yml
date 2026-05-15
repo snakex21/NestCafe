@@ -1,0 +1,84 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }} (${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x64
+            target: linux
+            package-script: package:linux:x64
+            artifact-ext: AppImage
+          - os: ubuntu-latest
+            arch: arm64
+            target: linux
+            package-script: package:linux:arm64
+            artifact-ext: AppImage
+          - os: macos-latest
+            arch: x64
+            target: mac
+            package-script: package:mac
+            artifact-ext: dmg
+          - os: windows-latest
+            arch: x64
+            target: win
+            package-script: package:win
+            artifact-ext: exe
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '9'
+
+      - name: Write build.env for GitHub Releases
+        run: |
+          echo "NESTCAFE_UPDATER_URL=https://github.com/${{ github.repository }}/releases/latest/download" > apps/desktop/build.env
+        shell: bash
+
+      - name: Sync version from VERSION file
+        run: node scripts/sync-version.cjs
+        shell: bash
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build daemon
+        run: pnpm -F @nestcafe/daemon build
+
+      - name: Build & Package (${{ matrix.target }})
+        run: pnpm -F @nestcafe/desktop ${{ matrix.package-script }}
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            apps/desktop/release/*.yml
+            apps/desktop/release/*.yaml
+            apps/desktop/release/*.${{ matrix.artifact-ext }}
+            apps/desktop/release/*.blockmap
+            apps/desktop/release/*.zip
+            apps/desktop/release/*.deb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -777,6 +777,22 @@ interface NestCafeAPI {
   // Build capabilities
   getBuildCapabilities(): Promise<{ hasFreeMode: boolean; hasAnalytics: boolean }>;
 
+  // Updater
+  getUpdateAutoCheck(): Promise<boolean>;
+  setUpdateAutoCheck(enabled: boolean): Promise<void>;
+  getUpdateAutoDownload(): Promise<boolean>;
+  setUpdateAutoDownload(enabled: boolean): Promise<void>;
+  getUpdateAutoInstall(): Promise<boolean>;
+  setUpdateAutoInstall(enabled: boolean): Promise<void>;
+  getUpdateState(): Promise<{
+    enabled: boolean;
+    updateAvailable: boolean;
+    downloadedVersion: string | null;
+    availableVersion: string | null;
+  }>;
+  checkForUpdates(): Promise<{ success: boolean; error?: string }>;
+  quitAndInstall(): Promise<{ success: boolean; error?: string }>;
+
   // Google Workspace multi-account
   gws?: GwsAPI;
 

@@ -544,10 +544,26 @@ export async function startApp(
     if (isAutoUpdaterEnabled()) {
       try {
         const { initUpdater, autoCheckForUpdates } = await import('./updater');
+        const { setAutoCheckEnabled, setAutoDownloadEnabled, setAutoInstallEnabled } =
+          await import('./updater/state');
         await initUpdater(mainWindow);
         const { initMenu } = await import('./menu');
         initMenu();
-        setTimeout(() => autoCheckForUpdates(), 5000);
+        // Read user's update preferences from daemon to seed the updater's state
+        const shouldCheck = await (async () => {
+          try {
+            const snap = await getDaemonClient().call('settings.getAll');
+            setAutoCheckEnabled(snap.updateAutoCheck !== false);
+            setAutoDownloadEnabled(snap.updateAutoDownload !== false);
+            setAutoInstallEnabled(snap.updateAutoInstall !== false);
+            return snap.updateAutoCheck !== false;
+          } catch {
+            return true; // Default to checking if daemon read fails
+          }
+        })();
+        if (shouldCheck) {
+          setTimeout(() => autoCheckForUpdates(), 5000);
+        }
         logMain('INFO', '[Main] Auto-updater initialized');
       } catch (err) {
         logMain('WARN', '[Main] Auto-updater init failed', { err: String(err) });
