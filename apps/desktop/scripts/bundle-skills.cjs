@@ -31,7 +31,7 @@ const skillsDir = path.join(
 );
 
 // Skills that have runtime dependencies (playwright) that cannot be bundled
-const SKILLS_WITH_RUNTIME_DEPS = ['dev-browser', 'dev-browser-mcp', 'gws-mcp', 'godot-mcp'];
+const SKILLS_WITH_RUNTIME_DEPS = ['dev-browser', 'dev-browser-mcp', 'gws-mcp'];
 
 // Skills that are fully bundled (no runtime node_modules needed).
 //

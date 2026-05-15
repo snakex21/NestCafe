@@ -1,7 +1,7 @@
 {
   "//": "WARNING: Before upgrading opencode-ai, check sst/opencode for prompt changes (title.txt, compaction.txt, prompt.ts, compaction.ts). Downstream prompt-validation (if any) may need to be re-aligned if prefixes drift.",
   "name": "@nestcafe/desktop",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "author": {
     "name": "NestCafe"
@@ -277,7 +277,22 @@
       "runAfterFinish": true,
       "installerIcon": "resources/icon.ico",
       "uninstallerIcon": "resources/icon.ico",
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "include": "resources/installer.nsh",
+      "multiLanguageInstaller": true,
+      "displayLanguageSelector": true,
+      "installerLanguages": [
+        "en_US",
+        "pl_PL",
+        "de_DE",
+        "fr_FR",
+        "es_ES",
+        "it_IT",
+        "pt_BR",
+        "uk_UA",
+        "cs_CZ",
+        "sk_SK"
+      ]
     },
     "linux": {
       "target": [

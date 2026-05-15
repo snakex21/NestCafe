@@ -3,14 +3,108 @@ import electronPlugin from 'vite-plugin-electron';
 import path from 'path';
 import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
-import { existsSync, statSync } from 'node:fs';
+import { existsSync, rmSync, statSync } from 'node:fs';
 import { setTimeout as sleep } from 'node:timers/promises';
+import { execSync, spawn, type ChildProcess } from 'node:child_process';
 import esbuild from 'esbuild';
 import pkg from './package.json';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const nodeExternals = [...builtinModules, ...builtinModules.map((m) => `node:${m}`)];
+
+let electronProcess: ChildProcess | null = null;
+let didCleanMainDist = false;
+let isRestartingElectron = false;
+
+async function stopElectronProcess(): Promise<void> {
+  const processToStop = electronProcess;
+  if (!processToStop?.pid || processToStop.exitCode !== null) {
+    electronProcess = null;
+    return;
+  }
+
+  isRestartingElectron = true;
+  await new Promise<void>((resolve) => {
+    const timeout = setTimeout(resolve, 5_000);
+    processToStop.once('exit', () => {
+      clearTimeout(timeout);
+      resolve();
+    });
+
+    try {
+      if (process.platform === 'win32') {
+        execSync(`taskkill /pid ${processToStop.pid} /T /F`, { stdio: 'ignore' });
+      } else {
+        processToStop.kill('SIGTERM');
+      }
+    } catch {
+      try {
+        processToStop.kill('SIGTERM');
+      } catch {
+        // The process may already be gone, or Windows may refuse to kill a detached child.
+      }
+      resolve();
+    }
+  });
+
+  if (electronProcess === processToStop) {
+    electronProcess = null;
+  }
+  isRestartingElectron = false;
+}
+
+async function startElectron(argv: string[]): Promise<void> {
+  await stopElectronProcess();
+
+  const electronModule = await import('electron');
+  const electronPath = (electronModule.default ?? electronModule) as unknown as string;
+  const stdio =
+    process.platform === 'linux'
+      ? (['inherit', 'inherit', 'inherit', 'ignore', 'ipc'] as const)
+      : (['inherit', 'inherit', 'inherit', 'ipc'] as const);
+
+  electronProcess = spawn(electronPath, argv, { stdio });
+  const spawnedProcess = electronProcess;
+  electronProcess.once('exit', (code) => {
+    if (electronProcess === spawnedProcess) {
+      electronProcess = null;
+    }
+    if (!isRestartingElectron) {
+      process.exit(typeof code === 'number' ? code : 0);
+    }
+  });
+}
+
+async function launchDesktopApp(): Promise<void> {
+  const inspectArg = process.env.ELECTRON_DEBUG
+    ? `--inspect=${process.env.ELECTRON_DEBUG_PORT || '9229'}`
+    : undefined;
+  const argv = ['.', '--no-sandbox', ...(inspectArg ? [inspectArg] : [])];
+
+  // Ensure the compiled entry point is fully on disk before launching
+  // Electron. Under heavy I/O, antivirus scanning, or when preload finishes
+  // after main, the file can briefly be missing.
+  const entryPath = path.resolve(__dirname, 'dist-electron/main/index.js');
+  const deadline = Date.now() + 10_000;
+  while (Date.now() < deadline) {
+    try {
+      if (existsSync(entryPath) && statSync(entryPath).size > 0) {
+        await startElectron(argv);
+        return;
+      }
+    } catch {
+      // file not ready yet
+    }
+    await sleep(50);
+  }
+
+  throw new Error(`Electron main entry was not built in time: ${entryPath}`);
+}
+
+process.once('exit', () => {
+  void stopElectronProcess();
+});
 
 // Externalize all node_modules — only bundle local source files.
 // Vite 8 (rolldown) does not auto-convert CJS require() to ESM imports,
@@ -69,31 +163,25 @@ export default defineConfig(() => ({
     electronPlugin([
       {
         entry: 'src/main/index.ts',
-        async onstart({ startup }) {
-          const inspectArg = process.env.ELECTRON_DEBUG
-            ? `--inspect=${process.env.ELECTRON_DEBUG_PORT || '9229'}`
-            : undefined;
-          const argv = ['.', '--no-sandbox', ...(inspectArg ? [inspectArg] : [])];
-
-          // Ensure the compiled entry point is fully on disk before launching
-          // Electron. Under heavy I/O or antivirus scanning on Windows the file
-          // may appear after a brief delay.
-          const entryPath = path.resolve(__dirname, 'dist-electron/main/index.js');
-          const deadline = Date.now() + 10_000;
-          while (Date.now() < deadline) {
-            try {
-              if (existsSync(entryPath) && statSync(entryPath).size > 0) {
-                break;
-              }
-            } catch {
-              // file not ready yet
-            }
-            await sleep(50);
-          }
-
-          startup(argv);
+        async onstart() {
+          await launchDesktopApp();
         },
         vite: {
+          plugins: [
+            {
+              name: 'clean-main-dist-once',
+              buildStart() {
+                if (didCleanMainDist) {
+                  return;
+                }
+                didCleanMainDist = true;
+                rmSync(path.resolve(__dirname, 'dist-electron/main'), {
+                  recursive: true,
+                  force: true,
+                });
+              },
+            },
+          ],
           resolve: {
             alias: {
               '@main': path.resolve(__dirname, 'src/main'),
@@ -111,8 +199,8 @@ export default defineConfig(() => ({
       },
       {
         entry: 'src/preload/index.ts',
-        onstart({ reload }) {
-          reload();
+        async onstart() {
+          await launchDesktopApp();
         },
         vite: {
           define: {
