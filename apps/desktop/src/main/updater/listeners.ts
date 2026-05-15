@@ -20,6 +20,7 @@ import {
   setDownloadedVersion,
   setUserCheckInFlight,
   setUpdateAvailable,
+  getAutoDownloadEnabled,
 } from './state';
 
 /**
@@ -46,19 +47,24 @@ export function registerAutoUpdaterListeners(
     }
     setUpdateAvailable(info);
     log('INFO', '[Updater] update-available', { version: info.version });
+
+    const autoDownload = getAutoDownloadEnabled();
     if (shouldNotifyUpdateAvailable) {
       void dialog.showMessageBox({
         type: 'info',
         title: 'Update Available',
         message: `Version ${info.version} is available.`,
-        detail:
-          'NestCafe is downloading the update in the background. You will be prompted to restart when it is ready.',
+        detail: autoDownload
+          ? 'NestCafe is downloading the update in the background. You will be prompted to restart when it is ready.'
+          : 'Go to Settings > General > Updates to enable automatic downloads, or check for updates from the Help menu.',
         buttons: ['OK'],
       });
     }
-    void autoUpdater.downloadUpdate().catch((error: Error) => {
-      log('ERROR', '[Updater] downloadUpdate failed', { err: error.message });
-    });
+    if (autoDownload) {
+      void autoUpdater.downloadUpdate().catch((error: Error) => {
+        log('ERROR', '[Updater] downloadUpdate failed', { err: error.message });
+      });
+    }
   });
 
   autoUpdater.on('update-not-available', async () => {

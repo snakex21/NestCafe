@@ -7,6 +7,7 @@ import { LanguageSelector } from '@/components/settings/LanguageSelector';
 import { WindowCloseSection } from '@/components/settings/WindowCloseSection';
 import { BackupRestoreSection } from '@/components/settings/BackupRestoreSection';
 import { AppearanceCustomization } from '@/components/settings/AppearanceCustomization';
+import { UpdateSection } from '@/components/settings/UpdateSection';
 
 interface GeneralTabProps {
   notificationsEnabled: boolean;
@@ -40,6 +41,8 @@ export function GeneralTab({
       <section>
         <BackupRestoreSection />
       </section>
+
+      <UpdateSection />
 
       <section>
         <DaemonSection />

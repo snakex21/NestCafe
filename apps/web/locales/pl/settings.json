@@ -839,5 +839,26 @@
     "scanInstructions": "Otwórz WhatsApp na telefonie, przejdź do Ustawienia > Połączone urządzenia i zeskanuj ten kod.",
     "unofficialWarning": "⚠️ Ta integracja używa nieoficjalnego protokołu WhatsApp Web. Używaj na własne ryzyko.",
     "connect": "Połącz WhatsApp"
+  },
+  "updates": {
+    "title": "Aktualizacje",
+    "autoCheckLabel": "Automatycznie sprawdzaj aktualizacje",
+    "autoCheckDescription": "Sprawdzaj nowe wersje przy uruchomieniu aplikacji (raz dziennie).",
+    "autoDownloadLabel": "Automatycznie pobieraj aktualizacje",
+    "autoDownloadDescription": "Pobieraj nowe wersje w tle, gdy zostaną znalezione.",
+    "autoInstallLabel": "Automatycznie instaluj przy zamykaniu",
+    "autoInstallDescription": "Instaluj pobrane aktualizacje automatycznie po zamknięciu aplikacji.",
+    "checkNow": "Sprawdź teraz",
+    "checking": "Sprawdzanie...",
+    "checkComplete": "Sprawdzanie aktualizacji zakończone.",
+    "checkFailed": "Sprawdzanie nie powiodło się. Spróbuj ponownie później.",
+    "restartToInstall": "Uruchom ponownie, aby zainstalować",
+    "installing": "Instalowanie...",
+    "upToDate": "Masz najnowszą wersję",
+    "availableStatus": "Dostępna aktualizacja: wersja {{version}}",
+    "downloadedStatus": "Aktualizacja pobrana: wersja {{version}}",
+    "restartToInstallHint": "Aktualizacja zostanie zainstalowana po ponownym uruchomieniu aplikacji.",
+    "notAvailable": "Automatyczne aktualizacje nie są dostępne w tej wersji.",
+    "notAvailableShort": "Niedostępne w tej wersji"
   }
 }

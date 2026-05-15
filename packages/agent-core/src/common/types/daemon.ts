@@ -297,6 +297,12 @@ export interface SettingsSnapshot {
   nimConfig: NimConfig | null;
   /** Folder-indexing config (selected folders for file-system indexing). */
   folderIndexingConfig: FolderIndexingConfig;
+  /** Whether to auto-check for updates on startup. */
+  updateAutoCheck: boolean;
+  /** Whether to auto-download updates when found. */
+  updateAutoDownload: boolean;
+  /** Whether to auto-install updates on app quit. */
+  updateAutoInstall: boolean;
 }
 
 /** Discriminated union describing a settings write. Subscribers can patch
@@ -324,7 +330,10 @@ export type SettingsChangePayload =
   | { key: 'azureFoundryConfig'; value: AzureFoundryConfig | null }
   | { key: 'lmstudioConfig'; value: LMStudioConfig | null }
   | { key: 'nimConfig'; value: NimConfig | null }
-  | { key: 'folderIndexingConfig'; value: FolderIndexingConfig };
+  | { key: 'folderIndexingConfig'; value: FolderIndexingConfig }
+  | { key: 'updateAutoCheck'; value: boolean }
+  | { key: 'updateAutoDownload'; value: boolean }
+  | { key: 'updateAutoInstall'; value: boolean };
 
 /** Result shape for `workspace.setActive` and `workspace.delete`: callers
  *  need to know whether the operation actually changed state so they can
@@ -561,6 +570,12 @@ export interface DaemonMethodMap {
   'settings.setLMStudioConfig': { params: { config: LMStudioConfig | null }; result: void };
   'settings.getNimConfig': { params: undefined; result: NimConfig | null };
   'settings.setNimConfig': { params: { config: NimConfig | null }; result: void };
+  'settings.getUpdateAutoCheck': { params: undefined; result: boolean };
+  'settings.setUpdateAutoCheck': { params: { enabled: boolean }; result: void };
+  'settings.getUpdateAutoDownload': { params: undefined; result: boolean };
+  'settings.setUpdateAutoDownload': { params: { enabled: boolean }; result: void };
+  'settings.getUpdateAutoInstall': { params: undefined; result: boolean };
+  'settings.setUpdateAutoInstall': { params: { enabled: boolean }; result: void };
 
   // Provider settings
   'provider.getSettings': { params: undefined; result: ProviderSettings };

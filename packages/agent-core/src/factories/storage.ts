@@ -64,6 +64,12 @@ import {
   setCloseBehavior,
   getLanguage,
   setLanguage,
+  getUpdateAutoCheck,
+  setUpdateAutoCheck,
+  getUpdateAutoDownload,
+  setUpdateAutoDownload,
+  getUpdateAutoInstall,
+  setUpdateAutoInstall,
 } from '../storage/repositories/appSettings.js';
 import {
   getProviderSettings,
@@ -200,6 +206,12 @@ export function createStorage(options: StorageOptions = {}): StorageAPI {
     setCloseBehavior: (behavior) => setCloseBehavior(behavior),
     getLanguage: () => getLanguage(),
     setLanguage: (language) => setLanguage(language),
+    getUpdateAutoCheck: () => getUpdateAutoCheck(),
+    setUpdateAutoCheck: (enabled) => setUpdateAutoCheck(enabled),
+    getUpdateAutoDownload: () => getUpdateAutoDownload(),
+    setUpdateAutoDownload: (enabled) => setUpdateAutoDownload(enabled),
+    getUpdateAutoInstall: () => getUpdateAutoInstall(),
+    setUpdateAutoInstall: (enabled) => setUpdateAutoInstall(enabled),
 
     // Provider Settings
     getProviderSettings: () => getProviderSettings(),

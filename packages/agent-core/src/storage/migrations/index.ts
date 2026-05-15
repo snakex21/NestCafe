@@ -55,6 +55,7 @@ import { migration as v031 } from './v031-drop-desktop-blocklist-column.js';
 import { migration as v032 } from './v032-folder-indexing.js';
 import { migration as v033 } from './v033-conversation-search.js';
 import { migration as v034 } from './v034-module-system.js';
+import { migration as v035 } from './v035-update-settings.js';
 
 const migrations: Migration[] = [
   v001,
@@ -91,13 +92,14 @@ const migrations: Migration[] = [
   v032,
   v033,
   v034,
+  v035,
 ];
 export function registerMigration(migration: Migration): void {
   migrations.push(migration);
   migrations.sort((a, b) => a.version - b.version);
 }
 
-export const CURRENT_VERSION = 34;
+export const CURRENT_VERSION = 35;
 export function getStoredVersion(db: Database): number {
   try {
     const tableExists = db

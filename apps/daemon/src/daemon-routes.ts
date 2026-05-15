@@ -884,6 +884,44 @@ export function registerRpcMethods(services: RouteServices): void {
     }),
   );
 
+  // ── Settings — update preferences ──────────────────────────────────────
+  rpc.registerMethod(
+    'settings.getUpdateAutoCheck',
+    safeHandler(() => Promise.resolve(settingsService.getUpdateAutoCheck())),
+  );
+  rpc.registerMethod(
+    'settings.setUpdateAutoCheck',
+    safeHandler((params) => {
+      const v = validate(z.object({ enabled: z.boolean() }), params);
+      settingsService.setUpdateAutoCheck(v.enabled);
+      return Promise.resolve();
+    }),
+  );
+  rpc.registerMethod(
+    'settings.getUpdateAutoDownload',
+    safeHandler(() => Promise.resolve(settingsService.getUpdateAutoDownload())),
+  );
+  rpc.registerMethod(
+    'settings.setUpdateAutoDownload',
+    safeHandler((params) => {
+      const v = validate(z.object({ enabled: z.boolean() }), params);
+      settingsService.setUpdateAutoDownload(v.enabled);
+      return Promise.resolve();
+    }),
+  );
+  rpc.registerMethod(
+    'settings.getUpdateAutoInstall',
+    safeHandler(() => Promise.resolve(settingsService.getUpdateAutoInstall())),
+  );
+  rpc.registerMethod(
+    'settings.setUpdateAutoInstall',
+    safeHandler((params) => {
+      const v = validate(z.object({ enabled: z.boolean() }), params);
+      settingsService.setUpdateAutoInstall(v.enabled);
+      return Promise.resolve();
+    }),
+  );
+
   // ── Folder indexing ─────────────────────────────────────────────────────
   rpc.registerMethod(
     'folderIndexing.getConfig',

@@ -70,6 +70,9 @@ export class SettingsService extends EventEmitter {
       // M5's first-frame read complete.
       nimConfig: this.storage.getNimConfig(),
       folderIndexingConfig: this.storage.getFolderIndexingConfig(),
+      updateAutoCheck: this.storage.getUpdateAutoCheck(),
+      updateAutoDownload: this.storage.getUpdateAutoDownload(),
+      updateAutoInstall: this.storage.getUpdateAutoInstall(),
     };
   }
 
@@ -285,6 +288,35 @@ export class SettingsService extends EventEmitter {
   setFolderIndexingConfig(config: FolderIndexingConfig): void {
     this.storage.setFolderIndexingConfig(config);
     this.emit('settings.changed', { key: 'folderIndexingConfig', value: config });
+  }
+
+  // ─── Update settings ──────────────────────────────────────────────────
+
+  getUpdateAutoCheck(): boolean {
+    return this.storage.getUpdateAutoCheck();
+  }
+
+  setUpdateAutoCheck(enabled: boolean): void {
+    this.storage.setUpdateAutoCheck(enabled);
+    this.emit('settings.changed', { key: 'updateAutoCheck', value: enabled });
+  }
+
+  getUpdateAutoDownload(): boolean {
+    return this.storage.getUpdateAutoDownload();
+  }
+
+  setUpdateAutoDownload(enabled: boolean): void {
+    this.storage.setUpdateAutoDownload(enabled);
+    this.emit('settings.changed', { key: 'updateAutoDownload', value: enabled });
+  }
+
+  getUpdateAutoInstall(): boolean {
+    return this.storage.getUpdateAutoInstall();
+  }
+
+  setUpdateAutoInstall(enabled: boolean): void {
+    this.storage.setUpdateAutoInstall(enabled);
+    this.emit('settings.changed', { key: 'updateAutoInstall', value: enabled });
   }
 }
 

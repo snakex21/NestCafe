@@ -316,4 +316,104 @@ export function registerSettingsHandlers(): void {
   handle('memory:delete-page', async (_event: IpcMainInvokeEvent, page: string) => {
     return getDaemonClient().call('memory.deletePage', { page });
   });
+
+  // ── Update settings & actions ──────────────────────────────────────────
+
+  handle('update:get-auto-check', async () => {
+    return getDaemonClient().call('settings.getUpdateAutoCheck');
+  });
+
+  handle('update:set-auto-check', async (_event: IpcMainInvokeEvent, enabled: boolean) => {
+    if (typeof enabled !== 'boolean') {
+      throw new Error('Invalid update auto-check flag');
+    }
+    await getDaemonClient().call('settings.setUpdateAutoCheck', { enabled });
+    try {
+      const { setAutoCheckEnabled } = await import('../../updater/state');
+      setAutoCheckEnabled(enabled);
+    } catch {
+      // Updater not initialized — no-op
+    }
+  });
+
+  handle('update:get-auto-download', async () => {
+    return getDaemonClient().call('settings.getUpdateAutoDownload');
+  });
+
+  handle('update:set-auto-download', async (_event: IpcMainInvokeEvent, enabled: boolean) => {
+    if (typeof enabled !== 'boolean') {
+      throw new Error('Invalid update auto-download flag');
+    }
+    await getDaemonClient().call('settings.setUpdateAutoDownload', { enabled });
+    try {
+      const { setAutoDownloadEnabled } = await import('../../updater/state');
+      setAutoDownloadEnabled(enabled);
+    } catch {
+      // Updater not initialized — no-op
+    }
+  });
+
+  handle('update:get-auto-install', async () => {
+    return getDaemonClient().call('settings.getUpdateAutoInstall');
+  });
+
+  handle('update:set-auto-install', async (_event: IpcMainInvokeEvent, enabled: boolean) => {
+    if (typeof enabled !== 'boolean') {
+      throw new Error('Invalid update auto-install flag');
+    }
+    await getDaemonClient().call('settings.setUpdateAutoInstall', { enabled });
+    try {
+      const { setAutoInstallEnabled } = await import('../../updater/state');
+      setAutoInstallEnabled(enabled);
+    } catch {
+      // Updater not initialized — no-op
+    }
+  });
+
+  handle('update:get-state', async () => {
+    try {
+      const { isAutoUpdaterEnabled } = await import('../../config/build-config');
+      if (!isAutoUpdaterEnabled()) {
+        return { enabled: false, updateAvailable: false, downloadedVersion: null, availableVersion: null };
+      }
+      const { getUpdateState: getState } = await import('../../updater');
+      return { enabled: true, ...getState() };
+    } catch {
+      return { enabled: false, updateAvailable: false, downloadedVersion: null, availableVersion: null };
+    }
+  });
+
+  handle('update:check', async () => {
+    try {
+      const { isAutoUpdaterEnabled } = await import('../../config/build-config');
+      if (!isAutoUpdaterEnabled()) {
+        return { success: false, error: 'Auto-updater is not enabled in this build' };
+      }
+      const { checkForUpdates } = await import('../../updater');
+      await checkForUpdates(false);
+      return { success: true };
+    } catch (err) {
+      return {
+        success: false,
+        error: err instanceof Error ? err.message : String(err),
+      };
+    }
+  });
+
+  handle('update:quit-and-install', async () => {
+    try {
+      const { isAutoUpdaterEnabled } = await import('../../config/build-config');
+      if (!isAutoUpdaterEnabled()) {
+        return { success: false, error: 'Auto-updater is not enabled in this build' };
+      }
+      const { quitAndInstall } = await import('../../updater');
+      await quitAndInstall();
+      return { success: true };
+    } catch (err) {
+      return {
+        success: false,
+        error: err instanceof Error ? err.message : String(err),
+      };
+    }
+  });
 }

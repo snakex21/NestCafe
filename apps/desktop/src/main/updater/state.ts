@@ -15,6 +15,9 @@ let downloadedVersion: string | null = null;
 let updateAvailable: UpdateInfo | null = null;
 let onUpdateDownloadedCallback: (() => void) | null = null;
 let userCheckInFlight = false;
+let autoCheckEnabled = true;
+let autoDownloadEnabled = true;
+let autoInstallEnabled = true;
 
 export function setMainWindow(window: BrowserWindow): void {
   mainWindow = window;
@@ -58,4 +61,25 @@ export function getUpdateState(): {
     downloadedVersion,
     availableVersion: updateAvailable?.version ?? null,
   };
+}
+
+export function setAutoCheckEnabled(v: boolean): void {
+  autoCheckEnabled = v;
+}
+export function getAutoCheckEnabled(): boolean {
+  return autoCheckEnabled;
+}
+
+export function setAutoDownloadEnabled(v: boolean): void {
+  autoDownloadEnabled = v;
+}
+export function getAutoDownloadEnabled(): boolean {
+  return autoDownloadEnabled;
+}
+
+export function setAutoInstallEnabled(v: boolean): void {
+  autoInstallEnabled = v;
+}
+export function getAutoInstallEnabled(): boolean {
+  return autoInstallEnabled;
 }

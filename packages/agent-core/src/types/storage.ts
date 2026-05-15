@@ -97,6 +97,12 @@ export interface AppSettings {
   theme: ThemePreference;
   language: LanguagePreference;
   folderIndexingConfig: FolderIndexingConfig;
+  /** Whether to automatically check for updates on startup */
+  updateAutoCheck: boolean;
+  /** Whether to automatically download updates when found */
+  updateAutoDownload: boolean;
+  /** Whether to automatically install updates on app quit */
+  updateAutoInstall: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -257,6 +263,18 @@ export interface AppSettingsAPI {
   getFolderIndexingConfig(): FolderIndexingConfig;
   /** Set the folder indexing configuration */
   setFolderIndexingConfig(config: FolderIndexingConfig): void;
+  /** Get whether to automatically check for updates */
+  getUpdateAutoCheck(): boolean;
+  /** Set whether to automatically check for updates */
+  setUpdateAutoCheck(enabled: boolean): void;
+  /** Get whether to automatically download updates */
+  getUpdateAutoDownload(): boolean;
+  /** Set whether to automatically download updates */
+  setUpdateAutoDownload(enabled: boolean): void;
+  /** Get whether to automatically install updates */
+  getUpdateAutoInstall(): boolean;
+  /** Set whether to automatically install updates */
+  setUpdateAutoInstall(enabled: boolean): void;
 }
 
 /** API for managing AI provider configurations */
