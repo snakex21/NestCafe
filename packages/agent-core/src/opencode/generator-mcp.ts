@@ -313,18 +313,6 @@ export function buildMcpServers(options: BuildMcpServersOptions): Record<string,
     }
   }
 
-  // Godot MCP — full Godot 4.x engine control for AI-driven game development
-  try {
-    mcpServers['godot-mcp'] = {
-      type: 'local',
-      command: resolveMcpCommand(mcpToolsPath, 'godot-mcp', 'build/index.js', nodeExe),
-      enabled: true,
-      timeout: 300000,
-    };
-  } catch (err) {
-    log.warn(`[OpenCode MCP] godot-mcp not registered: ${err}`);
-  }
-
   if (connectors) {
     for (const connector of connectors) {
       const sanitized = connector.name

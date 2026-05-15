@@ -6,6 +6,7 @@
  */
 
 import { app, BrowserWindow, dialog, ipcMain, nativeImage, nativeTheme, shell } from 'electron';
+import { execFileSync } from 'child_process';
 import path from 'path';
 import type { ProviderId } from '@nestcafe_ai/agent-core/desktop-main';
 import { migrateLegacyData } from './store/legacyMigration';
@@ -23,11 +24,7 @@ import {
 } from './daemon-bootstrap';
 import { registerIPCHandlers } from './ipc/handlers';
 import { drainProtocolUrlQueue } from './protocol-handlers';
-import {
-  getBuildConfig,
-  getBuildId,
-  isAutoUpdaterEnabled,
-} from './config/build-config';
+import { getBuildId, isAutoUpdaterEnabled } from './config/build-config';
 
 function logMain(level: 'INFO' | 'WARN' | 'ERROR', msg: string, data?: Record<string, unknown>) {
   try {
@@ -36,6 +33,61 @@ function logMain(level: 'INFO' | 'WARN' | 'ERROR', msg: string, data?: Record<st
   } catch (_e) {
     /* best-effort */
   }
+}
+
+const VC_REDIST_X64_URL = 'https://aka.ms/vs/17/release/vc_redist.x64.exe';
+const VC_REDIST_X64_REGISTRY_KEY =
+  'HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\x64';
+
+function isWindowsVcRuntimeInstalled(): boolean {
+  if (process.platform !== 'win32') {
+    return true;
+  }
+
+  try {
+    const output = execFileSync('reg', ['query', VC_REDIST_X64_REGISTRY_KEY, '/v', 'Installed'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+      windowsHide: true,
+    });
+
+    return /Installed\s+REG_DWORD\s+0x0*1/i.test(output);
+  } catch (err) {
+    logMain('WARN', '[Main] VC++ Redistributable registry check failed', { err: String(err) });
+    return false;
+  }
+}
+
+async function ensureWindowsVcRuntimeAvailable(): Promise<'continue' | 'quit'> {
+  if (process.platform !== 'win32' || !app.isPackaged || isWindowsVcRuntimeInstalled()) {
+    return 'continue';
+  }
+
+  logMain('WARN', '[Main] Microsoft Visual C++ Redistributable x64 not detected');
+
+  const response = await dialog.showMessageBox({
+    type: 'warning',
+    title: 'Required Windows component missing',
+    message: 'Microsoft Visual C++ Redistributable x64 is required to start NestCafe.',
+    detail:
+      'NestCafe includes its own Node.js and OpenCode runtime, but the background service uses ' +
+      'a native SQLite module that requires the Microsoft Visual C++ Runtime. Install it, then ' +
+      'open NestCafe again.',
+    buttons: ['Download and quit', 'Continue anyway', 'Quit'],
+    defaultId: 0,
+    cancelId: 2,
+  });
+
+  if (response.response === 0) {
+    await shell.openExternal(VC_REDIST_X64_URL);
+    return 'quit';
+  }
+
+  if (response.response === 2) {
+    return 'quit';
+  }
+
+  return 'continue';
 }
 
 /**
@@ -134,6 +186,12 @@ export async function startApp(
   isQuittingRef: { value: boolean },
 ): Promise<void> {
   logMain('INFO', `[Main] Electron app ready, version: ${app.getVersion()}`);
+
+  const vcRuntimeStatus = await ensureWindowsVcRuntimeAvailable();
+  if (vcRuntimeStatus === 'quit') {
+    app.quit();
+    return;
+  }
 
   // Set build identity for daemon version-guard (used by in-process DaemonServer
   // and compared against standalone daemon's ping response)
@@ -328,10 +386,7 @@ export async function startApp(
             if (snap.providers.activeProviderId === 'nestcafe-ai') {
               await client.call('provider.setActive', { providerId: null });
             }
-            logMain(
-              'INFO',
-              '[Main] Removed stale nestcafe-ai provider (free mode not available)',
-            );
+            logMain('INFO', '[Main] Removed stale nestcafe-ai provider (free mode not available)');
           }
         }
       } catch {
@@ -423,6 +478,13 @@ export async function startApp(
     mainWindow.on('close', (event) => {
       if (isQuittingRef.value) {
         return; // Already quitting — let it close
+      }
+
+      if (!app.isPackaged) {
+        logMain('INFO', '[Main] Dev mode window close — quitting app');
+        isQuittingRef.value = true;
+        app.quit();
+        return;
       }
 
       // Skip close dialog in E2E mode — tests need clean app.close()

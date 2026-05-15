@@ -5,11 +5,21 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const APP_DATA_NAME = 'data';
-// Tryb przenośny: dane obok aplikacji, nie w AppData
-app.setPath(
-  'userData',
-  path.join(process.env.APP_ROOT || path.dirname(app.getPath('exe')), '..', APP_DATA_NAME),
-);
+
+function resolveUserDataPath(): string {
+  if (process.env.NESTCAFE_DATA_DIR) {
+    return path.resolve(process.env.NESTCAFE_DATA_DIR);
+  }
+
+  if (app.isPackaged) {
+    return path.join(path.dirname(app.getPath('exe')), APP_DATA_NAME);
+  }
+
+  return path.join(app.getAppPath(), APP_DATA_NAME);
+}
+
+// Tryb przenośny: dane w folderze aplikacji, nie w AppData.
+app.setPath('userData', resolveUserDataPath());
 
 if (process.platform === 'win32') {
   app.setAppUserModelId('ai.nestcafe.desktop');

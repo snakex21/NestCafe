@@ -61,7 +61,6 @@ echo.
 call pnpm dev
 if errorlevel 1 (
     echo [ERROR] Failed to start NestCafe
-    pause
     exit /b 1
 )
-pause
+exit /b 0

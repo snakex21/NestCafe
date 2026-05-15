@@ -92,3 +92,6 @@ packages/agent-core/mcp-tools/package-lock.json
 /.run/
 packages/agent-core/mcp-tools/dev-browser/server.mjs
 packages/agent-core/mcp-tools/dev-browser/.browser-data/
+
+# Portable dev data directory
+apps/desktop/data/

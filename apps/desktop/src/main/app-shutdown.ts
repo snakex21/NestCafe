@@ -15,6 +15,7 @@ import { getLogCollector, shutdownLogCollector } from './logging';
 import { stopHuggingFaceServer } from './providers/huggingface-local';
 import { destroyTray } from './tray';
 import { shutdownDaemon, getDaemonClient } from './daemon-bootstrap';
+import { suppressReconnect } from './daemon/daemon-connector';
 
 
 /**
@@ -100,10 +101,8 @@ export async function shutdownApp(logger: AppLogger): Promise<void> {
   // MUST run before we send `daemon.shutdown` or close the client socket:
   // `trackAppClose` reads `getAllApiKeys()` via daemon RPC to enrich the
   // event payload.
-  try {
-  } catch (error: unknown) {
-    logger?.logEnv('ERROR', `[Main] Error during analytics flush: ${String(error)}`);
-  }
+
+  const shouldStopDaemon = stopDaemonOnQuit || !app.isPackaged;
 
   // If the user chose "Close and stop daemon", send the shutdown RPC AFTER
   // the analytics flush above so the daemon is still serving RPCs when
@@ -111,8 +110,13 @@ export async function shutdownApp(logger: AppLogger): Promise<void> {
   // gone (user killed it externally, crash recovery, etc.). The
   // `suppressReconnect()` call in the close handler prevents the client
   // from treating the resulting disconnect as a reconnect opportunity.
-  if (stopDaemonOnQuit) {
+  // In dev mode (including start.bat) we also stop the detached daemon so
+  // closing the app does not leave a background Node process behind.
+  if (shouldStopDaemon) {
     try {
+      if (!stopDaemonOnQuit) {
+        suppressReconnect();
+      }
       const client = getDaemonClient();
       await client.call('daemon.shutdown').catch(() => {
         /* daemon already down or mid-drain */
