@@ -29,18 +29,12 @@
 
 ## 🖼️ Screenshots
 
-<p align="center">
-  <i>📸 Add your screenshots here — replace the placeholders below</i>
-</p>
-
 | | |
 |:---:|:---:|
 | **Home — Task Input** | **Execution — AI at work** |
 | ![Home Screen](screenshots/home.png) | ![Execution](screenshots/execution.png) |
 | **Settings — AI Providers** | **History — Past Tasks** |
 | ![Settings](screenshots/settings.png) | ![History](screenshots/history.png) |
-
-> **To add screenshots:** Create a `screenshots/` folder in the repo root and add your PNG files: `home.png`, `execution.png`, `settings.png`, `history.png`.
 
 ---
 
