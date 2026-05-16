@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useOutlet, useLocation } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/shallow';
 import { isRunningInElectron, getNestCafe } from './lib/nestcafe';
 import { logger } from './lib/logger';
 import { springs, variants } from './lib/animations';
@@ -69,7 +70,10 @@ export function App() {
   );
 
   // Get store state and actions
-  const { openLauncher, authError, clearAuthError } = useTaskStore();
+  const authError = useTaskStore((s) => s.authError);
+  const { openLauncher, clearAuthError } = useTaskStore(
+    useShallow((s) => ({ openLauncher: s.openLauncher, clearAuthError: s.clearAuthError })),
+  );
 
   const openSettings = useCallback((initialTab: SettingsTabId, initialProvider?: ProviderId) => {
     setSettingsInitialTab(initialTab);

@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/shallow';
 import { PROMPT_DEFAULT_MAX_LENGTH } from '@nestcafe_ai/agent-core/common';
 import { useTaskStore } from '../../stores/taskStore';
 import { getNestCafe } from '../../lib/nestcafe';
@@ -34,30 +35,45 @@ export function useExecutionCore() {
   const [isTaskActionRunning, setIsTaskActionRunning] = useState(false);
   const [pendingFollowUp, setPendingFollowUp] = useState<string | null>(null);
 
+  const currentTask = useTaskStore((s) => s.currentTask);
+  const isLoading = useTaskStore((s) => s.isLoading);
+  const error = useTaskStore((s) => s.error);
+  const permissionRequests = useTaskStore((s) => s.permissionRequests);
+  const setupProgress = useTaskStore((s) => s.setupProgress);
+  const setupProgressTaskId = useTaskStore((s) => s.setupProgressTaskId);
+  const setupDownloadStep = useTaskStore((s) => s.setupDownloadStep);
+  const startupStage = useTaskStore((s) => s.startupStage);
+  const startupStageTaskId = useTaskStore((s) => s.startupStageTaskId);
+  const todos = useTaskStore((s) => s.todos);
+  const todosTaskId = useTaskStore((s) => s.todosTaskId);
+
   const {
-    currentTask,
     loadTaskById,
-    isLoading,
-    error,
     addTaskUpdate,
     addTaskUpdateBatch,
     updateTaskStatus,
     setPermissionRequest,
-    permissionRequests,
     respondToPermission,
     sendFollowUp,
     rerunFromMessage,
     interruptTask,
     cancelTask,
-    setupProgress,
-    setupProgressTaskId,
-    setupDownloadStep,
-    startupStage,
-    startupStageTaskId,
     clearStartupStage,
-    todos,
-    todosTaskId,
-  } = useTaskStore();
+  } = useTaskStore(
+    useShallow((s) => ({
+      loadTaskById: s.loadTaskById,
+      addTaskUpdate: s.addTaskUpdate,
+      addTaskUpdateBatch: s.addTaskUpdateBatch,
+      updateTaskStatus: s.updateTaskStatus,
+      setPermissionRequest: s.setPermissionRequest,
+      respondToPermission: s.respondToPermission,
+      sendFollowUp: s.sendFollowUp,
+      rerunFromMessage: s.rerunFromMessage,
+      interruptTask: s.interruptTask,
+      cancelTask: s.cancelTask,
+      clearStartupStage: s.clearStartupStage,
+    })),
+  );
 
   const scroll = useExecutionScroll();
 

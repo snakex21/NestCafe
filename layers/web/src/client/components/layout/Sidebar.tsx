@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/shallow';
 import { useTaskStore } from '@/stores/taskStore';
 import { getNestCafe } from '@/lib/nestcafe';
 import { staggerContainer } from '@/lib/animations';
@@ -23,8 +24,16 @@ import logoImage from '/assets/logo-1.png';
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { tasks, loadTasks, updateTaskStatus, addTaskUpdate, openLauncher, clearHistory } =
-    useTaskStore();
+  const tasks = useTaskStore((s) => s.tasks);
+  const { loadTasks, updateTaskStatus, addTaskUpdate, openLauncher, clearHistory } = useTaskStore(
+    useShallow((s) => ({
+      loadTasks: s.loadTasks,
+      updateTaskStatus: s.updateTaskStatus,
+      addTaskUpdate: s.addTaskUpdate,
+      openLauncher: s.openLauncher,
+      clearHistory: s.clearHistory,
+    })),
+  );
   const nestcafe = getNestCafe();
   const { t } = useTranslation('sidebar');
   const { t: tCommon } = useTranslation('common');

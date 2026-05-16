@@ -8,7 +8,8 @@ import { ConfirmationDialog } from '../components/ui/confirmation-dialog';
 export default function HistoryPage() {
   const { t } = useTranslation('history');
   const { t: tCommon } = useTranslation('common');
-  const { tasks, clearHistory } = useTaskStore();
+  const tasks = useTaskStore((s) => s.tasks);
+  const clearHistory = useTaskStore((s) => s.clearHistory);
   const [clearOpen, setClearOpen] = useState(false);
 
   const handleClearAll = async () => {

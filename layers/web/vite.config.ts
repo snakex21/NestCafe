@@ -74,11 +74,19 @@ export default defineConfig({
   build: {
     outDir: 'dist/client',
     emptyOutDir: true,
+    target: 'esnext',
     rollupOptions: {
       // AWS SDK packages are Node.js-only (main process) and must not be
       // bundled into the browser build. Rolldown >= rc.10 resolves these to
       // their browser bundles which omit Node-only exports (e.g. fromIni).
       external: [/^@aws-sdk\//],
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router'],
+          'vendor-motion': ['framer-motion'],
+          'vendor-i18n': ['i18next', 'react-i18next'],
+        },
+      },
     },
   },
 });
