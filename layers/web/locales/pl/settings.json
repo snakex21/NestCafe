@@ -418,7 +418,11 @@
         "title": "Skills",
         "description": "Stan włączenia istniejących skills."
       }
-    }
+    },
+    "exportToast": "Backup zapisany pomyślnie",
+    "exportFailed": "Backup nie powiódł się",
+    "importToast": "Backup przywrócony pomyślnie",
+    "importFailed": "Przywracanie nie powiodło się"
   },
   "appearance": {
     "title": "Motyw",

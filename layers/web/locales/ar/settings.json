@@ -839,5 +839,26 @@
     "scanInstructions": "افتح WhatsApp على هاتفك، واذهب إلى الإعدادات > الأجهزة المرتبطة وامسح هذا الرمز.",
     "unofficialWarning": "⚠️ يستخدم هذا التكامل بروتوكول WhatsApp Web غير رسمي. استخدمه على مسؤوليتك الخاصة.",
     "connect": "توصيل WhatsApp"
+  },
+  "updates": {
+    "title": "Updates",
+    "autoCheckLabel": "Automatically check for updates",
+    "autoCheckDescription": "Check for new versions on app startup (once per day).",
+    "autoDownloadLabel": "Automatically download updates",
+    "autoDownloadDescription": "Download new versions in the background when they are found.",
+    "autoInstallLabel": "Automatically install updates on quit",
+    "autoInstallDescription": "Install downloaded updates automatically when you quit the app.",
+    "checkNow": "Check Now",
+    "checking": "Checking...",
+    "checkComplete": "Update check complete.",
+    "checkFailed": "Update check failed. Please try again later.",
+    "restartToInstall": "Restart to Install",
+    "installing": "Installing...",
+    "upToDate": "You are up to date",
+    "availableStatus": "Update available: version {{version}}",
+    "downloadedStatus": "Update downloaded: version {{version}}",
+    "restartToInstallHint": "The update will be installed when you restart the app.",
+    "notAvailable": "Automatic updates are not available in this build.",
+    "notAvailableShort": "Not available in this build"
   }
 }

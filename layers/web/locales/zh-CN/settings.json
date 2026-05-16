@@ -839,5 +839,26 @@
     "scanInstructions": "在手机上打开 WhatsApp，前往 设置 > 已关联的设备 并扫描此二维码。",
     "unofficialWarning": "⚠️ 此集成使用非官方 WhatsApp Web 协议。使用风险自负。",
     "connect": "连接 WhatsApp"
+  },
+  "updates": {
+    "title": "Updates",
+    "autoCheckLabel": "Automatically check for updates",
+    "autoCheckDescription": "Check for new versions on app startup (once per day).",
+    "autoDownloadLabel": "Automatically download updates",
+    "autoDownloadDescription": "Download new versions in the background when they are found.",
+    "autoInstallLabel": "Automatically install updates on quit",
+    "autoInstallDescription": "Install downloaded updates automatically when you quit the app.",
+    "checkNow": "Check Now",
+    "checking": "Checking...",
+    "checkComplete": "Update check complete.",
+    "checkFailed": "Update check failed. Please try again later.",
+    "restartToInstall": "Restart to Install",
+    "installing": "Installing...",
+    "upToDate": "You are up to date",
+    "availableStatus": "Update available: version {{version}}",
+    "downloadedStatus": "Update downloaded: version {{version}}",
+    "restartToInstallHint": "The update will be installed when you restart the app.",
+    "notAvailable": "Automatic updates are not available in this build.",
+    "notAvailableShort": "Not available in this build"
   }
 }
