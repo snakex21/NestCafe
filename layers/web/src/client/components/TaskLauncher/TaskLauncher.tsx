@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { useShallow } from 'zustand/shallow';
 import { useTaskStore } from '@/stores/taskStore';
 import { getNestCafe } from '@/lib/nestcafe';
 import { TaskLauncherContent } from './TaskLauncherContent';
@@ -12,7 +13,12 @@ export function TaskLauncher() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const { isLauncherOpen, launcherInitialPrompt, closeLauncher, tasks, startTask } = useTaskStore();
+  const isLauncherOpen = useTaskStore((s) => s.isLauncherOpen);
+  const launcherInitialPrompt = useTaskStore((s) => s.launcherInitialPrompt);
+  const tasks = useTaskStore((s) => s.tasks);
+  const { closeLauncher, startTask } = useTaskStore(
+    useShallow((s) => ({ closeLauncher: s.closeLauncher, startTask: s.startTask })),
+  );
   const nestcafe = getNestCafe();
   const [openedAt, setOpenedAt] = useState(Date.now);
 
