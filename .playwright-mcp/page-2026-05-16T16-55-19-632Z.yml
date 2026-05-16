@@ -1,0 +1,141 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - button:
+            - generic:
+              - generic: Domyślna
+            - img
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - img
+                - generic: Moduły
+              - button:
+                - img
+            - paragraph: Brak modułów. Kliknij + by wgrać.
+        - generic:
+          - button:
+            - img
+            - text: Nowe zadanie
+          - button:
+            - img
+        - generic:
+          - button:
+            - img
+            - text: Usuń wszystkie rozmowy
+        - generic:
+          - generic:
+            - generic:
+              - button:
+                - generic:
+                  - img
+                - generic: Customer feedback summary with prioritized action items
+                - button:
+                  - img
+              - button:
+                - generic: Follow-up emails drafted
+                - button:
+                  - img
+                - button:
+                  - img
+              - button:
+                - generic: Invoice approval audit
+                - button:
+                  - img
+                - button:
+                  - img
+              - button:
+                - generic: Competitor launch brief
+                - button:
+                  - img
+                - button:
+                  - img
+        - generic:
+          - generic:
+            - img
+            - generic: NestCafe
+          - generic:
+            - button:
+              - img
+      - main:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - button:
+                      - img
+                    - generic:
+                      - heading [level=1]: Summarize this quarter's customer feedback and prepare action items
+                      - generic:
+                        - generic:
+                          - generic: W toku
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - paragraph: Summarize this quarter's customer feedback and prepare action items
+                        - paragraph: 18:54:18
+                        - button:
+                          - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - paragraph: I'll review the feedback themes, group recurring issues, and produce a concise action plan for each team.
+                        - paragraph: 18:54:18
+                        - button:
+                          - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - img
+                          - generic: filesystem
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - paragraph: "Top themes identified: onboarding friction, slow response times, and requests for better status visibility. I'm drafting owner-specific next steps now."
+                        - paragraph: 18:54:18
+                        - button:
+                          - img
+                    - generic:
+                      - generic:
+                        - generic: Running...
+              - generic:
+                - generic:
+                  - generic:
+                    - textbox [disabled]:
+                      - /placeholder: Agent pracuje...
+                    - button
+  - dialog "Task Launcher" [ref=e103]:
+    - heading "Task Launcher" [level=2] [ref=e104]
+    - generic [ref=e105]:
+      - generic [ref=e106]:
+        - img [ref=e107]
+        - textbox "Szukaj zadań..." [active] [ref=e109]
+        - button "Zamknij" [ref=e110] [cursor=pointer]:
+          - img [ref=e111]
+      - generic [ref=e113]:
+        - button "Nowe zadanie" [ref=e114] [cursor=pointer]:
+          - img [ref=e115]
+          - generic [ref=e117]: Nowe zadanie
+        - generic [ref=e118]: Ostatnie 7 dni
+        - button "Summarize this quarter's customer feedback and prepare action items" [ref=e119] [cursor=pointer]:
+          - img [ref=e121]
+          - generic [ref=e123]: Summarize this quarter's customer feedback and prepare action items
+        - button "Draft follow-up emails for the sales pipeline" [ref=e124] [cursor=pointer]:
+          - generic [ref=e127]: Draft follow-up emails for the sales pipeline
+        - button "Find invoices missing approval" [ref=e128] [cursor=pointer]:
+          - generic [ref=e131]: Find invoices missing approval
+        - button "Research competitors and create a launch brief" [ref=e132] [cursor=pointer]:
+          - generic [ref=e135]: Research competitors and create a launch brief
+      - generic [ref=e136]:
+        - generic [ref=e137]: ↑↓ Nawiguj
+        - generic [ref=e138]: ↵ Wybierz
+        - generic [ref=e139]: Esc Zamknij
