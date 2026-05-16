@@ -1,0 +1,132 @@
+{
+  "api": {
+    "timeout": "Permintaan waktu habis. Silakan periksa koneksi internet Anda.",
+    "timeoutRetry": "Permintaan waktu habis. Silakan periksa koneksi internet Anda dan coba lagi.",
+    "invalidKey": "API key tidak valid",
+    "noKey": "Silakan masukkan API key.",
+    "validationFailed": "Validasi API key gagal",
+    "networkError": "Error jaringan. Silakan periksa koneksi Anda.",
+    "connectionFailed": "Gagal memvalidasi API key. Periksa koneksi internet Anda.",
+    "unsupportedProvider": "Provider tidak didukung"
+  },
+  "task": {
+    "notFound": "Tugas tidak ditemukan",
+    "startFailed": "Gagal memulai tugas",
+    "cancelFailed": "Gagal membatalkan tugas",
+    "taskFailed": "Tugas gagal",
+    "noActiveTask": "Tidak ada tugas aktif untuk dilanjutkan",
+    "noSession": "Tidak ada sesi untuk dilanjutkan - silakan mulai tugas baru",
+    "sendMessageFailed": "Gagal mengirim pesan"
+  },
+  "adapter": {
+    "cliNotFound": "OpenCode CLI tidak tersedia. CLI bawaan mungkin hilang atau rusak. Silakan instal ulang aplikasi.",
+    "disposed": "Adapter telah dibuang dan tidak dapat memulai tugas baru",
+    "noActiveProcess": "Tidak ada proses aktif",
+    "exitWithCode": "OpenCode CLI keluar dengan kode {{code}}"
+  },
+  "validation": {
+    "mustBeString": "{{field}} harus berupa string",
+    "required": "{{field}} wajib diisi",
+    "exceedsLength": "{{field}} melebihi panjang maksimum",
+    "unsupportedProvider": "Provider API key tidak didukung",
+    "untrustedWindow": "Jendela tidak tepercaya",
+    "focusedWindowRequired": "Permintaan IPC harus berasal dari jendela yang fokus"
+  },
+  "provider": {
+    "notReady": "Belum ada provider yang siap. Silakan hubungkan provider dan pilih model di Pengaturan.",
+    "noModelsEndpoint": "Tidak ada endpoint model yang dikonfigurasi untuk provider ini",
+    "noApiKey": "Tidak ada API key yang ditemukan untuk provider ini"
+  },
+  "ollama": {
+    "connectionFailed": "Koneksi gagal",
+    "noModels": "Tidak ada model ditemukan",
+    "saveFailed": "Gagal menyimpan",
+    "invalidUrl": "Format URL tidak valid",
+    "protocolNotAllowed": "Hanya URL http dan https yang diizinkan",
+    "invalidConfig": "Konfigurasi Ollama tidak valid",
+    "modelsArray": "Konfigurasi Ollama tidak valid: models harus berupa array",
+    "invalidModelFormat": "Konfigurasi Ollama tidak valid: format model tidak valid",
+    "connectionTimeout": "Koneksi waktu habis. Pastikan Ollama sedang berjalan.",
+    "cannotConnect": "Tidak dapat terhubung ke Ollama: {{message}}"
+  },
+  "bedrock": {
+    "invalidCredentials": "Kredensial tidak valid",
+    "saveFailed": "Gagal menyimpan kredensial",
+    "invalidAuthType": "Jenis autentikasi tidak valid",
+    "invalidAwsCredentials": "Kredensial AWS tidak valid. Silakan periksa Access Key ID dan Secret Access Key Anda.",
+    "accessDenied": "Akses ditolak. Pastikan kredensial AWS Anda memiliki izin Bedrock.",
+    "profileNotFound": "Profil AWS tidak ditemukan. Periksa file ~/.aws/credentials Anda.",
+    "accessKeyRequired": "Access Key ID dan Secret Access Key wajib diisi",
+    "profileNameRequired": "Nama profil wajib diisi",
+    "apiKeyRequired": "API Key wajib diisi"
+  },
+  "model": {
+    "invalidConfig": "Konfigurasi model tidak valid"
+  },
+  "litellm": {
+    "invalidConfig": "Konfigurasi LiteLLM tidak valid",
+    "modelsArray": "Konfigurasi LiteLLM tidak valid: models harus berupa array",
+    "invalidModelFormat": "Konfigurasi LiteLLM tidak valid: format model tidak valid"
+  },
+  "lmstudio": {
+    "notConfigured": "LM Studio belum dikonfigurasi"
+  },
+  "azureFoundry": {
+    "baseUrlRequired": "Konfigurasi Azure Foundry tidak valid: baseUrl wajib diisi",
+    "deploymentRequired": "Konfigurasi Azure Foundry tidak valid: deploymentName wajib diisi",
+    "invalidAuthType": "Konfigurasi Azure Foundry tidak valid: authType harus berupa api-key atau entra-id",
+    "invalidEnabled": "Konfigurasi Azure Foundry tidak valid: enabled harus berupa boolean",
+    "invalidBaseUrl": "Konfigurasi Azure Foundry tidak valid: Format base URL tidak valid"
+  },
+  "connector": {
+    "protocolRequired": "URL konektor harus menggunakan http:// atau https://",
+    "invalidUrl": "URL konektor tidak valid: {{url}}"
+  },
+  "settings": {
+    "invalidDebugFlag": "Flag mode debug tidak valid",
+    "invalidTheme": "Nilai tema tidak valid",
+    "invalidBaseUrl": "Base URL tidak valid"
+  },
+  "i18n": {
+    "unsupportedLanguage": "Bahasa tidak didukung"
+  },
+  "url": {
+    "protocolNotAllowed": "Hanya URL http dan https yang diizinkan"
+  },
+  "permission": {
+    "denied": "Izin ditolak",
+    "required": "Izin diperlukan"
+  },
+  "generic": {
+    "unknown": "Terjadi error yang tidak diketahui",
+    "tryAgain": "Silakan coba lagi"
+  },
+  "app": {
+    "mustRunInDesktop": "Aplikasi ini harus dijalankan di dalam aplikasi desktop NestCafe.",
+    "unableToStart": "Tidak Dapat Memulai",
+    "updateRequired": "Pembaruan Diperlukan",
+    "schemaNewerMessage": "Data ini dibuat oleh versi NestCafe yang lebih baru (skema v{{version}}).",
+    "schemaNewerDetail": "Aplikasi Anda mendukung hingga skema v{{version}}. Silakan perbarui NestCafe untuk melanjutkan."
+  },
+  "auth": {
+    "sessionExpired": "Sesi {{provider}} Kedaluwarsa",
+    "reLoginTo": "Login ulang ke {{provider}}",
+    "connectorAttention": "{{provider}} memerlukan perhatian",
+    "openConnectorSettings": "Buka Pengaturan -> Konektor -> {{provider}}"
+  },
+  "daemon": {
+    "disconnected": "Daemon Terputus",
+    "disconnectedMessage": "Koneksi ke daemon latar belakang terputus. Menghubungkan kembali...",
+    "reconnectFailed": "Koneksi Ulang Gagal",
+    "reconnectFailedMessage": "Tidak dapat menghubungkan kembali ke daemon. Tugas mungkin terinterupsi.",
+    "openSettings": "Buka Pengaturan"
+  },
+  "boundary": {
+    "title": "Ada yang salah",
+    "unexpectedError": "Terjadi error yang tidak terduga.",
+    "compactMessage": "Ada yang salah saat merender konten ini.",
+    "errorPrefix": "Error:",
+    "tryAgain": "Coba lagi",
+    "sidebarLoading": "Memuat navigasi…"
+  }
+}

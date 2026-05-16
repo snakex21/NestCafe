@@ -1,0 +1,8 @@
+{
+  "title": "Görev Geçmişi",
+  "recentTasks": "Son Görevler",
+  "noTasks": "Henüz görev yok. NestCafe'lemek istediğin şeyi tanımlayarak başla.",
+  "viewAll": "Tüm {{count}} görevi görüntüle",
+  "confirmClear": "Tüm görev geçmişini silmek istediğine emin misin?",
+  "confirmDelete": "Bu görev silinsin mi?"
+}

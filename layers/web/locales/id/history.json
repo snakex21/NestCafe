@@ -1,0 +1,8 @@
+{
+  "title": "Riwayat Tugas",
+  "recentTasks": "Tugas Terbaru",
+  "noTasks": "Belum ada tugas. Mulai dengan mendeskripsikan apa yang ingin Anda NestCafe.",
+  "viewAll": "Lihat semua {{count}} tugas",
+  "confirmClear": "Anda yakin ingin menghapus semua riwayat tugas?",
+  "confirmDelete": "Hapus tugas ini?"
+}

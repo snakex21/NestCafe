@@ -1,0 +1,132 @@
+{
+  "api": {
+    "timeout": "انتهت مهلة الطلب. يرجى التحقق من اتصال الإنترنت.",
+    "timeoutRetry": "انتهت مهلة الطلب. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.",
+    "invalidKey": "مفتاح API غير صالح",
+    "noKey": "يرجى إدخال مفتاح API.",
+    "validationFailed": "فشل التحقق من مفتاح API",
+    "networkError": "خطأ في الشبكة. يرجى التحقق من اتصالك.",
+    "connectionFailed": "فشل التحقق من مفتاح API. تحقق من اتصال الإنترنت.",
+    "unsupportedProvider": "مزود غير مدعوم"
+  },
+  "task": {
+    "notFound": "المهمة غير موجودة",
+    "startFailed": "فشل بدء المهمة",
+    "cancelFailed": "فشل إلغاء المهمة",
+    "taskFailed": "فشلت المهمة",
+    "noActiveTask": "لا توجد مهمة نشطة للمتابعة",
+    "noSession": "لا توجد جلسة للمتابعة - يرجى بدء مهمة جديدة",
+    "sendMessageFailed": "فشل إرسال الرسالة"
+  },
+  "adapter": {
+    "cliNotFound": "واجهة OpenCode CLI غير متاحة. قد تكون واجهة CLI المضمنة مفقودة أو تالفة. يرجى إعادة تثبيت التطبيق.",
+    "disposed": "تم التخلص من المحول ولا يمكنه بدء مهام جديدة",
+    "noActiveProcess": "لا توجد عملية نشطة",
+    "exitWithCode": "خروج OpenCode CLI بالرمز {{code}}"
+  },
+  "validation": {
+    "mustBeString": "{{field}} يجب أن يكون نصاً",
+    "required": "{{field}} مطلوب",
+    "exceedsLength": "{{field}} يتجاوز الحد الأقصى للطول",
+    "unsupportedProvider": "مزود مفتاح API غير مدعوم",
+    "untrustedWindow": "نافذة غير موثوقة",
+    "focusedWindowRequired": "يجب أن ينشأ طلب IPC من النافذة النشطة"
+  },
+  "provider": {
+    "notReady": "لا يوجد مزود جاهز. يرجى توصيل مزود واختيار نموذج في الإعدادات.",
+    "noModelsEndpoint": "لم يتم تكوين نقطة نهاية للنماذج لهذا المزود",
+    "noApiKey": "لم يتم العثور على مفتاح API لهذا المزود"
+  },
+  "ollama": {
+    "connectionFailed": "فشل الاتصال",
+    "noModels": "لم يتم العثور على نماذج",
+    "saveFailed": "فشل الحفظ",
+    "invalidUrl": "تنسيق URL غير صالح",
+    "protocolNotAllowed": "يسمح فقط ببروتوكولات http و https",
+    "invalidConfig": "إعدادات Ollama غير صالحة",
+    "modelsArray": "إعدادات Ollama غير صالحة: يجب أن تكون النماذج مصفوفة",
+    "invalidModelFormat": "إعدادات Ollama غير صالحة: تنسيق نموذج غير صالح",
+    "connectionTimeout": "انتهت مهلة الاتصال. تأكد من أن Ollama قيد التشغيل.",
+    "cannotConnect": "لا يمكن الاتصال بـ Ollama: {{message}}"
+  },
+  "bedrock": {
+    "invalidCredentials": "بيانات اعتماد غير صالحة",
+    "saveFailed": "فشل حفظ بيانات الاعتماد",
+    "invalidAuthType": "نوع مصادقة غير صالح",
+    "invalidAwsCredentials": "بيانات اعتماد AWS غير صالحة. يرجى التحقق من معرف مفتاح الوصول ومفتاح الوصول السري.",
+    "accessDenied": "تم رفض الوصول. تأكد من أن بيانات اعتماد AWS لديها صلاحيات Bedrock.",
+    "profileNotFound": "ملف AWS غير موجود. تحقق من ملف ~/.aws/credentials.",
+    "accessKeyRequired": "معرف مفتاح الوصول ومفتاح الوصول السري مطلوبان",
+    "profileNameRequired": "اسم الملف الشخصي مطلوب",
+    "apiKeyRequired": "مفتاح API مطلوب"
+  },
+  "model": {
+    "invalidConfig": "إعدادات نموذج غير صالحة"
+  },
+  "litellm": {
+    "invalidConfig": "إعدادات LiteLLM غير صالحة",
+    "modelsArray": "إعدادات LiteLLM غير صالحة: يجب أن تكون النماذج مصفوفة",
+    "invalidModelFormat": "إعدادات LiteLLM غير صالحة: تنسيق نموذج غير صالح"
+  },
+  "lmstudio": {
+    "notConfigured": "لم يتم تكوين LM Studio"
+  },
+  "azureFoundry": {
+    "baseUrlRequired": "إعدادات Azure Foundry غير صالحة: baseUrl مطلوب",
+    "deploymentRequired": "إعدادات Azure Foundry غير صالحة: deploymentName مطلوب",
+    "invalidAuthType": "إعدادات Azure Foundry غير صالحة: يجب أن يكون authType إما api-key أو entra-id",
+    "invalidEnabled": "إعدادات Azure Foundry غير صالحة: يجب أن يكون enabled قيمة منطقية",
+    "invalidBaseUrl": "إعدادات Azure Foundry غير صالحة: تنسيق URL الأساسي غير صالح"
+  },
+  "connector": {
+    "protocolRequired": "يجب أن يستخدم رابط الموصل http:// أو https://",
+    "invalidUrl": "رابط موصل غير صالح: {{url}}"
+  },
+  "settings": {
+    "invalidDebugFlag": "علامة وضع التصحيح غير صالحة",
+    "invalidTheme": "قيمة سمة غير صالحة",
+    "invalidBaseUrl": "URL أساسي غير صالح"
+  },
+  "i18n": {
+    "unsupportedLanguage": "لغة غير مدعومة"
+  },
+  "url": {
+    "protocolNotAllowed": "يسمح فقط ببروتوكولات http و https"
+  },
+  "permission": {
+    "denied": "تم رفض الإذن",
+    "required": "الإذن مطلوب"
+  },
+  "generic": {
+    "unknown": "حدث خطأ غير معروف",
+    "tryAgain": "يرجى المحاولة مرة أخرى"
+  },
+  "app": {
+    "mustRunInDesktop": "يجب تشغيل هذا التطبيق داخل تطبيق NestCafe المكتبي.",
+    "unableToStart": "تعذر البدء",
+    "updateRequired": "التحديث مطلوب",
+    "schemaNewerMessage": "تم إنشاء هذه البيانات بواسطة إصدار أحدث من NestCafe (مخطط الإصدار v{{version}}).",
+    "schemaNewerDetail": "تطبيقك يدعم حتى مخطط الإصدار v{{version}}. يرجى تحديث NestCafe للمتابعة."
+  },
+  "auth": {
+    "sessionExpired": "انتهت جلسة {{provider}}",
+    "reLoginTo": "أعد تسجيل الدخول إلى {{provider}}",
+    "connectorAttention": "{{provider}} بحاجة إلى انتباه",
+    "openConnectorSettings": "افتح الإعدادات -> الموصلات -> {{provider}}"
+  },
+  "daemon": {
+    "disconnected": "انقطع اتصال الخادم الخلفي",
+    "disconnectedMessage": "انقطع الاتصال بالخادم الخلفي. جارٍ إعادة الاتصال...",
+    "reconnectFailed": "فشلت إعادة الاتصال",
+    "reconnectFailedMessage": "تعذر إعادة الاتصال بالخادم الخلفي. قد تنقطع المهام.",
+    "openSettings": "فتح الإعدادات"
+  },
+  "boundary": {
+    "title": "حدث خطأ ما",
+    "unexpectedError": "حدث خطأ غير متوقع.",
+    "compactMessage": "حدث خطأ أثناء عرض هذا المحتوى.",
+    "errorPrefix": "خطأ:",
+    "tryAgain": "حاول مرة أخرى",
+    "sidebarLoading": "جارٍ تحميل التنقل…"
+  }
+}

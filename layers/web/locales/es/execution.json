@@ -1,0 +1,110 @@
+{
+  "status": {
+    "queued": "En cola",
+    "running": "Ejecutando",
+    "completed": "Completado",
+    "failed": "Fallido",
+    "cancelled": "Cancelado",
+    "stopped": "Detenido",
+    "pending": "Pendiente",
+    "waiting_permission": "Esperando permiso"
+  },
+  "waiting": {
+    "title": "Esperando otra tarea",
+    "description": "Tu tarea está en cola y comenzará automáticamente cuando la tarea actual termine.",
+    "followUpDescription": "Tu seguimiento continuará automáticamente",
+    "cancel": "Cancelar tarea"
+  },
+  "thinking": "Pensando...",
+  "thinkingBlock": "Pensando\u2026",
+  "thinkingPhrases": {
+    "doing": "Haciendo...",
+    "executing": "Ejecutando...",
+    "running": "Procesando...",
+    "handling": "Encargándome...",
+    "accomplishing": "NestCafeando..."
+  },
+  "loadingAgent": "Cargando agente...",
+  "waitingForResponse": "Esperando respuesta...",
+  "connectingToModel": "Conectando con {{modelName}}...",
+  "coldStartHint": "La primera tarea tarda un poco más...",
+  "agentWorking": "El agente está trabajando...",
+  "stopAgent": "Detener agente (Ctrl+C)",
+  "followUp": {
+    "interruptedPlaceholder": "Dar nuevas instrucciones...",
+    "noSessionPlaceholder": "Envía una nueva instrucción para reintentar...",
+    "completedPlaceholder": "Dar nuevas instrucciones...",
+    "defaultPlaceholder": "Pedir algo...",
+    "dropFilesToAttach": "Suelta archivos para adjuntar"
+  },
+  "questionPrompt": {
+    "oauthConnecting": "Conectando {{provider}}...",
+    "oauthConnected": "{{provider}} está conectado.",
+    "oauthFailed": "No se pudo conectar {{provider}}. Intenta de nuevo.",
+    "oauthStillDisconnected": "{{provider}} sigue sin conectarse. Termina de iniciar sesión e inténtalo de nuevo."
+  },
+  "taskStatus": "Tarea {{status}}",
+  "processing": "Procesando",
+  "system": "Sistema",
+  "copyToClipboard": "Copiar al portapapeles",
+  "permission": {
+    "title": "Permiso requerido",
+    "fileTitle": "Permiso de archivo requerido",
+    "fileDeleteTitle": "Advertencia de eliminación",
+    "questionTitle": "Pregunta",
+    "toolQuestion": "¿Permitir {{toolName}}?",
+    "tool": "Herramienta",
+    "previewContent": "Vista previa del contenido",
+    "backToOptions": "← Volver a opciones",
+    "typeResponse": "Escribe tu respuesta...",
+    "orTypeOwn": "o escribe la tuya",
+    "enterDifferentOption": "Ingresa una opción diferente...",
+    "cannotBeUndone": "Esta acción no se puede deshacer.",
+    "deleteWarningSingle": "Este archivo se eliminará permanentemente:",
+    "deleteWarningMultiple": "{{count}} archivos se eliminarán permanentemente:",
+    "operations": {
+      "delete": "ELIMINAR",
+      "overwrite": "SOBRESCRIBIR",
+      "modify": "MODIFICAR",
+      "create": "CREAR",
+      "rename": "RENOMBRAR",
+      "move": "MOVER"
+    }
+  },
+  "browserInstall": {
+    "title": "Chrome no instalado",
+    "description": "Instalando navegador para automatización...",
+    "downloading": "Descargando...",
+    "oneTimeSetup": "Configuración única (~250 MB en total)"
+  },
+  "debug": {
+    "title": "Registros de depuración",
+    "noLogs": "Aún no hay registros. Ejecuta una tarea para verlos."
+  },
+  "browserScript": {
+    "title": "Acciones del navegador",
+    "actions": {
+      "navigateTo": "Navegar a {{hostname}}",
+      "navigate": "Navegar",
+      "fill": "Rellenar \"{{text}}\"",
+      "fillField": "Rellenar campo",
+      "click": "Clic en {{target}}",
+      "press": "Presionar {{key}}",
+      "capturePage": "Capturar página",
+      "screenshot": "Captura de pantalla",
+      "waitForElement": "Esperar elemento",
+      "waitForPage": "Esperar página",
+      "waitForNavigation": "Esperar navegación",
+      "runScript": "Ejecutar script"
+    },
+    "showMore": "+{{count}} más",
+    "showLess": "Mostrar menos",
+    "showFewerActions": "Mostrar menos acciones",
+    "showMoreActions": "Mostrar {{count}} acciones más"
+  },
+  "todos": {
+    "title": "Tareas",
+    "progress": "{{completed}} de {{total}}"
+  },
+  "startNewTask": "Nueva tarea"
+}

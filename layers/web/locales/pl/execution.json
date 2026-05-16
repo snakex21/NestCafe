@@ -1,0 +1,110 @@
+{
+  "status": {
+    "queued": "W kolejce",
+    "running": "W toku",
+    "completed": "Ukończone",
+    "failed": "Niepowodzenie",
+    "cancelled": "Anulowane",
+    "stopped": "Zatrzymane",
+    "pending": "Oczekujące",
+    "waiting_permission": "Oczekiwanie na zgodę"
+  },
+  "waiting": {
+    "title": "Oczekiwanie na inne zadanie",
+    "description": "Twoje zadanie jest w kolejce i rozpocznie się automatycznie po ukończeniu bieżącego.",
+    "followUpDescription": "Kontynuacja rozpocznie się automatycznie",
+    "cancel": "Anuluj zadanie"
+  },
+  "thinking": "Myślenie...",
+  "thinkingBlock": "Myślenie…",
+  "thinkingPhrases": {
+    "doing": "Robię...",
+    "executing": "Wykonuję...",
+    "running": "Uruchamiam...",
+    "handling": "Ogarniam...",
+    "accomplishing": "Realizuję..."
+  },
+  "loadingAgent": "Ładowanie agenta...",
+  "waitingForResponse": "Oczekiwanie na odpowiedź...",
+  "connectingToModel": "Łączenie z {{modelName}}...",
+  "coldStartHint": "Pierwsze zadanie trwa nieco dłużej...",
+  "agentWorking": "Agent pracuje...",
+  "stopAgent": "Zatrzymaj agenta (Ctrl+C)",
+  "followUp": {
+    "interruptedPlaceholder": "Podaj nowe instrukcje...",
+    "noSessionPlaceholder": "Wyślij nową instrukcję, by spróbować ponownie...",
+    "completedPlaceholder": "Podaj nowe instrukcje...",
+    "defaultPlaceholder": "Zapytaj o coś...",
+    "dropFilesToAttach": "Upuść pliki, by załączyć"
+  },
+  "questionPrompt": {
+    "oauthConnecting": "Łączenie {{provider}}...",
+    "oauthConnected": "{{provider}} jest połączony.",
+    "oauthFailed": "Nie udało się połączyć {{provider}}. Spróbuj ponownie.",
+    "oauthStillDisconnected": "{{provider}} wciąż nie jest połączony. Dokończ logowanie i spróbuj ponownie."
+  },
+  "taskStatus": "Zadanie {{status}}",
+  "processing": "Przetwarzanie",
+  "system": "System",
+  "copyToClipboard": "Kopiuj do schowka",
+  "permission": {
+    "title": "Wymagana zgoda",
+    "fileTitle": "Wymagana zgoda na plik",
+    "fileDeleteTitle": "Ostrzeżenie o usunięciu pliku",
+    "questionTitle": "Pytanie",
+    "toolQuestion": "Zezwolić {{toolName}}?",
+    "tool": "Narzędzie",
+    "previewContent": "Podgląd zawartości",
+    "backToOptions": "← Powrót do opcji",
+    "typeResponse": "Wpisz swoją odpowiedź...",
+    "orTypeOwn": "lub wpisz własną",
+    "enterDifferentOption": "Wpisz inną opcję...",
+    "cannotBeUndone": "Tej akcji nie można cofnąć.",
+    "deleteWarningSingle": "Ten plik zostanie trwale usunięty:",
+    "deleteWarningMultiple": "{{count}} plików zostanie trwale usuniętych:",
+    "operations": {
+      "delete": "USUŃ",
+      "overwrite": "NADPISZ",
+      "modify": "ZMIEŃ",
+      "create": "UTWÓRZ",
+      "rename": "ZMIEŃ NAZWĘ",
+      "move": "PRZENIEŚ"
+    }
+  },
+  "browserInstall": {
+    "title": "Chrome nie jest zainstalowany",
+    "description": "Instalowanie przeglądarki do automatyzacji...",
+    "downloading": "Pobieranie...",
+    "oneTimeSetup": "Jednorazowa konfiguracja (~250 MB)"
+  },
+  "debug": {
+    "title": "Dzienniki debugowania",
+    "noLogs": "Brak dzienników. Uruchom zadanie, by zobaczyć logi."
+  },
+  "browserScript": {
+    "title": "Akcje przeglądarki",
+    "actions": {
+      "navigateTo": "Nawiguj do {{hostname}}",
+      "navigate": "Nawiguj",
+      "fill": "Wypełnij \"{{text}}\"",
+      "fillField": "Wypełnij pole",
+      "click": "Kliknij {{target}}",
+      "press": "Naciśnij {{key}}",
+      "capturePage": "Przechwyć stronę",
+      "screenshot": "Zrzut ekranu",
+      "waitForElement": "Czekaj na element",
+      "waitForPage": "Czekaj na stronę",
+      "waitForNavigation": "Czekaj na nawigację",
+      "runScript": "Uruchom skrypt"
+    },
+    "showMore": "+{{count}} więcej",
+    "showLess": "Pokaż mniej",
+    "showFewerActions": "Pokaż mniej akcji",
+    "showMoreActions": "Pokaż {{count}} więcej akcji"
+  },
+  "todos": {
+    "title": "Zadania",
+    "progress": "{{completed}} z {{total}}"
+  },
+  "startNewTask": "Nowe zadanie"
+}

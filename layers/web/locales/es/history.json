@@ -1,0 +1,8 @@
+{
+  "title": "Historial de tareas",
+  "recentTasks": "Tareas recientes",
+  "noTasks": "Aún no hay tareas. Describe lo que quieres NestCafear para empezar.",
+  "viewAll": "Ver las {{count}} tareas",
+  "confirmClear": "¿Seguro que quieres borrar todo el historial?",
+  "confirmDelete": "¿Eliminar esta tarea?"
+}

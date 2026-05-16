@@ -1,0 +1,90 @@
+{
+  "title": "今日は何をNestCafeしますか？",
+  "inputPlaceholder": "タスクを説明すると、AIが残りを処理します",
+  "favorites": {
+    "title": "お気に入り",
+    "empty": "完了または中断したタスクをスター登録すると、ここに表示されます。",
+    "remove": "お気に入りから削除",
+    "showAll": "{{count}}件のお気に入りをすべて表示",
+    "showAll_one": "{{count}}件のお気に入りを表示",
+    "showAll_few": "{{count}}件のお気に入りをすべて表示",
+    "showAll_many": "{{count}}件のお気に入りをすべて表示",
+    "showAll_other": "{{count}}件のお気に入りをすべて表示"
+  },
+  "plusMenu": {
+    "addContent": "コンテンツを追加",
+    "attachFiles": "ファイルを添付",
+    "soon": "近日公開",
+    "useSkills": "スキルを使う",
+    "connectors": "コネクター",
+    "noConnectors": "コネクターはまだありません",
+    "manage": "管理",
+    "dropFilesHere": "ここにファイルをドロップして添付",
+    "dropFilesHint": "（最大{max}ファイル、各{size}MBまで）",
+    "fileTooLarge": "{name}が{limit}のサイズ制限を超えています",
+    "tooManyFiles": "最大{max}ファイルまでです",
+    "attachFailed": "ファイルの添付に失敗しました",
+    "selectFolder": "フォルダを選択"
+  },
+  "examplePrompts": "サンプルプロンプト",
+  "useCases": {
+    "calendarPrepNotes": {
+      "title": "カレンダー準備メモ",
+      "description": "明日の会議を確認し、準備メモを作成します。",
+      "prompt": "Googleカレンダーで明日の会議を確認し、新しいGoogleドキュメントに準備メモを作成してください。"
+    },
+    "inboxPromoCleanup": {
+      "title": "受信トレイのプロモーションメール整理",
+      "description": "過去24時間のプロモーションメールを削除します。",
+      "prompt": "Gmailの受信トレイから過去24時間のプロモーションメールをすべて削除してください。"
+    },
+    "competitorPricingDeck": {
+      "title": "競合価格分析スライド",
+      "description": "競合の価格を分析し、推奨事項をスライドにまとめます。",
+      "prompt": "この5つの競合サイト[URL一覧]から価格と機能を取得しCSVに保存、価格ギャップを分析して月曜の会議用にGoogleスライドで推奨スライドを作成してください。"
+    },
+    "notionApiAudit": {
+      "title": "Notion API監査",
+      "description": "Notion Wikiから古いAPIの言及を検索し、リンク付きで一覧化します。",
+      "prompt": "このNotion Wiki [URL] を読み込み、古いAPIへの言及をページリンク付きでリストアップしてください。"
+    },
+    "stagingVsProdVisual": {
+      "title": "ステージングと本番の目視比較",
+      "description": "ステージングと本番環境の画面をスクリーンショットで比較します。",
+      "prompt": "ステージングサイト[URL]と本番サイト[URL]を比較し、視覚的な差異をスクリーンショットで取得してください。"
+    },
+    "prodBrokenLinks": {
+      "title": "本番サイトのリンク切れチェック",
+      "description": "Webサイトのリンク切れをチェックします。",
+      "prompt": "[URL]を開き、すべてのリンクをクリックして404エラーを報告してください。"
+    },
+    "portfolioMonitoring": {
+      "title": "ポートフォリオ監視",
+      "description": "株価を監視し、急落・急騰を通知します。",
+      "prompt": "[証券サイト]で保有銘柄を監視し、急落や急騰があれば通知してください。"
+    },
+    "jobApplicationAutomation": {
+      "title": "求人応募の自動化",
+      "description": "求人を絞り込み、保存済みプロフィールで応募します。",
+      "prompt": "LinkedInで[検索条件]の求人を検索し、給与順に並べて上位5件にプロフィールで応募してください。"
+    },
+    "eventCalendarBuilder": {
+      "title": "イベントカレンダー作成",
+      "description": "イベントを選んでカレンダーに追加します。",
+      "prompt": "Eventbriteからイベント情報を取得し、場所で絞り込んで上位5件をカレンダーに追加してください。"
+    }
+  },
+  "slashCommand": {
+    "title": "スキル",
+    "filtering": "\"{{query}}\"に一致するスキル",
+    "navigate": "移動",
+    "select": "選択",
+    "dismiss": "閉じる"
+  },
+  "selectFolder": "フォルダを選択",
+  "selectedFolder": {
+    "badge": "📁 {folder}",
+    "clearAriaLabel": "選択したフォルダをクリア",
+    "clearButton": "✕"
+  }
+}

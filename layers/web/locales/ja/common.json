@@ -1,0 +1,100 @@
+{
+  "app": {
+    "name": "NestCafe"
+  },
+  "buttons": {
+    "send": "送信",
+    "submit": "実行",
+    "stop": "停止",
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "save": "保存",
+    "delete": "削除",
+    "deleteAll": "すべて削除",
+    "allow": "許可",
+    "deny": "拒否",
+    "continue": "続行",
+    "doneContinue": "完了して続行",
+    "goHome": "ホームに戻る",
+    "startNewTask": "新規タスク開始",
+    "test": "テスト",
+    "testing": "テスト中...",
+    "saving": "保存中...",
+    "validating": "検証中...",
+    "export": "エクスポート",
+    "exported": "エクスポート済み",
+    "clear": "クリア",
+    "clearAll": "すべてクリア",
+    "yes": "はい",
+    "no": "いいえ",
+    "retry": "再試行",
+    "saveApiKey": "APIキーを保存",
+    "copyToClipboard": "クリップボードにコピー",
+    "dismiss": "閉じる",
+    "messageTooLong": "メッセージが長すぎます",
+    "enterMessage": "メッセージを入力してください",
+    "quit": "終了"
+  },
+  "aria": {
+    "scrollToBottom": "最下部にスクロール",
+    "customResponse": "カスタム応答"
+  },
+  "status": {
+    "running": "実行中",
+    "completed": "完了",
+    "failed": "失敗",
+    "cancelled": "キャンセル済み",
+    "queued": "待機中",
+    "pending": "保留中",
+    "waiting": "待機中",
+    "stopped": "停止済み",
+    "interrupted": "中断"
+  },
+  "time": {
+    "justNow": "たった今",
+    "minutesAgo": "{{count}}分前",
+    "hoursAgo": "{{count}}時間前",
+    "daysAgo": "{{count}}日前",
+    "today": "今日",
+    "yesterday": "昨日"
+  },
+  "nav": {
+    "home": "ホーム",
+    "history": "履歴",
+    "settings": "設定"
+  },
+  "labels": {
+    "awsCredentials": "AWS認証情報",
+    "gcpCredentials": "GCP認証情報",
+    "localApiKey": "ローカルAPIキー",
+    "azureFoundryEntraId": "Azure Foundry (Entra ID)",
+    "bedrockApiKey": "Bedrock APIキー",
+    "awsAccessKeys": "AWSアクセスキー",
+    "awsProfile": "AWSプロファイル: {{name}}"
+  },
+  "contextMenu": {
+    "addToDictionary": "辞書に追加"
+  },
+  "fileFilters": {
+    "text": "テキストファイル",
+    "log": "ログファイル",
+    "skill": "スキルファイル",
+    "all": "すべてのファイル"
+  },
+  "model": {
+    "selectModel": "モデルを選択",
+    "current": "現在使用中",
+    "configureModel": "モデルを設定",
+    "changeModel": "モデルを変更"
+  },
+  "messages": "{{count}}件のメッセージ",
+  "favorite": "お気に入り",
+  "theme": {
+    "switchToLight": "ライトモードに切り替え",
+    "switchToDark": "ダークモードに切り替え",
+    "switchToSystem": "システム設定に合わせる",
+    "lightMode": "ライトモード",
+    "darkMode": "ダークモード",
+    "systemMode": "システム"
+  }
+}

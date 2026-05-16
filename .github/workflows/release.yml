@@ -1,0 +1,89 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }} (${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x64
+            target: linux
+            builder-args: --linux --x64
+          - os: ubuntu-latest
+            arch: arm64
+            target: linux
+            builder-args: --linux --arm64
+          - os: macos-latest
+            arch: x64
+            target: mac
+            builder-args: --mac
+          - os: windows-latest
+            arch: x64
+            target: win
+            builder-args: --win --x64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '9'
+
+      - name: Write build.env for GitHub Releases
+        run: |
+          echo "NESTCAFE_UPDATER_URL=https://github.com/${{ github.repository }}/releases/latest/download" > apps/desktop/build.env
+        shell: bash
+
+      - name: Sync version from VERSION file
+        run: node scripts/sync-version.cjs
+        shell: bash
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build daemon
+        run: pnpm -F @nestcafe/daemon build
+
+      - name: Build all prep steps + package with publish
+        run: |
+          pnpm -F @nestcafe/desktop download:nodejs
+          pnpm -F @nestcafe/desktop build:base
+          pnpm -F @nestcafe/desktop stage:daemon-deps
+          NESTCAFE_BUNDLED_MCP=1 pnpm -F @nestcafe/desktop build:mcp-tools:package
+          node apps/desktop/scripts/package.cjs ${{ matrix.builder-args }} --publish always
+        shell: bash
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            apps/desktop/release/*.yml
+            apps/desktop/release/*.yaml
+            apps/desktop/release/latest*.yml
+            apps/desktop/release/*.exe
+            apps/desktop/release/*.dmg
+            apps/desktop/release/*.AppImage
+            apps/desktop/release/*.blockmap
+            apps/desktop/release/*.zip
+            apps/desktop/release/*.deb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

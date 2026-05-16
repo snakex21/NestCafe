@@ -1,0 +1,607 @@
+// ============================================================
+// Provider domain types — AI model provider definitions,
+// model configurations, and provider metadata registry.
+// ============================================================
+
+// ---- Provider identity ----
+
+export type ProviderType =
+  | 'anthropic'
+  | 'openai'
+  | 'openrouter'
+  | 'google'
+  | 'xai'
+  | 'ollama'
+  | 'deepseek'
+  | 'moonshot'
+  | 'zai'
+  | 'azure-foundry'
+  | 'custom'
+  | 'bedrock'
+  | 'litellm'
+  | 'minimax'
+  | 'lmstudio'
+  | 'vertex'
+  | 'huggingface-local'
+  | 'nebius'
+  | 'together'
+  | 'fireworks'
+  | 'groq'
+  | 'venice'
+  | 'nim'
+  | 'copilot'
+  | 'nestcafe-ai'
+  | 'qwen-china'
+  | 'qwen-international'
+  | 'xiaomi'
+  | 'xiaomi-token'
+  | 'perplexity';
+
+export type ApiKeyProvider =
+  | 'anthropic'
+  | 'openai'
+  | 'openrouter'
+  | 'google'
+  | 'xai'
+  | 'deepseek'
+  | 'moonshot'
+  | 'zai'
+  | 'azure-foundry'
+  | 'custom'
+  | 'bedrock'
+  | 'litellm'
+  | 'minimax'
+  | 'lmstudio'
+  | 'vertex'
+  | 'nebius'
+  | 'together'
+  | 'fireworks'
+  | 'groq'
+  | 'venice'
+  | 'nim'
+  | 'elevenlabs'
+  | 'aws-agentcore'
+  | 'browserbase'
+  | 'steel';
+
+// ---- Provider sets / constants ----
+
+export const ALLOWED_API_KEY_PROVIDERS: ReadonlySet<string> = new Set<string>([
+  'anthropic',
+  'openai',
+  'openrouter',
+  'google',
+  'xai',
+  'deepseek',
+  'moonshot',
+  'zai',
+  'azure-foundry',
+  'custom',
+  'bedrock',
+  'litellm',
+  'minimax',
+  'lmstudio',
+  'vertex',
+  'nebius',
+  'together',
+  'fireworks',
+  'groq',
+  'venice',
+  'nim',
+  'elevenlabs',
+  'aws-agentcore',
+  'browserbase',
+  'steel',
+]);
+
+export const STANDARD_VALIDATION_PROVIDERS: ReadonlySet<string> = new Set<string>([
+  'anthropic',
+  'openai',
+  'google',
+  'xai',
+  'deepseek',
+  'openrouter',
+  'moonshot',
+  'zai',
+  'minimax',
+  'nebius',
+  'together',
+  'fireworks',
+  'groq',
+  'venice',
+]);
+
+// ---- Model fetching endpoint config ----
+
+export interface ModelsEndpointConfig {
+  url: string;
+  authStyle: 'bearer' | 'x-api-key' | 'query-param';
+  extraHeaders?: Record<string, string>;
+  responseFormat: 'openai' | 'anthropic' | 'google';
+  modelIdPrefix?: string;
+  modelFilter?: RegExp;
+}
+
+// ---- Provider config ----
+
+export interface ProviderConfig {
+  id: ProviderType;
+  name: string;
+  models: ModelConfig[];
+  requiresApiKey: boolean;
+  apiKeyEnvVar?: string;
+  baseUrl?: string;
+  defaultModelId?: string;
+  modelsEndpoint?: ModelsEndpointConfig;
+  editableBaseUrl?: boolean;
+}
+
+export interface ModelConfig {
+  id: string;
+  displayName: string;
+  provider: ProviderType;
+  fullId: string;
+  contextWindow?: number;
+  maxOutputTokens?: number;
+  supportsVision?: boolean;
+}
+
+export interface SelectedModel {
+  provider: ProviderType;
+  model: string;
+  baseUrl?: string;
+  deploymentName?: string;
+}
+
+// ---- Local provider configs ----
+
+export interface OllamaModelInfo {
+  id: string;
+  displayName: string;
+  size: number;
+  toolSupport?: 'supported' | 'unsupported' | 'unknown';
+}
+
+export interface OllamaConfig {
+  baseUrl: string;
+  enabled: boolean;
+  lastValidated?: number;
+  models?: OllamaModelInfo[];
+}
+
+export interface LiteLLMModel {
+  id: string;
+  name: string;
+  provider: string;
+  contextLength: number;
+}
+
+export interface LiteLLMConfig {
+  baseUrl: string;
+  enabled: boolean;
+  lastValidated?: number;
+  models?: LiteLLMModel[];
+}
+
+export interface LMStudioModel {
+  id: string;
+  name: string;
+  toolSupport: 'supported' | 'unsupported' | 'unknown';
+}
+
+export interface LMStudioConfig {
+  baseUrl: string;
+  enabled: boolean;
+  lastValidated?: number;
+  models?: LMStudioModel[];
+}
+
+export interface HuggingFaceLocalModelInfo {
+  id: string;
+  displayName: string;
+  sizeBytes?: number;
+  downloaded: boolean;
+}
+
+export interface HuggingFaceLocalConfig {
+  selectedModelId: string | null;
+  serverPort: number | null;
+  enabled: boolean;
+  quantization: 'q4' | 'fp32' | null;
+  devicePreference: 'auto' | 'cpu' | 'cuda' | 'webgpu' | null;
+}
+
+export interface AzureFoundryConfig {
+  baseUrl: string;
+  deploymentName: string;
+  authType: 'api-key' | 'entra-id';
+  enabled: boolean;
+  lastValidated?: number;
+}
+
+export interface NimModel {
+  id: string;
+  name: string;
+  provider: string;
+  contextLength: number;
+}
+
+export interface NimConfig {
+  baseUrl: string;
+  enabled: boolean;
+  lastValidated?: number;
+  models?: NimModel[];
+}
+
+// ---- Constants ----
+
+export const NIM_DEFAULT_BASE_URL = 'https://integrate.api.nvidia.com/v1';
+
+export const MINIMAX_DEFAULT_BASE_URL = 'https://api.minimax.io/v1';
+
+export const COPILOT_MODELS: Array<{ id: string; displayName: string }> = [
+  { id: 'copilot/gpt-4o', displayName: 'GPT-4o' },
+  { id: 'copilot/gpt-4o-mini', displayName: 'GPT-4o mini' },
+  { id: 'copilot/o1', displayName: 'o1' },
+  { id: 'copilot/o1-mini', displayName: 'o1 mini' },
+  { id: 'copilot/o3-mini', displayName: 'o3 mini' },
+  { id: 'copilot/claude-3.5-sonnet', displayName: 'Claude 3.5 Sonnet' },
+  { id: 'copilot/claude-3.7-sonnet', displayName: 'Claude 3.7 Sonnet' },
+  { id: 'copilot/gemini-2.0-flash-001', displayName: 'Gemini 2.0 Flash' },
+];
+
+export const DEFAULT_MODEL: SelectedModel = {
+  provider: 'anthropic',
+  model: 'anthropic/claude-opus-4-5',
+};
+
+// ---- Full provider registry ----
+
+export const DEFAULT_PROVIDERS: ProviderConfig[] = [
+  {
+    id: 'anthropic',
+    name: 'Anthropic',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'ANTHROPIC_API_KEY',
+    defaultModelId: 'anthropic/claude-opus-4-5',
+    modelsEndpoint: {
+      url: 'https://api.anthropic.com/v1/models',
+      authStyle: 'x-api-key',
+      extraHeaders: { 'anthropic-version': '2023-06-01' },
+      responseFormat: 'anthropic',
+      modelIdPrefix: 'anthropic/',
+      modelFilter: /^claude-/,
+    },
+    models: [],
+  },
+  {
+    id: 'openai',
+    name: 'OpenAI',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'OPENAI_API_KEY',
+    defaultModelId: 'openai/gpt-5.2',
+    modelsEndpoint: {
+      url: 'https://api.openai.com/v1/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'openai/',
+      modelFilter: /^gpt-|^o[134]|^chatgpt-/,
+    },
+    models: [],
+  },
+  {
+    id: 'google',
+    name: 'Google AI',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'GOOGLE_GENERATIVE_AI_API_KEY',
+    defaultModelId: 'google/gemini-3-pro-preview',
+    modelsEndpoint: {
+      url: 'https://generativelanguage.googleapis.com/v1beta/models',
+      authStyle: 'query-param',
+      responseFormat: 'google',
+      modelIdPrefix: 'google/',
+    },
+    models: [],
+  },
+  {
+    id: 'xai',
+    name: 'xAI',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'XAI_API_KEY',
+    baseUrl: 'https://api.x.ai',
+    defaultModelId: 'xai/grok-4',
+    modelsEndpoint: {
+      url: 'https://api.x.ai/v1/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'xai/',
+    },
+    models: [],
+  },
+  {
+    id: 'deepseek',
+    name: 'DeepSeek',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'DEEPSEEK_API_KEY',
+    baseUrl: 'https://api.deepseek.com',
+    defaultModelId: 'deepseek/deepseek-chat',
+    modelsEndpoint: {
+      url: 'https://api.deepseek.com/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'deepseek/',
+    },
+    models: [],
+  },
+  {
+    id: 'moonshot',
+    name: 'Moonshot AI',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'MOONSHOT_API_KEY',
+    baseUrl: 'https://api.moonshot.ai/v1',
+    defaultModelId: 'moonshot/kimi-k2.5',
+    modelsEndpoint: {
+      url: 'https://api.moonshot.ai/v1/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'moonshot/',
+    },
+    models: [],
+  },
+  {
+    id: 'zai',
+    name: 'Z.AI Coding Plan',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'ZAI_API_KEY',
+    baseUrl: 'https://open.bigmodel.cn',
+    defaultModelId: 'zai/glm-4.7-flashx',
+    modelsEndpoint: {
+      url: 'https://open.bigmodel.cn/api/paas/v4/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'zai/',
+    },
+    models: [
+      {
+        id: 'glm-5',
+        displayName: 'GLM-5',
+        provider: 'zai',
+        fullId: 'zai/glm-5',
+        contextWindow: 128000,
+        supportsVision: false,
+      },
+    ],
+  },
+  {
+    id: 'bedrock',
+    name: 'Amazon Bedrock',
+    requiresApiKey: false,
+    models: [],
+  },
+  {
+    id: 'vertex',
+    name: 'Google Vertex AI',
+    requiresApiKey: false,
+    models: [],
+  },
+  {
+    id: 'minimax',
+    name: 'MiniMax',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'MINIMAX_API_KEY',
+    baseUrl: MINIMAX_DEFAULT_BASE_URL,
+    editableBaseUrl: true,
+    defaultModelId: 'minimax/MiniMax-M2.5',
+    models: [
+      {
+        id: 'MiniMax-M2',
+        displayName: 'MiniMax M2',
+        provider: 'minimax',
+        fullId: 'minimax/MiniMax-M2',
+        contextWindow: 196608,
+        supportsVision: false,
+      },
+      {
+        id: 'MiniMax-M2.1',
+        displayName: 'MiniMax M2.1',
+        provider: 'minimax',
+        fullId: 'minimax/MiniMax-M2.1',
+        contextWindow: 204800,
+        supportsVision: false,
+      },
+      {
+        id: 'MiniMax-M2.1-highspeed',
+        displayName: 'MiniMax M2.1 Highspeed',
+        provider: 'minimax',
+        fullId: 'minimax/MiniMax-M2.1-highspeed',
+        contextWindow: 204800,
+        supportsVision: false,
+      },
+      {
+        id: 'MiniMax-M2.5',
+        displayName: 'MiniMax M2.5',
+        provider: 'minimax',
+        fullId: 'minimax/MiniMax-M2.5',
+        contextWindow: 204800,
+        supportsVision: false,
+      },
+      {
+        id: 'MiniMax-M2.5-highspeed',
+        displayName: 'MiniMax M2.5 Highspeed',
+        provider: 'minimax',
+        fullId: 'minimax/MiniMax-M2.5-highspeed',
+        contextWindow: 204800,
+        supportsVision: false,
+      },
+    ],
+  },
+  {
+    id: 'nebius',
+    name: 'Nebius AI',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'NEBIUS_API_KEY',
+    baseUrl: 'https://api.studio.nebius.ai/v1',
+    defaultModelId: 'nebius/meta-llama/Meta-Llama-3.1-70B-Instruct',
+    modelsEndpoint: {
+      url: 'https://api.studio.nebius.ai/v1/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'nebius/',
+    },
+    models: [],
+  },
+  {
+    id: 'together',
+    name: 'Together AI',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'TOGETHER_API_KEY',
+    baseUrl: 'https://api.together.xyz/v1',
+    defaultModelId: 'together/meta-llama/Llama-3-70b-chat-hf',
+    modelsEndpoint: {
+      url: 'https://api.together.xyz/v1/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'together/',
+    },
+    models: [],
+  },
+  {
+    id: 'fireworks',
+    name: 'Fireworks AI',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'FIREWORKS_API_KEY',
+    baseUrl: 'https://api.fireworks.ai/inference/v1',
+    defaultModelId: 'fireworks/accounts/fireworks/models/llama-v3-70b-instruct',
+    modelsEndpoint: {
+      url: 'https://api.fireworks.ai/inference/v1/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'fireworks/',
+    },
+    models: [],
+  },
+  {
+    id: 'groq',
+    name: 'Groq',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'GROQ_API_KEY',
+    baseUrl: 'https://api.groq.com/openai/v1',
+    defaultModelId: 'groq/llama3-70b-8192',
+    modelsEndpoint: {
+      url: 'https://api.groq.com/openai/v1/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'groq/',
+    },
+    models: [],
+  },
+  {
+    id: 'venice',
+    name: 'Venice AI',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'VENICE_API_KEY',
+    baseUrl: 'https://api.venice.ai/api/v1',
+    defaultModelId: 'venice/llama-3.3-70b',
+    modelsEndpoint: {
+      url: 'https://api.venice.ai/api/v1/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'venice/',
+    },
+    models: [],
+  },
+  {
+    id: 'copilot',
+    name: 'GitHub Copilot',
+    requiresApiKey: false,
+    defaultModelId: 'copilot/gpt-4o',
+    models: [],
+  },
+  {
+    id: 'nestcafe-ai',
+    name: 'Accomplish AI',
+    requiresApiKey: false,
+    defaultModelId: 'nestcafe-ai/nestcafe-free',
+    models: [
+      {
+        id: 'nestcafe-free',
+        displayName: 'Accomplish',
+        provider: 'nestcafe-ai',
+        fullId: 'nestcafe-ai/nestcafe-free',
+        contextWindow: 128_000,
+        maxOutputTokens: 32_000,
+        supportsVision: true,
+      },
+    ],
+  },
+  {
+    id: 'qwen-china',
+    name: 'Qwen (China)',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'DASHSCOPE_API_KEY',
+    baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    modelsEndpoint: {
+      url: 'https://dashscope.aliyuncs.com/compatible-mode/v1/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'qwen-china/',
+    },
+    models: [],
+  },
+  {
+    id: 'qwen-international',
+    name: 'Qwen (International)',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'DASHSCOPE_API_KEY',
+    baseUrl: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
+    modelsEndpoint: {
+      url: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'qwen-international/',
+    },
+    models: [],
+  },
+  {
+    id: 'xiaomi',
+    name: 'Xiaomi',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'XIAOMI_API_KEY',
+    baseUrl: 'https://api.xiaomimimo.com/v1',
+    modelsEndpoint: {
+      url: 'https://api.xiaomimimo.com/v1/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'xiaomi/',
+    },
+    models: [],
+  },
+  {
+    id: 'xiaomi-token',
+    name: 'Xiaomi (Token Plan)',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'XIAOMI_TOKEN_API_KEY',
+    baseUrl: 'https://token-plan-ams.xiaomimimo.com/v1',
+    modelsEndpoint: {
+      url: 'https://token-plan-ams.xiaomimimo.com/v1/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'xiaomi-token/',
+    },
+    models: [],
+  },
+  {
+    id: 'perplexity',
+    name: 'Perplexity',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'PERPLEXITY_API_KEY',
+    baseUrl: 'https://api.perplexity.ai',
+    modelsEndpoint: {
+      url: 'https://api.perplexity.ai/models',
+      authStyle: 'bearer',
+      responseFormat: 'openai',
+      modelIdPrefix: 'perplexity/',
+    },
+    models: [],
+  },
+];
