@@ -2,7 +2,7 @@
  * BrowserWindow creation and configuration.
  * Extracted from index.ts to keep main entry point under 200 lines.
  */
-import { app, BrowserWindow, shell, nativeImage, nativeTheme, Menu } from 'electron';
+import { app, BrowserWindow, shell, nativeImage, Menu } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getLogCollector } from './logging';
@@ -61,7 +61,8 @@ export function createMainWindow(opts: {
     minHeight: 600,
     title: 'NestCafe',
     icon: icon.isEmpty() ? undefined : icon,
-    backgroundColor: nativeTheme.shouldUseDarkColors ? '#171717' : '#f9f9f9',
+    backgroundColor: '#171717',
+    show: false,
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     trafficLightPosition: { x: 16, y: 16 },
     webPreferences: {
@@ -123,6 +124,11 @@ export function createMainWindow(opts: {
       shell.openPath(filePath);
     }
     return { action: 'deny' };
+  });
+
+  // Only show window when HTML is fully rendered — prevents white flash
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
   });
 
   mainWindow.maximize();

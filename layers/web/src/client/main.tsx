@@ -17,6 +17,12 @@ if (!container) {
 
 const root = createRoot(container);
 
+function markRendererReady() {
+  window.requestAnimationFrame(() => {
+    document.documentElement.classList.add('renderer-ready');
+  });
+}
+
 function renderStartupError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
   root.render(
@@ -27,6 +33,7 @@ function renderStartupError(error: unknown) {
       </div>
     </div>,
   );
+  markRendererReady();
 }
 
 initI18n()
@@ -38,6 +45,7 @@ initI18n()
         </ErrorBoundary>
       </StrictMode>,
     );
+    markRendererReady();
   })
   .catch((error: unknown) => {
     console.error('[Startup] Failed to initialize renderer:', error);
