@@ -839,5 +839,26 @@
     "scanInstructions": "உங்கள் தொலைபேசியில் WhatsApp ஐத் திறந்து, அமைப்புகள் > இணைக்கப்பட்ட சாதனங்கள் எனச் சென்று இந்தக் குறியீட்டை ஸ்கேன் செய்யவும்.",
     "unofficialWarning": "⚠️ இந்த ஒருங்கிணைப்பு அதிகாரப்பூர்வமற்ற WhatsApp Web நெறிமுறையைப் பயன்படுத்துகிறது. உங்கள் சொந்த ஆபத்தில் பயன்படுத்தவும்.",
     "connect": "WhatsApp ஐ இணை"
+  },
+  "updates": {
+    "title": "Updates",
+    "autoCheckLabel": "Automatically check for updates",
+    "autoCheckDescription": "Check for new versions on app startup (once per day).",
+    "autoDownloadLabel": "Automatically download updates",
+    "autoDownloadDescription": "Download new versions in the background when they are found.",
+    "autoInstallLabel": "Automatically install updates on quit",
+    "autoInstallDescription": "Install downloaded updates automatically when you quit the app.",
+    "checkNow": "Check Now",
+    "checking": "Checking...",
+    "checkComplete": "Update check complete.",
+    "checkFailed": "Update check failed. Please try again later.",
+    "restartToInstall": "Restart to Install",
+    "installing": "Installing...",
+    "upToDate": "You are up to date",
+    "availableStatus": "Update available: version {{version}}",
+    "downloadedStatus": "Update downloaded: version {{version}}",
+    "restartToInstallHint": "The update will be installed when you restart the app.",
+    "notAvailable": "Automatic updates are not available in this build.",
+    "notAvailableShort": "Not available in this build"
   }
 }

@@ -839,5 +839,26 @@
     "scanInstructions": "휴대폰에서 WhatsApp을 열고 설정 > 연결된 기기로 이동하여 이 코드를 스캔하세요.",
     "unofficialWarning": "⚠️ 이 연동은 비공식 WhatsApp Web 프로토콜을 사용합니다. 사용에 따른 책임은 본인에게 있습니다.",
     "connect": "WhatsApp 연결"
+  },
+  "updates": {
+    "title": "Updates",
+    "autoCheckLabel": "Automatically check for updates",
+    "autoCheckDescription": "Check for new versions on app startup (once per day).",
+    "autoDownloadLabel": "Automatically download updates",
+    "autoDownloadDescription": "Download new versions in the background when they are found.",
+    "autoInstallLabel": "Automatically install updates on quit",
+    "autoInstallDescription": "Install downloaded updates automatically when you quit the app.",
+    "checkNow": "Check Now",
+    "checking": "Checking...",
+    "checkComplete": "Update check complete.",
+    "checkFailed": "Update check failed. Please try again later.",
+    "restartToInstall": "Restart to Install",
+    "installing": "Installing...",
+    "upToDate": "You are up to date",
+    "availableStatus": "Update available: version {{version}}",
+    "downloadedStatus": "Update downloaded: version {{version}}",
+    "restartToInstallHint": "The update will be installed when you restart the app.",
+    "notAvailable": "Automatic updates are not available in this build.",
+    "notAvailableShort": "Not available in this build"
   }
 }
