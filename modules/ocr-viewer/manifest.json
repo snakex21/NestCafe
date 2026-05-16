@@ -1,0 +1,9 @@
+{
+  "name": "ocr-viewer",
+  "version": "1.0.0",
+  "title": "Przeglądarka OCR",
+  "description": "Transkrypcja starodruków i dokumentów za pomocą AI. Dwupanelowy podgląd: oryginał po lewej, tekst po prawej.",
+  "icon": "file-text",
+  "entry": "renderer.js",
+  "permissions": ["filesystem"]
+}

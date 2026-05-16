@@ -1,0 +1,90 @@
+{
+  "title": "Co dziś osiągniesz?",
+  "inputPlaceholder": "Opisz zadanie, a AI zajmie się resztą",
+  "favorites": {
+    "title": "Ulubione",
+    "empty": "Oznacz gwiazdką ukończone lub przerwane zadania, by zobaczyć je tutaj.",
+    "remove": "Usuń z ulubionych",
+    "showAll": "Pokaż wszystkie ({{count}})",
+    "showAll_one": "Pokaż {{count}} ulubione",
+    "showAll_few": "Pokaż wszystkie {{count}} ulubione",
+    "showAll_many": "Pokaż wszystkie {{count}} ulubionych",
+    "showAll_other": "Pokaż wszystkie ({{count}})"
+  },
+  "plusMenu": {
+    "addContent": "Dodaj zawartość",
+    "attachFiles": "Załącz pliki",
+    "soon": "Wkrótce",
+    "useSkills": "Użyj umiejętności",
+    "connectors": "Połączenia",
+    "noConnectors": "Brak połączeń",
+    "manage": "Zarządzaj",
+    "dropFilesHere": "Upuść pliki tutaj, by załączyć",
+    "dropFilesHint": "(maks. {{max}} plików, {{size}}MB każdy)",
+    "fileTooLarge": "Plik {name} przekracza limit {{limit}}",
+    "tooManyFiles": "Maksymalnie {{max}} plików",
+    "attachFailed": "Nie udało się załączyć plików",
+    "selectFolder": "Wybierz folder"
+  },
+  "examplePrompts": "Przykładowe zadania",
+  "useCases": {
+    "calendarPrepNotes": {
+      "title": "Notatki do spotkań",
+      "description": "Przejrzyj jutrzejsze spotkania i przygotuj notatki.",
+      "prompt": "Sprawdź mój Kalendarz Google na jutro i przygotuj notatki w nowym Dokumencie Google."
+    },
+    "inboxPromoCleanup": {
+      "title": "Czyszczenie skrzynki",
+      "description": "Usuń maile promocyjne z ostatnich 24 godzin.",
+      "prompt": "Wejdź do mojej skrzynki Gmail i usuń wszystkie maile promocyjne z ostatnich 24 godzin."
+    },
+    "competitorPricingDeck": {
+      "title": "Analiza cen konkurencji",
+      "description": "Przeanalizuj ceny konkurencji i przygotuj slajd z rekomendacjami.",
+      "prompt": "Pobierz ceny i funkcje z tych 5 stron konkurencji [wklej URL-e], zapisz do CSV, przeanalizuj luki cenowe i przygotuj slajd rekomendacji w Google Slides na poniedziałkowe spotkanie."
+    },
+    "notionApiAudit": {
+      "title": "Audyt API w Notion",
+      "description": "Przeskanuj wiki Notion pod kątem starych wzmianek o API z linkami.",
+      "prompt": "Przeczytaj wiki Notion pod adresem [URL] i znajdź wszystkie wzmianki o starym API, wypisując je z linkami do stron."
+    },
+    "stagingVsProdVisual": {
+      "title": "Porównanie wizualne staging vs prod",
+      "description": "Porównaj staging i produkcję za pomocą zrzutów ekranu.",
+      "prompt": "Porównaj moją stronę staging [URL] z produkcyjną [URL] i zrób zrzuty ekranu różnic wizualnych."
+    },
+    "prodBrokenLinks": {
+      "title": "Uszkodzone linki na produkcji",
+      "description": "Sprawdź moją stronę pod kątem uszkodzonych linków.",
+      "prompt": "Otwórz [URL], kliknij każdy link i zgłoś wszystkie błędy 404."
+    },
+    "portfolioMonitoring": {
+      "title": "Monitorowanie portfela",
+      "description": "Obserwuj ceny akcji i ostrzegaj o spadkach i wzrostach.",
+      "prompt": "Monitoruj mój portfel akcji na [strona brokera], ostrzegaj o spadkach i skokach cen."
+    },
+    "jobApplicationAutomation": {
+      "title": "Automatyzacja aplikacji o pracę",
+      "description": "Filtruj oferty pracy i wysyłaj aplikacje z zapisanymi profilami.",
+      "prompt": "Znajdź oferty pracy na LinkedIn dla [zapytanie], posortuj według wynagrodzenia i aplikuj do top 5 używając mojego profilu."
+    },
+    "eventCalendarBuilder": {
+      "title": "Budowanie kalendarza wydarzeń",
+      "description": "Wybierz najlepsze wydarzenia i dodaj je do kalendarza.",
+      "prompt": "Zeskrobuj listy wydarzeń z Eventbrite, filtruj według lokalizacji i dodaj top 5 do mojego kalendarza."
+    }
+  },
+  "slashCommand": {
+    "title": "Umiejętności",
+    "filtering": "Umiejętności pasujące do \"{{query}}\"",
+    "navigate": "nawiguj",
+    "select": "wybierz",
+    "dismiss": "zamknij"
+  },
+  "selectFolder": "Wybierz folder",
+  "selectedFolder": {
+    "badge": "📁 {{folder}}",
+    "clearAriaLabel": "Wyczyść wybrany folder",
+    "clearButton": "✕"
+  }
+}

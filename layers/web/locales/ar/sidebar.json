@@ -1,0 +1,21 @@
+{
+  "newTask": "مهمة جديدة",
+  "searchTasks": "البحث في المهام (Cmd+K)",
+  "noConversations": "لا توجد محادثات بعد",
+  "settings": "الإعدادات",
+  "searchPlaceholder": "البحث في المهام...",
+  "results": "النتائج",
+  "lastSevenDays": "آخر 7 أيام",
+  "noTasksFound": "لم يتم العثور على مهام",
+  "navigate": "تنقل",
+  "select": "تحديد",
+  "close": "إغلاق",
+  "confirmDelete": "هل أنت متأكد من حذف هذه المهمة؟",
+  "deleteTask": "حذف المهمة",
+  "deleteAllChats": "حذف جميع المحادثات",
+  "confirmDeleteAll": "حذف جميع المحادثات؟ لا يمكن التراجع عن هذا الإجراء.",
+  "favorite": {
+    "add": "إضافة إلى المفضلة",
+    "remove": "إزالة من المفضلة"
+  }
+}

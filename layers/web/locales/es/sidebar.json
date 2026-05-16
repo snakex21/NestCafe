@@ -1,0 +1,21 @@
+{
+  "newTask": "Nueva tarea",
+  "searchTasks": "Buscar tareas (Cmd+K)",
+  "noConversations": "Sin conversaciones aún",
+  "settings": "Ajustes",
+  "searchPlaceholder": "Buscar tareas...",
+  "results": "Resultados",
+  "lastSevenDays": "Últimos 7 días",
+  "noTasksFound": "No se encontraron tareas",
+  "navigate": "Navegar",
+  "select": "Seleccionar",
+  "close": "Cerrar",
+  "confirmDelete": "¿Seguro que quieres eliminar esta tarea?",
+  "deleteTask": "Eliminar tarea",
+  "deleteAllChats": "Eliminar todos los chats",
+  "confirmDeleteAll": "¿Eliminar todos los chats? Esto no se puede deshacer.",
+  "favorite": {
+    "add": "Añadir a favoritos",
+    "remove": "Quitar de favoritos"
+  }
+}

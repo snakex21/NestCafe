@@ -1,0 +1,132 @@
+{
+  "api": {
+    "timeout": "リクエストがタイムアウトしました。インターネット接続を確認してください。",
+    "timeoutRetry": "リクエストがタイムアウトしました。インターネット接続を確認して再試行してください。",
+    "invalidKey": "無効なAPIキーです",
+    "noKey": "APIキーを入力してください。",
+    "validationFailed": "APIキーの検証に失敗しました",
+    "networkError": "ネットワークエラーです。接続を確認してください。",
+    "connectionFailed": "APIキーの検証に失敗しました。インターネット接続を確認してください。",
+    "unsupportedProvider": "サポートされていないプロバイダーです"
+  },
+  "task": {
+    "notFound": "タスクが見つかりません",
+    "startFailed": "タスクの開始に失敗しました",
+    "cancelFailed": "タスクのキャンセルに失敗しました",
+    "taskFailed": "タスクが失敗しました",
+    "noActiveTask": "続行するアクティブなタスクがありません",
+    "noSession": "続行するセッションがありません - 新しいタスクを開始してください",
+    "sendMessageFailed": "メッセージの送信に失敗しました"
+  },
+  "adapter": {
+    "cliNotFound": "OpenCode CLIが利用できません。同梱のCLIが欠落または破損している可能性があります。アプリケーションを再インストールしてください。",
+    "disposed": "アダプターは破棄されており、新しいタスクを開始できません",
+    "noActiveProcess": "アクティブなプロセスがありません",
+    "exitWithCode": "OpenCode CLIがコード{{code}}で終了しました"
+  },
+  "validation": {
+    "mustBeString": "{{field}}は文字列でなければなりません",
+    "required": "{{field}}は必須です",
+    "exceedsLength": "{{field}}が最大長を超えています",
+    "unsupportedProvider": "サポートされていないAPIキープロバイダーです",
+    "untrustedWindow": "信頼されていないウィンドウです",
+    "focusedWindowRequired": "IPCリクエストはフォーカスされたウィンドウから行う必要があります"
+  },
+  "provider": {
+    "notReady": "プロバイダーが準備できていません。設定でプロバイダーを接続してモデルを選択してください。",
+    "noModelsEndpoint": "このプロバイダーにモデル一覧のエンドポイントが設定されていません",
+    "noApiKey": "このプロバイダーのAPIキーが見つかりません"
+  },
+  "ollama": {
+    "connectionFailed": "接続に失敗しました",
+    "noModels": "モデルが見つかりません",
+    "saveFailed": "保存に失敗しました",
+    "invalidUrl": "URLの形式が無効です",
+    "protocolNotAllowed": "http と https のURLのみ使用できます",
+    "invalidConfig": "Ollamaの設定が無効です",
+    "modelsArray": "Ollamaの設定が無効です: modelsは配列である必要があります",
+    "invalidModelFormat": "Ollamaの設定が無効です: モデル形式が無効です",
+    "connectionTimeout": "接続がタイムアウトしました。Ollamaが起動しているか確認してください。",
+    "cannotConnect": "Ollamaに接続できません: {{message}}"
+  },
+  "bedrock": {
+    "invalidCredentials": "認証情報が無効です",
+    "saveFailed": "認証情報の保存に失敗しました",
+    "invalidAuthType": "認証タイプが無効です",
+    "invalidAwsCredentials": "AWS認証情報が無効です。アクセスキーIDとシークレットアクセスキーを確認してください。",
+    "accessDenied": "アクセスが拒否されました。AWS認証情報にBedrock権限があるか確認してください。",
+    "profileNotFound": "AWSプロファイルが見つかりません。~/.aws/credentialsファイルを確認してください。",
+    "accessKeyRequired": "アクセスキーIDとシークレットアクセスキーが必要です",
+    "profileNameRequired": "プロファイル名が必要です",
+    "apiKeyRequired": "APIキーが必要です"
+  },
+  "model": {
+    "invalidConfig": "モデル設定が無効です"
+  },
+  "litellm": {
+    "invalidConfig": "LiteLLMの設定が無効です",
+    "modelsArray": "LiteLLMの設定が無効です: modelsは配列である必要があります",
+    "invalidModelFormat": "LiteLLMの設定が無効です: モデル形式が無効です"
+  },
+  "lmstudio": {
+    "notConfigured": "LM Studioが設定されていません"
+  },
+  "azureFoundry": {
+    "baseUrlRequired": "Azure Foundryの設定が無効です: baseUrlが必要です",
+    "deploymentRequired": "Azure Foundryの設定が無効です: deploymentNameが必要です",
+    "invalidAuthType": "Azure Foundryの設定が無効です: authTypeはapi-keyまたはentra-idである必要があります",
+    "invalidEnabled": "Azure Foundryの設定が無効です: enabledはブール値である必要があります",
+    "invalidBaseUrl": "Azure Foundryの設定が無効です: ベースURLの形式が無効です"
+  },
+  "connector": {
+    "protocolRequired": "コネクターのURLはhttp://またはhttps://で始まる必要があります",
+    "invalidUrl": "無効なコネクターURLです: {{url}}"
+  },
+  "settings": {
+    "invalidDebugFlag": "デバッグモードの値が無効です",
+    "invalidTheme": "テーマの値が無効です",
+    "invalidBaseUrl": "ベースURLが無効です"
+  },
+  "i18n": {
+    "unsupportedLanguage": "サポートされていない言語です"
+  },
+  "url": {
+    "protocolNotAllowed": "http と https のURLのみ使用できます"
+  },
+  "permission": {
+    "denied": "許可が拒否されました",
+    "required": "許可が必要です"
+  },
+  "generic": {
+    "unknown": "不明なエラーが発生しました",
+    "tryAgain": "再試行してください"
+  },
+  "app": {
+    "mustRunInDesktop": "このアプリケーションはNestCafeデスクトップアプリ内で実行する必要があります。",
+    "unableToStart": "起動できません",
+    "updateRequired": "アップデートが必要です",
+    "schemaNewerMessage": "このデータは新しいバージョンのNestCafe（スキーマv{{version}}）で作成されました。",
+    "schemaNewerDetail": "お使いのアプリはスキーマv{{version}}まで対応しています。NestCafeをアップデートして続行してください。"
+  },
+  "auth": {
+    "sessionExpired": "{{provider}}のセッションの期限が切れました",
+    "reLoginTo": "{{provider}}に再ログインしてください",
+    "connectorAttention": "{{provider}}に注意が必要です",
+    "openConnectorSettings": "設定 → コネクター → {{provider}} を開く"
+  },
+  "daemon": {
+    "disconnected": "デーモンが切断されました",
+    "disconnectedMessage": "バックグラウンドデーモンへの接続が切断されました。再接続中...",
+    "reconnectFailed": "再接続に失敗しました",
+    "reconnectFailedMessage": "デーモンに再接続できませんでした。タスクが中断される可能性があります。",
+    "openSettings": "設定を開く"
+  },
+  "boundary": {
+    "title": "問題が発生しました",
+    "unexpectedError": "予期しないエラーが発生しました。",
+    "compactMessage": "このコンテンツの表示中に問題が発生しました。",
+    "errorPrefix": "エラー:",
+    "tryAgain": "再試行",
+    "sidebarLoading": "ナビゲーションを読み込み中..."
+  }
+}

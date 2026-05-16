@@ -1,0 +1,100 @@
+{
+  "app": {
+    "name": "NestCafe"
+  },
+  "buttons": {
+    "send": "Gönder",
+    "submit": "Gönder",
+    "stop": "Durdur",
+    "cancel": "İptal",
+    "close": "Kapat",
+    "save": "Kaydet",
+    "delete": "Sil",
+    "deleteAll": "Tümünü Sil",
+    "allow": "İzin Ver",
+    "deny": "Reddet",
+    "continue": "Devam Et",
+    "doneContinue": "Tamam, Devam Et",
+    "goHome": "Ana Sayfaya Dön",
+    "startNewTask": "Yeni Görev Başlat",
+    "test": "Test Et",
+    "testing": "Test Ediliyor...",
+    "saving": "Kaydediliyor...",
+    "validating": "Doğrulanıyor...",
+    "export": "Dışa Aktar",
+    "exported": "Dışa Aktarıldı",
+    "clear": "Temizle",
+    "clearAll": "Tümünü temizle",
+    "yes": "Evet",
+    "no": "Hayır",
+    "retry": "Tekrar Dene",
+    "saveApiKey": "API Anahtarını Kaydet",
+    "copyToClipboard": "Panoya kopyala",
+    "dismiss": "Kapat",
+    "messageTooLong": "Mesaj çok uzun",
+    "enterMessage": "Bir mesaj girin",
+    "quit": "Çık"
+  },
+  "aria": {
+    "scrollToBottom": "En alta kaydır",
+    "customResponse": "Özel yanıt"
+  },
+  "status": {
+    "running": "Çalışıyor",
+    "completed": "Tamamlandı",
+    "failed": "Başarısız",
+    "cancelled": "İptal Edildi",
+    "queued": "Sırada",
+    "pending": "Bekliyor",
+    "waiting": "Bekleniyor",
+    "stopped": "Durduruldu",
+    "interrupted": "Kesildi"
+  },
+  "time": {
+    "justNow": "az önce",
+    "minutesAgo": "{{count}} dk önce",
+    "hoursAgo": "{{count}} sa önce",
+    "daysAgo": "{{count}} g önce",
+    "today": "Bugün",
+    "yesterday": "Dün"
+  },
+  "nav": {
+    "home": "Ana Sayfa",
+    "history": "Geçmiş",
+    "settings": "Ayarlar"
+  },
+  "labels": {
+    "awsCredentials": "AWS Kimlik Bilgileri",
+    "gcpCredentials": "GCP Kimlik Bilgileri",
+    "localApiKey": "Yerel API Anahtarı",
+    "azureFoundryEntraId": "Azure Foundry (Entra ID)",
+    "bedrockApiKey": "Bedrock API Anahtarı",
+    "awsAccessKeys": "AWS Erişim Anahtarları",
+    "awsProfile": "AWS Profili: {{name}}"
+  },
+  "contextMenu": {
+    "addToDictionary": "Sözlüğe Ekle"
+  },
+  "fileFilters": {
+    "text": "Metin Dosyaları",
+    "log": "Günlük Dosyaları",
+    "skill": "Yetenek Dosyaları",
+    "all": "Tüm Dosyalar"
+  },
+  "model": {
+    "selectModel": "Model seç",
+    "current": "Geçerli",
+    "configureModel": "Modeli yapılandır",
+    "changeModel": "Modeli değiştir"
+  },
+  "messages": "{{count}} mesaj",
+  "favorite": "Favori",
+  "theme": {
+    "switchToLight": "Açık moda geç",
+    "switchToDark": "Koyu moda geç",
+    "switchToSystem": "Sistem moduna geç",
+    "lightMode": "Açık mod",
+    "darkMode": "Koyu mod",
+    "systemMode": "Sistem"
+  }
+}

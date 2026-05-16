@@ -1,0 +1,36 @@
+{
+  "name": "@nestcafe/core",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "NestCafe v2 — core business logic, types, storage, providers",
+  "exports": {
+    ".": "./dist/index.js",
+    "./common": "./dist/common.js",
+    "./desktop-main": "./dist/desktop-main.js",
+    "./runtime-types": "./dist/runtime-types.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "better-sqlite3": "catalog:",
+    "zod": "catalog:",
+    "gray-matter": "^4.0.3",
+    "undici": "^7.0.0",
+    "proxy-from-env": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "^5.8.0",
+    "vitest": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}

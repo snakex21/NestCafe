@@ -1,0 +1,96 @@
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+import { mkdirSync } from 'node:fs';
+import { createStorage, type StorageAPI } from '@nestcafe_ai/agent-core';
+import { getDatabase } from '@nestcafe_ai/agent-core';
+import { deleteLegacyWorkspaceMetaFiles } from '@nestcafe_ai/agent-core';
+import type { Database } from 'better-sqlite3';
+import { log } from '../logger.js';
+
+const DEV_DEFAULT_DATA_DIR = join(homedir(), '.nestcafe');
+
+export class StorageService {
+  private storage: StorageAPI | null = null;
+
+  /**
+   * Initialize storage.
+   *
+   * @param dataDir — Data directory. Required in production (passed via --data-dir).
+   *                   In dev mode (no --data-dir), falls back to `~/.nestcafe`.
+   */
+  initialize(dataDir?: string): StorageAPI {
+    const dir = dataDir || DEV_DEFAULT_DATA_DIR;
+    mkdirSync(dir, { recursive: true, mode: 0o700 });
+
+    // Match the desktop app's database naming:
+    // - Packaged (NESTCAFE_IS_PACKAGED=1): nestcafe.db + secure-storage.json
+    // - Dev mode: nestcafe-dev.db + secure-storage-dev.json
+    // This ensures both the daemon and Electron read/write the same database.
+    const isPackaged = process.env.NESTCAFE_IS_PACKAGED === '1';
+    const dbName = isPackaged ? 'nestcafe.db' : 'nestcafe-dev.db';
+    const secureFileName = isPackaged ? 'secure-storage.json' : 'secure-storage-dev.json';
+    const databasePath = join(dir, dbName);
+
+    // Compute the legacy `workspace-meta{.db,-dev.db}` path once as a
+    // function-scoped local. The SAME string is passed both to
+    // `createStorage` (so the in-DB import helper reads from it) and to
+    // `deleteLegacyWorkspaceMetaFiles` below (so the deletion helper's
+    // path-bound safety check matches). One variable, two references — no
+    // byte-drift possible between import and delete.
+    const metaDbName = isPackaged ? 'workspace-meta.db' : 'workspace-meta-dev.db';
+    const legacyMetaDbPath = join(dir, metaDbName);
+
+    this.storage = createStorage({
+      databasePath,
+      runMigrations: true,
+      userDataPath: dir,
+      secureStorageFileName: secureFileName,
+      legacyMetaDbPath,
+    });
+
+    this.storage.initialize();
+    log.info(`[StorageService] Database initialized at ${databasePath}`);
+
+    // Expose the database path so MCP tools (e.g. search-conversations) can
+    // open a read-only SQLite connection. Set on process.env so it propagates
+    // to child processes (opencode serve → MCP tool subprocesses).
+    process.env.NESTCAFE_DB_PATH = databasePath;
+
+    // After `storage.initialize()` has run v030 and the in-DB import helper,
+    // delete the retired legacy triplet. No-op unless the helper wrote
+    // `legacy_meta_import_status='copied'` AND the stored path byte-matches
+    // this local. Safe to run on every boot.
+    deleteLegacyWorkspaceMetaFiles(legacyMetaDbPath);
+
+    return this.storage;
+  }
+
+  getStorage(): StorageAPI {
+    if (!this.storage) {
+      throw new Error('Storage not initialized. Call initialize() first.');
+    }
+    return this.storage;
+  }
+
+  /**
+   * Raw `better-sqlite3` handle for one-shot helpers that need direct SQL
+   * access (legacy electron-store import, ad-hoc schema-meta reads/writes).
+   * Use `getStorage()` for everything that has a typed `StorageAPI` method —
+   * this escape hatch exists specifically because `StorageAPI` intentionally
+   * omits raw-DB access from its public surface.
+   */
+  getRawDatabase(): Database {
+    if (!this.storage) {
+      throw new Error('Storage not initialized. Call initialize() first.');
+    }
+    return getDatabase();
+  }
+
+  close(): void {
+    if (this.storage) {
+      this.storage.close();
+      this.storage = null;
+      log.info('[StorageService] Database closed');
+    }
+  }
+}

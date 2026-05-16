@@ -1,0 +1,132 @@
+{
+  "api": {
+    "timeout": "Przekroczono czas żądania. Sprawdź połączenie z internetem.",
+    "timeoutRetry": "Przekroczono czas żądania. Sprawdź połączenie z internetem i spróbuj ponownie.",
+    "invalidKey": "Klucz niepoprawny",
+    "noKey": "Wprowadź klucz API.",
+    "validationFailed": "Walidacja klucza API nie powiodła się",
+    "networkError": "Błąd sieci. Sprawdź połączenie.",
+    "connectionFailed": "Nie udało się zwalidować klucza API. Sprawdź połączenie z internetem.",
+    "unsupportedProvider": "Nieobsługiwany dostawca"
+  },
+  "task": {
+    "notFound": "Nie znaleziono zadania",
+    "startFailed": "Nie udało się uruchomić zadania",
+    "cancelFailed": "Nie udało się anulować zadania",
+    "taskFailed": "Zadanie nie powiodło się",
+    "noActiveTask": "Brak aktywnego zadania do kontynuacji",
+    "noSession": "Brak sesji do kontynuacji — rozpocznij nowe zadanie",
+    "sendMessageFailed": "Nie udało się wysłać wiadomości"
+  },
+  "adapter": {
+    "cliNotFound": "OpenCode CLI nie jest dostępny. Dołączony CLI może być uszkodzony. Przeinstaluj aplikację.",
+    "disposed": "Adapter został usunięty i nie może uruchamiać nowych zadań",
+    "noActiveProcess": "Brak aktywnego procesu",
+    "exitWithCode": "OpenCode CLI zakończył działanie z kodem {{code}}"
+  },
+  "validation": {
+    "mustBeString": "{{field}} musi być tekstem",
+    "required": "{{field}} jest wymagane",
+    "exceedsLength": "{{field}} przekracza maksymalną długość",
+    "unsupportedProvider": "Nieobsługiwany dostawca klucza API",
+    "untrustedWindow": "Niezaufane okno",
+    "focusedWindowRequired": "Żądanie IPC musi pochodzić z aktywnego okna"
+  },
+  "provider": {
+    "notReady": "Żaden dostawca nie jest gotowy. Połącz dostawcę i wybierz model w Ustawieniach.",
+    "noModelsEndpoint": "Brak skonfigurowanego endpointu modeli dla tego dostawcy",
+    "noApiKey": "Nie znaleziono klucza API dla tego dostawcy"
+  },
+  "ollama": {
+    "connectionFailed": "Połączenie nieudane",
+    "noModels": "Nie znaleziono modeli",
+    "saveFailed": "Nie udało się zapisać",
+    "invalidUrl": "Nieprawidłowy format URL",
+    "protocolNotAllowed": "Dozwolone są tylko adresy http i https",
+    "invalidConfig": "Nieprawidłowa konfiguracja Ollama",
+    "modelsArray": "Nieprawidłowa konfiguracja Ollama: models musi być tablicą",
+    "invalidModelFormat": "Nieprawidłowa konfiguracja Ollama: nieprawidłowy format modelu",
+    "connectionTimeout": "Przekroczono czas połączenia. Upewnij się, że Ollama jest uruchomiona.",
+    "cannotConnect": "Nie można połączyć z Ollama: {{message}}"
+  },
+  "bedrock": {
+    "invalidCredentials": "Nieprawidłowe dane uwierzytelniające",
+    "saveFailed": "Nie udało się zapisać danych",
+    "invalidAuthType": "Nieprawidłowy typ uwierzytelniania",
+    "invalidAwsCredentials": "Nieprawidłowe dane AWS. Sprawdź Access Key ID i Secret Access Key.",
+    "accessDenied": "Dostęp zabroniony. Upewnij się, że dane AWS mają uprawnienia Bedrock.",
+    "profileNotFound": "Nie znaleziono profilu AWS. Sprawdź plik ~/.aws/credentials.",
+    "accessKeyRequired": "Access Key ID i Secret Access Key są wymagane",
+    "profileNameRequired": "Nazwa profilu jest wymagana",
+    "apiKeyRequired": "Klucz API jest wymagany"
+  },
+  "model": {
+    "invalidConfig": "Nieprawidłowa konfiguracja modelu"
+  },
+  "litellm": {
+    "invalidConfig": "Nieprawidłowa konfiguracja LiteLLM",
+    "modelsArray": "Nieprawidłowa konfiguracja LiteLLM: models musi być tablicą",
+    "invalidModelFormat": "Nieprawidłowa konfiguracja LiteLLM: nieprawidłowy format modelu"
+  },
+  "lmstudio": {
+    "notConfigured": "Nie skonfigurowano LM Studio"
+  },
+  "azureFoundry": {
+    "baseUrlRequired": "Nieprawidłowa konfiguracja Azure Foundry: baseUrl jest wymagane",
+    "deploymentRequired": "Nieprawidłowa konfiguracja Azure Foundry: deploymentName jest wymagane",
+    "invalidAuthType": "Nieprawidłowa konfiguracja Azure Foundry: authType musi być api-key lub entra-id",
+    "invalidEnabled": "Nieprawidłowa konfiguracja Azure Foundry: enabled musi być boolean",
+    "invalidBaseUrl": "Nieprawidłowa konfiguracja Azure Foundry: nieprawidłowy format Base URL"
+  },
+  "connector": {
+    "protocolRequired": "URL połączenia musi używać http:// lub https://",
+    "invalidUrl": "Nieprawidłowy URL połączenia: {{url}}"
+  },
+  "settings": {
+    "invalidDebugFlag": "Nieprawidłowa flaga trybu debugowania",
+    "invalidTheme": "Nieprawidłowa wartość motywu",
+    "invalidBaseUrl": "Nieprawidłowy Base URL"
+  },
+  "i18n": {
+    "unsupportedLanguage": "Nieobsługiwany język"
+  },
+  "url": {
+    "protocolNotAllowed": "Dozwolone są tylko adresy http i https"
+  },
+  "permission": {
+    "denied": "Odmowa dostępu",
+    "required": "Wymagana zgoda"
+  },
+  "generic": {
+    "unknown": "Wystąpił nieznany błąd",
+    "tryAgain": "Spróbuj ponownie"
+  },
+  "app": {
+    "mustRunInDesktop": "Ta aplikacja musi być uruchomiona w aplikacji NestCafe na komputerze.",
+    "unableToStart": "Nie można uruchomić",
+    "updateRequired": "Wymagana aktualizacja",
+    "schemaNewerMessage": "Te dane zostały utworzone przez nowszą wersję NestCafe (schemat v{{version}}).",
+    "schemaNewerDetail": "Twoja aplikacja obsługuje schemat do v{{version}}. Zaktualizuj NestCafe, by kontynuować."
+  },
+  "auth": {
+    "sessionExpired": "Sesja {{provider}} wygasła",
+    "reLoginTo": "Zaloguj się ponownie do {{provider}}",
+    "connectorAttention": "{{provider}} wymaga uwagi",
+    "openConnectorSettings": "Otwórz Ustawienia -> Połączenia -> {{provider}}"
+  },
+  "daemon": {
+    "disconnected": "Daemon rozłączony",
+    "disconnectedMessage": "Połączenie z daemonem w tle zostało utracone. Ponowne łączenie...",
+    "reconnectFailed": "Ponowne połączenie nieudane",
+    "reconnectFailedMessage": "Nie można ponownie połączyć z daemonem. Zadania mogą zostać przerwane.",
+    "openSettings": "Otwórz ustawienia"
+  },
+  "boundary": {
+    "title": "Coś poszło nie tak",
+    "unexpectedError": "Wystąpił nieoczekiwany błąd.",
+    "compactMessage": "Coś poszło nie tak podczas renderowania tej zawartości.",
+    "errorPrefix": "Błąd:",
+    "tryAgain": "Spróbuj ponownie",
+    "sidebarLoading": "Ładowanie nawigacji…"
+  }
+}

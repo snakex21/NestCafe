@@ -1,0 +1,100 @@
+{
+  "app": {
+    "name": "NestCafe"
+  },
+  "buttons": {
+    "send": "Wyślij",
+    "submit": "Wyślij",
+    "stop": "Zatrzymaj",
+    "cancel": "Anuluj",
+    "close": "Zamknij",
+    "save": "Zapisz",
+    "delete": "Usuń",
+    "deleteAll": "Usuń wszystkie",
+    "allow": "Zezwól",
+    "deny": "Odmów",
+    "continue": "Kontynuuj",
+    "doneContinue": "Gotowe, kontynuuj",
+    "goHome": "Strona główna",
+    "startNewTask": "Nowe zadanie",
+    "test": "Testuj",
+    "testing": "Testowanie...",
+    "saving": "Zapisywanie...",
+    "validating": "Sprawdzanie...",
+    "export": "Eksportuj",
+    "exported": "Wyeksportowano",
+    "clear": "Wyczyść",
+    "clearAll": "Wyczyść wszystko",
+    "yes": "Tak",
+    "no": "Nie",
+    "retry": "Spróbuj ponownie",
+    "saveApiKey": "Zapisz klucz API",
+    "copyToClipboard": "Kopiuj do schowka",
+    "dismiss": "Zamknij",
+    "messageTooLong": "Wiadomość jest za długa",
+    "enterMessage": "Wpisz wiadomość",
+    "quit": "Wyjdź"
+  },
+  "aria": {
+    "scrollToBottom": "Przewiń na dół",
+    "customResponse": "Niestandardowa odpowiedź"
+  },
+  "status": {
+    "running": "W toku",
+    "completed": "Ukończone",
+    "failed": "Niepowodzenie",
+    "cancelled": "Anulowane",
+    "queued": "W kolejce",
+    "pending": "Oczekujące",
+    "waiting": "Oczekiwanie",
+    "stopped": "Zatrzymane",
+    "interrupted": "Przerwane"
+  },
+  "time": {
+    "justNow": "przed chwilą",
+    "minutesAgo": "{{count}} min temu",
+    "hoursAgo": "{{count}} godz. temu",
+    "daysAgo": "{{count}} dni temu",
+    "today": "Dzisiaj",
+    "yesterday": "Wczoraj"
+  },
+  "nav": {
+    "home": "Główna",
+    "history": "Historia",
+    "settings": "Ustawienia"
+  },
+  "labels": {
+    "awsCredentials": "Dane AWS",
+    "gcpCredentials": "Dane GCP",
+    "localApiKey": "Lokalny klucz API",
+    "azureFoundryEntraId": "Azure Foundry (Entra ID)",
+    "bedrockApiKey": "Klucz API Bedrock",
+    "awsAccessKeys": "Klucze dostępu AWS",
+    "awsProfile": "Profil AWS: {{name}}"
+  },
+  "contextMenu": {
+    "addToDictionary": "Dodaj do słownika"
+  },
+  "fileFilters": {
+    "text": "Pliki tekstowe",
+    "log": "Pliki dziennika",
+    "skill": "Pliki umiejętności",
+    "all": "Wszystkie pliki"
+  },
+  "model": {
+    "selectModel": "Wybierz model",
+    "current": "Bieżący",
+    "configureModel": "Skonfiguruj model",
+    "changeModel": "Zmień model"
+  },
+  "messages": "{{count}} wiadomości",
+  "favorite": "Ulubione",
+  "theme": {
+    "switchToLight": "Przełącz na jasny motyw",
+    "switchToDark": "Przełącz na ciemny motyw",
+    "switchToSystem": "Przełącz na systemowy",
+    "lightMode": "Jasny motyw",
+    "darkMode": "Ciemny motyw",
+    "systemMode": "Systemowy"
+  }
+}

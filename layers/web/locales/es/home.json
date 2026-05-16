@@ -1,0 +1,90 @@
+{
+  "title": "¿Qué vas a NestCafear hoy?",
+  "inputPlaceholder": "Describe una tarea y deja que la IA se encargue",
+  "favorites": {
+    "title": "Favoritos",
+    "empty": "Marca con estrella las tareas completadas o interrumpidas para verlas aquí.",
+    "remove": "Quitar de favoritos",
+    "showAll": "Ver los {{count}} favoritos",
+    "showAll_one": "Ver {{count}} favorito",
+    "showAll_few": "Ver los {{count}} favoritos",
+    "showAll_many": "Ver los {{count}} favoritos",
+    "showAll_other": "Ver los {{count}} favoritos"
+  },
+  "plusMenu": {
+    "addContent": "Añadir contenido",
+    "attachFiles": "Adjuntar archivos",
+    "soon": "Próximamente",
+    "useSkills": "Usar skills",
+    "connectors": "Conectores",
+    "noConnectors": "Sin conectores aún",
+    "manage": "Gestionar",
+    "dropFilesHere": "Suelta archivos aquí para adjuntar",
+    "dropFilesHint": "(máx. {max} archivos, {size} MB c/u)",
+    "fileTooLarge": "{name} supera el límite de tamaño {limit}",
+    "tooManyFiles": "Máximo {max} archivos permitidos",
+    "attachFailed": "No se pudieron adjuntar los archivos",
+    "selectFolder": "Seleccionar carpeta"
+  },
+  "examplePrompts": "Sugerencias de ejemplo",
+  "useCases": {
+    "calendarPrepNotes": {
+      "title": "Notas de reuniones",
+      "description": "Revisa las reuniones de mañana y prepara notas.",
+      "prompt": "Revisa mis reuniones de mañana en Google Calendar y redacta notas de preparación en un Google Doc nuevo."
+    },
+    "inboxPromoCleanup": {
+      "title": "Limpieza de correo promocional",
+      "description": "Elimina los correos promocionales de las últimas 24 horas.",
+      "prompt": "Ve a mi bandeja de Gmail y elimina todos los correos promocionales de las últimas 24 horas."
+    },
+    "competitorPricingDeck": {
+      "title": "Análisis de precios de competidores",
+      "description": "Analiza precios de competidores y prepara una diapositiva con recomendaciones.",
+      "prompt": "Extrae precios y funcionalidades de estos 5 sitios de competidores [lista de URLs], guárdalos en un CSV, analiza nuestras brechas de precio y redacta una diapositiva de recomendación en Google Slides para la reunión del lunes."
+    },
+    "notionApiAudit": {
+      "title": "Auditoría de API en Notion",
+      "description": "Escanea una wiki de Notion en busca de menciones de API antiguas con enlaces directos.",
+      "prompt": "Lee esta wiki de Notion en [URL] y encuentra todas las menciones de la API antigua, listándolas con enlaces a las páginas."
+    },
+    "stagingVsProdVisual": {
+      "title": "Comparación visual staging vs producción",
+      "description": "Compara la apariencia de staging y producción con capturas.",
+      "prompt": "Compara mi sitio de staging en [URL] con producción en [URL] y captura cualquier diferencia visual."
+    },
+    "prodBrokenLinks": {
+      "title": "Enlaces rotos en producción",
+      "description": "Revisa mi sitio web en busca de enlaces rotos.",
+      "prompt": "Abre [URL], haz clic en cada enlace y reporta cualquier error 404."
+    },
+    "portfolioMonitoring": {
+      "title": "Monitoreo de portafolio",
+      "description": "Vigila precios de acciones y alerta sobre caídas y subidas.",
+      "prompt": "Monitorea mi portafolio de acciones en [sitio del bróker], alerta sobre caídas y subidas de precio."
+    },
+    "jobApplicationAutomation": {
+      "title": "Automatización de solicitudes de empleo",
+      "description": "Filtra ofertas de empleo y envía solicitudes con perfiles guardados.",
+      "prompt": "Busca ofertas de empleo en LinkedIn para [consulta], ordena por salario y aplica a las 5 mejores usando mi perfil."
+    },
+    "eventCalendarBuilder": {
+      "title": "Calendario de eventos",
+      "description": "Selecciona los mejores eventos y agrégalos al calendario.",
+      "prompt": "Extrae listados de eventos de Eventbrite, filtra por ubicación y añade los 5 mejores a mi calendario."
+    }
+  },
+  "slashCommand": {
+    "title": "Skills",
+    "filtering": "Skills que coinciden con \"{{query}}\"",
+    "navigate": "navegar",
+    "select": "seleccionar",
+    "dismiss": "descartar"
+  },
+  "selectFolder": "Seleccionar carpeta",
+  "selectedFolder": {
+    "badge": "📁 {folder}",
+    "clearAriaLabel": "Quitar carpeta seleccionada",
+    "clearButton": "✕"
+  }
+}
