@@ -117,7 +117,8 @@ export function buildAppMenu(): void {
     },
   ];
 
-  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  // Use minimal menu — the app has its own sidebar navigation
+  Menu.setApplicationMenu(Menu.buildFromTemplate([]));
 }
 
 export function refreshAppMenu(): void {

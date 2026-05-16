@@ -1,5 +1,8 @@
 import { config } from 'dotenv';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
+
+// Remove default Electron menu bar immediately
+Menu.setApplicationMenu(null);
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';

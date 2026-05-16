@@ -51,7 +51,7 @@ const { NODE_VERSION } = require('./node-version.cjs');
 
 const DESKTOP_ROOT = path.join(__dirname, '..');
 const REPO_ROOT = path.join(DESKTOP_ROOT, '..', '..');
-const DAEMON_DIST = path.join(REPO_ROOT, 'apps', 'daemon', 'dist');
+const DAEMON_DIST = path.join(REPO_ROOT, 'layers', 'daemon', 'dist');
 
 const DEPS = ['ws@8', 'better-sqlite3@12'];
 
