@@ -9,7 +9,7 @@
  * disconnects (crash, restart, etc.).
  */
 
-import { spawn } from 'child_process';
+import { spawn, type ChildProcess } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { app, BrowserWindow } from 'electron';
@@ -34,6 +34,14 @@ const LOGIN_ITEM_RETRY_DELAY_MS = 500;
 const RECONNECT_INITIAL_MS = 200;
 const RECONNECT_MAX_MS = 5000;
 const RECONNECT_MAX_ATTEMPTS = 10;
+
+/**
+ * Module-level tracking for the spawned daemon process.
+ * Used to detect early crashes and include diagnostic info in timeout errors.
+ */
+let daemonProcess: ChildProcess | null = null;
+let daemonExitCode: number | null = null;
+let daemonExitSignal: string | null = null;
 
 function log(level: 'INFO' | 'WARN' | 'ERROR', msg: string, data?: Record<string, unknown>): void {
   try {
@@ -281,6 +289,26 @@ export function spawnDaemon(dataDir: string): void {
       env: daemonEnv,
       windowsHide: true,
     });
+
+    // Track the daemon process so we can detect early crashes and include
+    // diagnostics in timeout error messages.
+    daemonProcess = child;
+    daemonExitCode = null;
+    daemonExitSignal = null;
+
+    child.on('exit', (code, signal) => {
+      daemonExitCode = code;
+      daemonExitSignal = signal;
+      log(
+        code === 0 ? 'INFO' : 'ERROR',
+        `[DaemonConnector] Daemon process exited: code=${code}, signal=${signal}`,
+      );
+    });
+
+    child.on('error', (err) => {
+      log('ERROR', `[DaemonConnector] Daemon process error: ${err.message}`);
+    });
+
     child.unref();
     log('INFO', `[DaemonConnector] Daemon spawned (detached, pid=${child.pid})`);
   } finally {
@@ -385,12 +413,42 @@ export function stopTailingDaemonLog(): void {
 }
 
 /**
+ * Read the last `maxLines` lines from the daemon log file.
+ * Returns an empty string if the log file doesn't exist or can't be read.
+ */
+function readDaemonLogTail(dataDir: string, maxLines: number): string {
+  try {
+    const logPath = getDaemonLogPath(dataDir);
+    if (!fs.existsSync(logPath)) {
+      return '(log file not found)';
+    }
+    const content = fs.readFileSync(logPath, 'utf-8');
+    const lines = content.split('\n').filter((l) => l.trim());
+    return lines.slice(-maxLines).join('\n');
+  } catch (err) {
+    return `(could not read daemon log: ${err instanceof Error ? err.message : String(err)})`;
+  }
+}
+
+/**
  * Wait for the daemon to become connectable, polling at POLL_INTERVAL_MS.
+ * Fails fast if the daemon process exits with a non-zero code during the poll.
  */
 async function waitForDaemon(dataDir: string, timeoutMs: number): Promise<DaemonClient> {
   const deadline = Date.now() + timeoutMs;
 
   while (Date.now() < deadline) {
+    // If the daemon process exited with an error code, fail immediately
+    // instead of waiting for the full timeout.
+    if (daemonExitCode !== null && daemonExitCode !== 0) {
+      const logSnippet = readDaemonLogTail(dataDir, 20);
+      throw new Error(
+        `Daemon process exited with code ${daemonExitCode} before becoming ready. ` +
+          `Socket path: ${getSocketPath(dataDir)}\n\n` +
+          `Last daemon log lines:\n${logSnippet || '(log file empty)'}`,
+      );
+    }
+
     const client = await tryConnect(dataDir);
     if (client) {
       return client;
@@ -398,9 +456,12 @@ async function waitForDaemon(dataDir: string, timeoutMs: number): Promise<Daemon
     await sleep(POLL_INTERVAL_MS);
   }
 
+  // Timeout — include the daemon log tail for diagnostics
+  const logSnippet = readDaemonLogTail(dataDir, 20);
   throw new Error(
     `Daemon did not become ready within ${timeoutMs}ms. ` +
-      `Socket path: ${getSocketPath(dataDir)}`,
+      `Socket path: ${getSocketPath(dataDir)}\n\n` +
+      `Last daemon log lines:\n${logSnippet || '(log file empty)'}`,
   );
 }
 
