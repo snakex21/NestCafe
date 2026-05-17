@@ -33,6 +33,12 @@ const buildConfigSchema = z.object({
   googleClientId: z.string().default(''),
   buildId: z.string().default(''),
   accomplishUpdaterUrl: z.string().default(''),
+  // Analytics fields — always empty in OSS builds (analytics stripped).
+  // Defined here so downstream analytics/sentry files compile without errors.
+  gaMeasurementId: z.string().default(''),
+  gaApiSecret: z.string().default(''),
+  mixpanelToken: z.string().default(''),
+  sentryDsn: z.string().default(''),
 });
 
 export type BuildConfig = z.infer<typeof buildConfigSchema>;
@@ -149,6 +155,11 @@ export function isAutoUpdaterEnabled(): boolean {
 /** Returns 'oss' always — analytics stripped. */
 export function getAppTier(): 'oss' {
   return 'oss';
+}
+
+/** Analytics are always disabled in OSS builds. */
+export function isAnalyticsEnabled(): boolean {
+  return false;
 }
 
 /**
