@@ -17,6 +17,30 @@ function buildCustomModelConfig(name: string, supportsTools: boolean): ProviderM
   };
 }
 
+function normalizeCustomOpenAIBaseURL(baseUrl: string): string {
+  const trimmed = baseUrl.trim().replace(/\/+$/, '');
+  const parsed = new URL(trimmed);
+  const pathname = parsed.pathname.replace(/\/+$/, '');
+  if (/\/v\d+$/i.test(pathname)) {
+    return trimmed;
+  }
+  return `${trimmed}/v1`;
+}
+
+function isLocalOrPrivateBaseURL(baseUrl: string): boolean {
+  try {
+    const host = new URL(baseUrl).hostname.toLowerCase();
+    if (host === 'localhost' || host === '::1') return true;
+    if (host.startsWith('127.')) return true;
+    if (host.startsWith('10.')) return true;
+    if (host.startsWith('192.168.')) return true;
+    const parts = host.split('.').map((part) => Number.parseInt(part, 10));
+    return parts.length === 4 && parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31;
+  } catch {
+    return false;
+  }
+}
+
 export function buildNimConfig(ctx: ProviderBuildContext): ProviderBuildResult {
   const { providerSettings, getApiKey } = ctx;
   const nimProvider = providerSettings.connectedProviders.nim;
@@ -66,14 +90,18 @@ export function buildCustomConfig(ctx: ProviderBuildContext): ProviderBuildResul
 
     const customApiKey = getApiKey(providerId as never);
     const creds = customProvider.credentials;
-    const baseURL = creds.baseUrl.replace(/\/+$/, '');
+    const rawBaseURL = creds.baseUrl.replace(/\/+$/, '');
+    const baseURL = normalizeCustomOpenAIBaseURL(rawBaseURL);
     const modelId = customProvider.selectedModelId.replace(/^custom\//, '');
     const modelInfo = customProvider.availableModels?.find(
       (model) =>
         model.enabled !== false &&
         (model.id === customProvider.selectedModelId || model.id === modelId),
     );
-    const supportsTools = modelInfo?.toolSupport !== 'unsupported';
+    const localOrPrivateEndpoint = isLocalOrPrivateBaseURL(baseURL);
+    const supportsTools =
+      modelInfo?.toolSupport === 'supported' ||
+      (modelInfo?.toolSupport !== 'unsupported' && !localOrPrivateEndpoint);
     const configId =
       providerId === 'custom' ? 'custom' : providerId.replace(/[^a-zA-Z0-9_-]/g, '-');
     log.info(

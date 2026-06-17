@@ -9,5 +9,27 @@ export function serializeError(error: unknown): string {
   if (typeof error === 'string') {
     return error;
   }
-  return JSON.stringify(error) || 'Unknown error';
+  if (error instanceof Error) {
+    return error.message || error.name || 'Unknown error';
+  }
+  if (error && typeof error === 'object') {
+    const maybeMessage = (error as { message?: unknown }).message;
+    if (typeof maybeMessage === 'string' && maybeMessage.trim().length > 0) {
+      return maybeMessage;
+    }
+    const nestedError = (error as { error?: unknown }).error;
+    if (nestedError !== undefined && nestedError !== error) {
+      return serializeError(nestedError);
+    }
+    try {
+      const stringified = JSON.stringify(error, null, 2);
+      if (stringified && stringified !== '{}') {
+        return stringified;
+      }
+    } catch {
+      // Fall through to String coercion.
+    }
+  }
+  const coerced = String(error);
+  return coerced && coerced !== '[object Object]' ? coerced : 'Unknown error';
 }

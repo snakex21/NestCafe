@@ -31,6 +31,7 @@
  */
 
 import { spawn, spawnSync, type ChildProcess } from 'child_process';
+import path from 'path';
 import {
   resolveCliPath,
   type StorageAPI,
@@ -51,6 +52,14 @@ const SERVER_URL_WAIT_TIMEOUT_MS = 10_000;
  * forever.
  */
 const TASK_RUNTIME_IDLE_CLEANUP_MS = 60_000;
+
+function getOpenCodeServerAuthHeaders(): Record<string, string> | undefined {
+  const username = process.env.OPENCODE_SERVER_USERNAME;
+  const password = process.env.OPENCODE_SERVER_PASSWORD;
+  if (!username || !password) return undefined;
+  const token = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
+  return { Authorization: `Basic ${token}` };
+}
 
 interface TrackedOpencodeServerHandle {
   url: string;
@@ -185,7 +194,14 @@ function spawnOpenCodeServer(
   // so the spawned `opencode` shim inherits PATH, HOME, XDG_*, locale, etc.
   // Without this merge the shim runs in a near-empty env and the wrapper
   // shell script can't `exec node`. The runtime overrides win on conflict.
-  const mergedEnv: NodeJS.ProcessEnv = { ...process.env, ...runtimeEnv };
+  const opencodeRuntimeDir = path.join(deps.userDataPath, 'opencode-runtime');
+  const mergedEnv: NodeJS.ProcessEnv = {
+    ...process.env,
+    XDG_DATA_HOME: opencodeRuntimeDir,
+    XDG_STATE_HOME: opencodeRuntimeDir,
+    XDG_CACHE_HOME: path.join(opencodeRuntimeDir, 'cache'),
+    ...runtimeEnv,
+  };
   const proc = spawn(command, args, {
     detached: process.platform !== 'win32',
     env: mergedEnv,
@@ -582,7 +598,7 @@ export async function createTransientOpencodeClient(
   throwIfStartAborted(signal);
   const server = await spawnOpenCodeServer(runtimeEnv, deps, signal);
   return {
-    client: createOpencodeClient({ baseUrl: server.url }),
+    client: createOpencodeClient({ baseUrl: server.url, headers: getOpenCodeServerAuthHeaders() }),
     close: () => server.close(),
   };
 }

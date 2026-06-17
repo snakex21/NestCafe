@@ -91,6 +91,14 @@ import { NESTCAFE_AGENT_NAME } from '../../opencode/config-generator.js';
 
 const log = createConsoleLogger({ prefix: 'OpenCodeAdapter' });
 
+function getOpenCodeServerAuthHeaders(): Record<string, string> | undefined {
+  const username = process.env.OPENCODE_SERVER_USERNAME;
+  const password = process.env.OPENCODE_SERVER_PASSWORD;
+  if (!username || !password) return undefined;
+  const token = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
+  return { Authorization: `Basic ${token}` };
+}
+
 type PromptPartInput = TextPartInput | FilePartInput;
 
 /** Retained for call-site back-compat; the SDK flow no longer uses exit codes. */
@@ -455,7 +463,10 @@ export class OpenCodeAdapter extends EventEmitter<OpenCodeAdapterEvents> {
       );
     }
 
-    this.client = createOpencodeClient({ baseUrl: serverUrl });
+    this.client = createOpencodeClient({
+      baseUrl: serverUrl,
+      headers: getOpenCodeServerAuthHeaders(),
+    });
 
     this.emit('progress', { stage: 'loading', message: 'Loading agent...' });
 
@@ -851,27 +862,8 @@ export class OpenCodeAdapter extends EventEmitter<OpenCodeAdapterEvents> {
   }
 
   private formatSessionError(error: unknown): string {
-    if (typeof error === 'string') {
-      return error;
-    }
-
-    if (error && typeof error === 'object') {
-      const maybeMessage = (error as { message?: unknown }).message;
-      if (typeof maybeMessage === 'string' && maybeMessage.trim().length > 0) {
-        return maybeMessage;
-      }
-
-      try {
-        const stringified = JSON.stringify(error);
-        if (stringified && stringified !== '{}') {
-          return stringified;
-        }
-      } catch {
-        // Fall through to generic session error.
-      }
-    }
-
-    return 'Session error';
+    const message = serializeError(error);
+    return message === 'Unknown error' ? 'Session error' : message;
   }
 
   private createCompletionEnforcer(): CompletionEnforcer {
@@ -958,8 +950,9 @@ export class OpenCodeAdapter extends EventEmitter<OpenCodeAdapterEvents> {
       );
     } catch (err) {
       if (!this.isDisposed && !this.wasInterrupted) {
-        this.emit('error', err instanceof Error ? err : new Error(String(err)));
-        this.markComplete('error', err instanceof Error ? err.message : String(err));
+        const message = serializeError(err);
+        this.emit('error', err instanceof Error ? err : new Error(message));
+        this.markComplete('error', message);
       }
       return;
     }
@@ -977,8 +970,9 @@ export class OpenCodeAdapter extends EventEmitter<OpenCodeAdapterEvents> {
       }
     } catch (err) {
       if (!this.isDisposed && !this.wasInterrupted && !signal.aborted) {
-        this.emit('error', err instanceof Error ? err : new Error(String(err)));
-        this.markComplete('error', err instanceof Error ? err.message : String(err));
+        const message = serializeError(err);
+        this.emit('error', err instanceof Error ? err : new Error(message));
+        this.markComplete('error', message);
       }
     } finally {
       // Belt-and-braces teardown of the SDK subscription. The AbortSignal

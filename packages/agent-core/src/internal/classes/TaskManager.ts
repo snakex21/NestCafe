@@ -18,6 +18,7 @@ import {
 } from '../../opencode/message-processor.js';
 import { stopAzureFoundryProxy } from '../../opencode/proxies/azure-foundry-proxy.js';
 import { stopMoonshotProxy } from '../../opencode/proxies/moonshot-proxy.js';
+import { serializeError } from '../../utils/error.js';
 import { createConsoleLogger } from '../../utils/logging.js';
 
 const log = createConsoleLogger({ prefix: 'TaskManager' });
@@ -349,8 +350,9 @@ export class TaskManager {
           workingDirectory: config.workingDirectory || this.options.defaultWorkingDirectory,
         });
       } catch (error) {
-        log.error(`[TaskManager] Task startup failed for ${taskId}: ${error}`);
-        callbacks.onError(error instanceof Error ? error : new Error(String(error)));
+        const message = serializeError(error);
+        log.error(`[TaskManager] Task startup failed for ${taskId}: ${message}`);
+        callbacks.onError(error instanceof Error ? error : new Error(message));
         this.cleanupTask(taskId);
         this.processQueue();
       }
@@ -371,8 +373,9 @@ export class TaskManager {
       try {
         await this.executeTask(nextTask.taskId, nextTask.config, nextTask.callbacks);
       } catch (error) {
-        log.error(`[TaskManager] Error starting queued task ${nextTask.taskId}: ${error}`);
-        nextTask.callbacks.onError(error instanceof Error ? error : new Error(String(error)));
+        const message = serializeError(error);
+        log.error(`[TaskManager] Error starting queued task ${nextTask.taskId}: ${message}`);
+        nextTask.callbacks.onError(error instanceof Error ? error : new Error(message));
       }
     }
 
