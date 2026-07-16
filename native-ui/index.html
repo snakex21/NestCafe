@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="parity.css" />
     <link rel="stylesheet" href="execution.css" />
     <link rel="stylesheet" href="settings.css" />
+    <link rel="stylesheet" href="skills.css" />
   </head>
   <body class="empty-state">
     <div class="app-shell">
@@ -128,6 +129,19 @@
       </form>
       <input id="model-search" type="search" placeholder="Szukaj modelu lub providera…" />
       <div class="model-list" id="model-list"></div>
+    </dialog>
+
+    <dialog class="skills-dialog" id="skills-dialog">
+      <form method="dialog" class="skills-dialog-head">
+        <h2>Umiejętności</h2>
+        <button type="submit" aria-label="Zamknij">×</button>
+      </form>
+      <div class="skills-toolbar">
+        <input id="skills-search" type="search" placeholder="Szukaj umiejętności…" />
+        <span id="skills-summary">Ładowanie katalogu…</span>
+      </div>
+      <div class="skills-list" id="skills-list"></div>
+      <button class="skills-more" id="skills-more" type="button" hidden>Pokaż więcej</button>
     </dialog>
 
     <dialog class="provider-dialog" id="provider-dialog">
@@ -295,6 +309,7 @@
     <script src="plan.js" defer></script>
     <script src="search.js" defer></script>
     <script src="favorites.js" defer></script>
+    <script src="skills.js" defer></script>
     <script src="settings.js" defer></script>
   </body>
 </html>

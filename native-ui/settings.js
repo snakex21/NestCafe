@@ -2,6 +2,7 @@
 
 const settingsDialog = document.querySelector("#provider-dialog");
 const settingsModelDialog = document.querySelector("#model-dialog");
+const settingsSkillsDialog = document.querySelector("#skills-dialog");
 const settingsModelButton = document.querySelector("#model-button");
 const settingsProviderButton = document.querySelector("#provider-button");
 const settingsProviderList = document.querySelector("#provider-list");
@@ -17,7 +18,7 @@ settingsNavigation.innerHTML = `
   <nav>
     <button class="active" type="button" data-settings-action="providers">⌕&nbsp; Dostawcy</button>
     <button type="button" data-settings-action="models">◇&nbsp; Modele</button>
-    <button type="button" data-settings-action="skills" disabled>ϟ&nbsp; Umiejętności <small>wkrótce</small></button>
+    <button type="button" data-settings-action="skills">ϟ&nbsp; Umiejętności</button>
     <button type="button" data-settings-action="workspace">□&nbsp; Przestrzenie robocze</button>
     <button type="button" data-settings-action="plan">◎&nbsp; Plan pracy</button>
     <button type="button" data-settings-action="memory">◫&nbsp; Pamięć</button>
@@ -29,6 +30,11 @@ const modelSettingsNavigation = settingsNavigation.cloneNode(true);
 modelSettingsNavigation.querySelectorAll("nav button").forEach((button) => button.classList.remove("active"));
 modelSettingsNavigation.querySelector('[data-settings-action="models"]').classList.add("active");
 settingsModelDialog.prepend(modelSettingsNavigation);
+
+const skillSettingsNavigation = settingsNavigation.cloneNode(true);
+skillSettingsNavigation.querySelectorAll("nav button").forEach((button) => button.classList.remove("active"));
+skillSettingsNavigation.querySelector('[data-settings-action="skills"]').classList.add("active");
+settingsSkillsDialog.prepend(skillSettingsNavigation);
 
 const providerBrowseHead = document.createElement("div");
 providerBrowseHead.className = "provider-browse-head";
@@ -61,6 +67,12 @@ function handleSettingsNavigation(event, currentDialog) {
     currentDialog.close();
     settingsModelButton.click();
   }
+  if (action === "skills") {
+    if (currentDialog === settingsSkillsDialog) return;
+    currentDialog.close();
+    settingsSkillsDialog.showModal();
+    window.loadNestCafeSkills?.();
+  }
   if (action === "workspace") {
     currentDialog.close();
     document.querySelector("#workspace-button").click();
@@ -75,6 +87,7 @@ function handleSettingsNavigation(event, currentDialog) {
 
 settingsNavigation.addEventListener("click", (event) => handleSettingsNavigation(event, settingsDialog));
 modelSettingsNavigation.addEventListener("click", (event) => handleSettingsNavigation(event, settingsModelDialog));
+skillSettingsNavigation.addEventListener("click", (event) => handleSettingsNavigation(event, settingsSkillsDialog));
 
 providerBrowseHead.querySelector("input").addEventListener("input", (event) => {
   const query = event.target.value.trim().toLowerCase();
