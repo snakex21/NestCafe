@@ -95,3 +95,7 @@ packages/agent-core/mcp-tools/dev-browser/.browser-data/
 
 # Portable dev data directory
 apps/desktop/data/
+
+# SuperCli engine data when NestCafe is launched with an explicit home
+.supercli/
+supercli-data/

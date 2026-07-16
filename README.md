@@ -7,6 +7,10 @@
   </p>
 </p>
 
+> **Migracja do SuperCli:** pierwszy natywny pionowy przekrój bez Node można
+> uruchomić przez `run-native.bat`. Szczegóły opisuje
+> [`docs/supercli-migration.md`](docs/supercli-migration.md).
+
 <p align="center">
   <a href="#-quick-start">Quick Start</a> ·
   <a href="#-features">Features</a> ·
