@@ -6,6 +6,9 @@ $ErrorActionPreference = 'Stop'
 $project = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $ui = Join-Path $project 'native-ui'
 $enginePath = (Resolve-Path $Engine).Path
+$tempRoot = [System.IO.Path]::GetFullPath($env:TEMP)
+$testHome = Join-Path $tempRoot ("nestcafe-bridge-" + [guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $testHome | Out-Null
 
 $listener = [System.Net.Sockets.TcpListener]::new(
     [System.Net.IPAddress]::Loopback,
@@ -20,6 +23,7 @@ $arguments = @(
     '--no-window',
     '--echo',
     '--addr', "127.0.0.1:$port",
+    '--home', $testHome,
     '--workspace', $project,
     '--ui-dir', $ui
 )
@@ -59,14 +63,18 @@ try {
     }
 
     $providers = Invoke-RestMethod "$baseUrl/api/providers"
-    if ($null -eq $providers.providers -or $null -eq $providers.templates) {
+    $providerFields = @($providers.PSObject.Properties.Name)
+    if ($providerFields -notcontains 'providers' -or $providerFields -notcontains 'templates') {
         throw 'Provider settings contract is incomplete'
     }
     if (($providers | ConvertTo-Json -Depth 8) -match '"(api_key|APIKey)"') {
         throw 'Provider list exposed an API key field'
     }
 
-    $body = @{ prompt = 'NestCafe bridge contract test' } | ConvertTo-Json -Compress
+    $body = @{
+        prompt = 'NestCafe bridge contract test'
+        attachments = @((Join-Path $project 'README.md'))
+    } | ConvertTo-Json -Compress
     $chat = Invoke-WebRequest `
         -UseBasicParsing `
         -Method Post `
@@ -85,5 +93,10 @@ try {
     if (-not $process.HasExited) {
         Stop-Process -Id $process.Id -Force
         $process.WaitForExit()
+    }
+    $resolvedTestHome = [System.IO.Path]::GetFullPath($testHome)
+    $tempPrefix = $tempRoot.TrimEnd('\') + '\'
+    if ($resolvedTestHome.StartsWith($tempPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+        Remove-Item -LiteralPath $resolvedTestHome -Recurse -Force -ErrorAction SilentlyContinue
     }
 }

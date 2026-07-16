@@ -49,6 +49,9 @@ Gotowe elementy:
 - wyszukiwalny wybór modeli,
 - ustawienia providerów z bezpieczną obsługą kluczy,
 - pasywna diagnostyka serwerów bez uruchamiania inferencji.
+- wybór folderu roboczego przez natywne okno Windows,
+- załączanie do ośmiu plików bez kopiowania ich do bazy ani kodowania base64,
+- walidacja załączników tym samym sandboxem co narzędzia Word, Excel i PDF.
 
 Test kontraktowy:
 
@@ -58,7 +61,7 @@ powershell -ExecutionPolicy Bypass -File scripts/test-supercli-bridge.ps1
 
 ## Kolejność dalszej migracji
 
-1. Załączniki, wybór folderu i narzędzia Office.
+1. Widoki pracy z dokumentami oraz otwieranie gotowych wyników.
 2. Pamięć, cele, harmonogram oraz kolejka zadań.
 3. MCP i integracje potrzebne w pracy biurowej.
 4. Import danych użytkownika ze starej bazy NestCafe.
