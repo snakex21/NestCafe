@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
     <title>NestCafe</title>
+    <link rel="stylesheet" href="fonts.css" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="models.css" />
     <link rel="stylesheet" href="providers.css" />
@@ -13,27 +14,25 @@
     <link rel="stylesheet" href="plan.css" />
     <link rel="stylesheet" href="classic.css" />
     <link rel="stylesheet" href="home.css" />
+    <link rel="stylesheet" href="legacy.css" />
   </head>
   <body class="empty-state">
     <div class="app-shell">
       <aside class="sidebar">
-        <div class="brand">
-          <img class="brand-logo" src="nestcafe-icon.png" alt="" />
-          <div>
-            <strong>NestCafe</strong>
-            <span>Asystent biurowy</span>
-          </div>
-        </div>
+        <button class="workspace-button" id="workspace-button" type="button" title="Zmień folder roboczy">
+          Folder roboczy
+        </button>
 
-        <button class="new-chat" id="new-chat" type="button">
-          <span aria-hidden="true">＋</span>
-          Nowa rozmowa
-        </button>
-        <button class="plan-button" id="plan-button" type="button">
-          <span aria-hidden="true">◎</span>
-          Plan pracy
-          <small id="plan-badge" hidden></small>
-        </button>
+        <div class="sidebar-actions">
+          <button class="new-chat" id="new-chat" type="button">
+            <span aria-hidden="true">＋</span>
+            Nowe zadanie
+          </button>
+          <button class="plan-button" id="plan-button" type="button" title="Plan pracy" aria-label="Plan pracy">
+            <span aria-hidden="true">◎</span>
+            <small id="plan-badge" hidden></small>
+          </button>
+        </div>
 
         <div class="sidebar-heading">
           <span>Ostatnie rozmowy</span>
@@ -42,35 +41,31 @@
         <nav class="session-list" id="session-list" aria-label="Ostatnie rozmowy"></nav>
 
         <div class="engine-state">
-          <span class="status-dot" id="status-dot"></span>
-          <div>
-            <strong id="engine-label">Łączenie z SuperCli…</strong>
-            <span id="model-label">Sprawdzam model</span>
+          <div class="sidebar-brand">
+            <img class="brand-logo" src="nestcafe-icon.png" alt="" />
+            <strong>NestCafe</strong>
           </div>
+          <div class="sidebar-settings">
+            <span class="status-dot" id="status-dot"></span>
+            <button class="provider-button" id="provider-button" type="button" title="Ustawienia dostawców" aria-label="Ustawienia dostawców">⚙</button>
+          </div>
+          <span id="engine-label" hidden>Łączenie z SuperCli…</span>
+          <span id="model-label" hidden>Sprawdzam model</span>
         </div>
       </aside>
 
       <main class="workspace">
         <header class="topbar">
-          <div>
-            <span class="eyebrow">PRZESTRZEŃ ROBOCZA</span>
-            <h1 id="conversation-title">Dzień dobry</h1>
-          </div>
-          <div class="topbar-actions">
-            <button class="workspace-button" id="workspace-button" type="button" title="Zmień folder roboczy">
-              Folder roboczy
-            </button>
-            <button class="provider-button" id="provider-button" type="button">Dostawcy</button>
-            <button class="model-button" id="model-button" type="button">Wybierz model</button>
-            <div class="run-state" id="run-state">Gotowy</div>
-          </div>
+          <button class="execution-back" id="execution-back" type="button" aria-label="Wróć do strony głównej">←</button>
+          <h1 id="conversation-title">Dzień dobry</h1>
+          <div class="run-state" id="run-state">Gotowy</div>
         </header>
 
         <section class="conversation" id="conversation" aria-live="polite">
           <div class="welcome" id="welcome">
-            <img class="welcome-logo" src="nestcafe-icon.png" alt="" />
             <h2>Co dziś osiągniesz?</h2>
             <div class="welcome-examples">
+              <h3>Przykładowe zadania</h3>
               <button type="button" data-example-prompt="Przygotuj uporządkowaną notatkę ze spotkania.">
                 <strong>Notatka ze spotkania</strong>
                 <span>Uporządkuj ustalenia i kolejne kroki.</span>
@@ -101,6 +96,7 @@
               <span>Enter wysyła · Shift+Enter dodaje nową linię</span>
             </div>
             <div class="composer-actions">
+              <button class="model-button" id="model-button" type="button">Wybierz model</button>
               <button class="stop-button" id="stop-button" type="button" hidden>Zatrzymaj</button>
               <button class="send-button" id="send-button" type="submit">Wyślij</button>
             </div>
