@@ -80,8 +80,14 @@ try {
 
     $goal = Invoke-WebRequest -UseBasicParsing "$baseUrl/api/goal"
     $memory = Invoke-WebRequest -UseBasicParsing "$baseUrl/api/memory?limit=5"
+    $skills = Invoke-RestMethod "$baseUrl/api/skills?limit=5"
     $tasks = Invoke-WebRequest -UseBasicParsing "$baseUrl/api/tasks"
-    if ($goal.StatusCode -ne 200 -or $memory.StatusCode -ne 200 -or $tasks.StatusCode -ne 200) {
+    if (
+        $goal.StatusCode -ne 200 -or
+        $memory.StatusCode -ne 200 -or
+        $null -eq $skills.items -or
+        $tasks.StatusCode -ne 200
+    ) {
         throw 'Work plan API contract is incomplete'
     }
 
