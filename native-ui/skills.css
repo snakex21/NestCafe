@@ -10,7 +10,7 @@
   border: 0;
   background: #fafaf8;
   color: #252a25;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: var(--settings-nav) minmax(0, 1fr);
   grid-template-rows: 65px 82px minmax(0, 1fr) 68px;
 }
 
@@ -39,8 +39,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  width: min(860px, calc(100% - 64px));
-  margin: 0 auto;
+  width: min(1080px, calc(100% - clamp(48px, 10vw, 180px)));
+  margin: 0 0 0 clamp(24px, 6vw, 100px);
 }
 
 .skills-toolbar input {
@@ -59,8 +59,8 @@
 .skills-list {
   grid-column: 2;
   grid-row: 3;
-  width: min(860px, calc(100% - 64px));
-  margin: 0 auto;
+  width: min(1080px, calc(100% - clamp(48px, 10vw, 180px)));
+  margin: 0 0 0 clamp(24px, 6vw, 100px);
   overflow-y: auto;
 }
 
@@ -72,9 +72,9 @@
   border-bottom: 1px solid #e8e9e4;
 }
 
-.skill-row strong { font-size: 13px; font-weight: 620; }
-.skill-row p { grid-column: 1; margin: 0; color: #686f68; font-size: 11px; line-height: 1.5; }
-.skill-row small { grid-column: 2; grid-row: 1 / 3; align-self: center; color: #858b85; font: 10px Consolas, monospace; }
+.skill-row strong { font-size: 14px; font-weight: 620; }
+.skill-row p { grid-column: 1; margin: 0; color: #686f68; font-size: 12px; line-height: 1.5; }
+.skill-row small { grid-column: 2; grid-row: 1 / 3; align-self: center; color: #858b85; font: 10.5px Consolas, monospace; }
 .skill-row:hover { background: linear-gradient(90deg, transparent, #f4f5f1 5%, #f4f5f1 95%, transparent); }
 
 .skills-empty { padding: 90px 20px; color: #777d77; text-align: center; }
@@ -94,9 +94,16 @@
 
 .skills-more:hover { background: #f2f3ef; }
 
-@media (max-width: 760px) {
-  .skills-dialog { grid-template-columns: 205px minmax(0, 1fr); }
-  .skills-toolbar, .skills-list { width: calc(100% - 38px); }
+@media (max-width: 900px) {
+  .skills-dialog {
+    grid-template-columns: 1fr;
+    grid-template-rows: 52px 56px 78px minmax(0, 1fr) 58px;
+  }
+  .skills-dialog .settings-navigation { grid-column: 1; grid-row: 1; }
+  .skills-dialog-head { grid-column: 1; grid-row: 2; padding-inline: 20px; }
+  .skills-toolbar { grid-column: 1; grid-row: 3; width: calc(100% - 40px); margin: 0 20px; }
+  .skills-list { grid-column: 1; grid-row: 4; width: calc(100% - 40px); margin: 0 20px; }
+  .skills-more { grid-column: 1; grid-row: 5; }
   .skills-toolbar { align-items: stretch; flex-direction: column; justify-content: center; gap: 7px; }
   .skills-toolbar input { width: 100%; }
 }

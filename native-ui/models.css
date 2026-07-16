@@ -77,9 +77,9 @@
 
 .model-row {
   display: grid;
-  grid-template-columns: 10px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 11px;
+  gap: 18px;
   width: 100%;
   padding: 11px 12px;
   border: 0;
@@ -90,8 +90,6 @@
 }
 
 .model-row:hover, .model-row.active { background: var(--surface-raised); }
-.model-row .dot { width: 7px; height: 7px; border-radius: 50%; background: #55584f; }
-.model-row.active .dot { background: var(--success); }
 .model-row strong { display: block; overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
 .model-row small { color: var(--muted); font-size: 11px; }
 .model-row .caps { color: #777a71; font: 10px Consolas, monospace; }
@@ -111,7 +109,7 @@
   background: #fafaf8;
   color: #252a25;
   box-shadow: none;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: var(--settings-nav) minmax(0, 1fr);
   grid-template-rows: 65px 74px minmax(0, 1fr);
 }
 
@@ -135,9 +133,9 @@
 #model-search {
   grid-column: 2;
   grid-row: 2;
-  width: min(720px, calc(100% - 64px));
+  width: min(940px, calc(100% - clamp(48px, 10vw, 180px)));
   height: 40px;
-  margin: 20px auto 14px;
+  margin: 20px 0 14px clamp(24px, 6vw, 100px);
   border-color: #dedfda;
   border-radius: 5px;
   background: #fff;
@@ -151,9 +149,9 @@
   grid-column: 2;
   grid-row: 3;
   align-content: start;
-  width: min(760px, calc(100% - 64px));
+  width: min(980px, calc(100% - clamp(48px, 10vw, 180px)));
   max-height: none;
-  margin: 0 auto;
+  margin: 0 0 0 clamp(24px, 6vw, 100px);
   padding: 8px 0 48px;
 }
 
@@ -166,13 +164,17 @@
 
 .model-row:hover { background: #f3f3f0; }
 .model-row.active { border-radius: 5px; background: #e9efe8; }
-.model-row .dot { background: #c7cbc7; }
-.model-row.active .dot { background: #26743a; }
 .model-row strong { color: #252a25; }
 .model-row small { color: #777d77; }
 .model-row .caps { color: #858b85; }
 
-@media (max-width: 760px) {
-  .model-dialog { grid-template-columns: 205px minmax(0, 1fr); }
-  #model-search, .model-list { width: calc(100% - 38px); }
+@media (max-width: 900px) {
+  .model-dialog {
+    grid-template-columns: 1fr;
+    grid-template-rows: 52px 56px 68px minmax(0, 1fr);
+  }
+  .model-dialog .settings-navigation { grid-column: 1; grid-row: 1; }
+  .model-dialog-head { grid-column: 1; grid-row: 2; padding-inline: 20px; }
+  #model-search { grid-column: 1; grid-row: 3; width: calc(100% - 40px); margin: 14px 20px; }
+  .model-list { grid-column: 1; grid-row: 4; width: calc(100% - 40px); margin: 0 20px; }
 }

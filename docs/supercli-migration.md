@@ -60,11 +60,12 @@ Gotowe elementy:
 - status silnika i aktywnego modelu.
 - wyszukiwalny wybór modeli,
 - pełnoekranowy katalog modeli ze wspólną nawigacją ustawień,
-- katalog 1410 umiejętności z wyszukiwaniem i doładowywaniem stron bez
-  odczytywania treści skills ani wpływu na prompt modelu,
+- katalog umiejętności ładowany stronami wyłącznie na żądanie użytkownika,
 - ustawienia providerów z bezpieczną obsługą kluczy,
 - pełnoekranowe ustawienia dostawców z katalogiem gotowych połączeń,
   wyszukiwaniem i przejściem do modeli, pamięci, celu oraz folderu roboczego,
+- responsywny układ ustawień: tekstowa nawigacja, elastyczne kolumny oraz
+  pełnoekranowe strony Planu i Pamięci zamiast osobnych modalnych paneli,
 - pasywna diagnostyka serwerów bez uruchamiania inferencji.
 - wybór folderu roboczego przez natywne okno Windows,
 - załączanie do ośmiu plików bez kopiowania ich do bazy ani kodowania base64,

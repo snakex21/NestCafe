@@ -42,8 +42,6 @@ function renderModels() {
     const row = document.createElement("button");
     row.type = "button";
     row.className = `model-row${model.id === activeModel && model.provider === activeProvider ? " active" : ""}`;
-    const dot = document.createElement("span");
-    dot.className = "dot";
     const identity = document.createElement("span");
     const name = document.createElement("strong");
     name.textContent = model.id;
@@ -53,7 +51,7 @@ function renderModels() {
     const caps = document.createElement("span");
     caps.className = "caps";
     caps.textContent = modelCapabilities(model);
-    row.append(dot, identity, caps);
+    row.append(identity, caps);
     row.addEventListener("click", () => selectModel(model));
     modelList.appendChild(row);
   }

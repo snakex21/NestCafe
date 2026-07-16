@@ -221,11 +221,17 @@ async function loadMemory() {
   }
 }
 
-document.querySelectorAll("[data-plan-tab]").forEach((button) => {
-  button.addEventListener("click", () => {
-    document.querySelectorAll("[data-plan-tab]").forEach((item) => item.classList.toggle("active", item === button));
-    document.querySelectorAll(".plan-panel").forEach((panel) => panel.classList.toggle("active", panel.id === `plan-${button.dataset.planTab}`));
+function activatePlanTab(name) {
+  document.querySelectorAll("[data-plan-tab]").forEach((item) => {
+    item.classList.toggle("active", item.dataset.planTab === name);
   });
+  document.querySelectorAll(".plan-panel").forEach((panel) => {
+    panel.classList.toggle("active", panel.id === `plan-${name}`);
+  });
+}
+
+document.querySelectorAll("[data-plan-tab]").forEach((button) => {
+  button.addEventListener("click", () => activatePlanTab(button.dataset.planTab));
 });
 
 goalCreate.addEventListener("submit", async (event) => {
@@ -265,11 +271,19 @@ document.querySelector("#queue-add").addEventListener("submit", async (event) =>
 });
 document.querySelector("#run-queue").addEventListener("click", () => runQueuedTask(queuedTasks[0]));
 document.querySelector("#refresh-memory").addEventListener("click", loadMemory);
-document.querySelector("#plan-button").addEventListener("click", () => {
+function openPlanDialog(page = "goal") {
+  const memoryView = page === "memory";
+  planDialog.classList.toggle("memory-view", memoryView);
+  document.querySelector(".plan-head h2").textContent = memoryView ? "Pamięć" : "Plan pracy";
+  activatePlanTab(memoryView ? "memory" : page);
+  window.setNestCafePlanNavigation?.(memoryView ? "memory" : "plan");
   planDialog.showModal();
   Promise.all([loadGoal(), loadQueue(), loadMemory()]);
-});
+}
+
+document.querySelector("#plan-button").addEventListener("click", () => openPlanDialog("goal"));
 document.querySelector("#close-plan").addEventListener("click", () => planDialog.close());
+window.openNestCafePlan = openPlanDialog;
 
 window.enqueueNestCafePrompt = (prompt) => enqueueTask(prompt, true);
 window.onNestCafeRunFinished = async () => {

@@ -69,15 +69,13 @@ function renderProviderList() {
     const row = document.createElement("button");
     row.type = "button";
     row.className = `provider-row${selectedProvider?.name === provider.name ? " active" : ""}${provider.disabled ? " disabled" : ""}`;
-    const dot = document.createElement("span");
-    dot.className = "dot";
     const text = document.createElement("span");
     const name = document.createElement("strong");
     name.textContent = provider.name;
     const meta = document.createElement("small");
     meta.textContent = provider.disabled ? "wyłączony" : `${provider.models.length} modeli`;
     text.append(name, meta);
-    row.append(dot, text);
+    row.append(text);
     row.addEventListener("click", () => editProvider(provider));
     providerList.appendChild(row);
   }
@@ -95,7 +93,7 @@ function renderProviderList() {
     const row = document.createElement("button");
     row.type = "button";
     row.className = "provider-row template";
-    row.innerHTML = `<span class="dot"></span><span><strong></strong><small></small></span>`;
+    row.innerHTML = `<span><strong></strong><small></small></span>`;
     row.querySelector("strong").textContent = field(template, "name");
     row.querySelector("small").textContent = field(template, "desc") || "Gotowy szablon";
     row.addEventListener("click", () => {
