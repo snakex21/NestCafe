@@ -119,3 +119,7 @@ document.querySelector("#add-provider").addEventListener("click", () => settings
 settingsProviderList.addEventListener("click", (event) => {
   if (event.target.closest(".provider-row")) settingsDialog.classList.remove("no-selection");
 });
+document.querySelector("#module-add")?.addEventListener("click", () => {
+  settingsSkillsDialog.showModal();
+  window.loadNestCafeSkills?.();
+});

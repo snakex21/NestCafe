@@ -27,7 +27,11 @@
           Folder roboczy
         </button>
 
-        <div class="module-heading"><span>Moduły</span></div>
+        <div class="module-heading">
+          <span>Moduły</span>
+          <button id="module-add" type="button" title="Przeglądaj umiejętności">+</button>
+        </div>
+        <p class="module-empty">Brak modułów. Kliknij +, by wybrać.</p>
         <button class="plan-button" id="plan-button" type="button">
           <span aria-hidden="true">◎</span> Plan pracy <small id="plan-badge" hidden></small>
         </button>
@@ -40,7 +44,7 @@
           <button class="search-button" id="search-sessions" type="button" title="Szukaj rozmów" aria-label="Szukaj rozmów">⌕</button>
         </div>
 
-        <button class="clear-sessions" id="clear-sessions" type="button" hidden>⌫&nbsp; Usuń wszystkie rozmowy</button>
+        <button class="clear-sessions" id="clear-sessions" type="button">Usuń wszystkie rozmowy</button>
         <div class="sidebar-heading">
           <span>Ostatnie rozmowy</span>
           <button id="refresh-sessions" type="button" title="Odśwież">↻</button>
