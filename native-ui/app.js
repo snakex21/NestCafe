@@ -109,9 +109,12 @@ function processSseFrame(frame, current) {
   }
 }
 
-async function sendPrompt(text) {
+async function sendPrompt(text, attachments = []) {
   if (running || !text.trim()) return;
   addMessage("user", text.trim());
+  if (attachments.length) {
+    addActivity("Załączniki", attachments.map((path) => path.split(/[\\/]/).pop()).join(" · "));
+  }
   title.textContent = text.trim().slice(0, 56);
   setRunning(true);
   abortController = new AbortController();
@@ -120,10 +123,11 @@ async function sendPrompt(text) {
     const response = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: text.trim(), session_id: activeSession }),
+      body: JSON.stringify({ prompt: text.trim(), session_id: activeSession, attachments }),
       signal: abortController.signal,
     });
     if (!response.ok || !response.body) throw new Error((await response.text()).trim() || `HTTP ${response.status}`);
+    window.clearNestCafeAttachments?.();
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
@@ -156,6 +160,7 @@ async function loadHealth() {
     $("#status-dot").classList.add("online");
     $("#engine-label").textContent = "SuperCli połączone";
     $("#model-label").textContent = health.model || "Brak wybranego modelu";
+    window.setNestCafeWorkspace?.(health.home || "");
   } catch (error) {
     $("#engine-label").textContent = "Brak połączenia";
     $("#model-label").textContent = error.message;
@@ -214,6 +219,7 @@ function newConversation() {
       <p>Napisz, co trzeba przygotować, sprawdzić lub uporządkować.</p>
     </div>`;
   title.textContent = "Dzień dobry";
+  window.clearNestCafeAttachments?.();
   loadSessions();
   promptInput.focus();
 }
@@ -221,9 +227,10 @@ function newConversation() {
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   const text = promptInput.value;
+  const attachments = window.getNestCafeAttachments?.() || [];
   promptInput.value = "";
   promptInput.style.height = "auto";
-  sendPrompt(text);
+  sendPrompt(text, attachments);
 });
 
 promptInput.addEventListener("keydown", (event) => {
@@ -244,3 +251,4 @@ $("#refresh-sessions").addEventListener("click", loadSessions);
 
 Promise.all([loadHealth(), loadSessions()]).finally(() => promptInput.focus());
 window.refreshNestCafeHealth = loadHealth;
+window.startNestCafeConversation = newConversation;
