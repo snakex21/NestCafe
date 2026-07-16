@@ -7,8 +7,9 @@
   </p>
 </p>
 
-> **Migracja do SuperCli:** pierwszy natywny pionowy przekrój bez Node można
-> uruchomić przez `run-native.bat`. Szczegóły opisuje
+> **Migracja do SuperCli:** natywną wersję bez Node można zbudować przez
+> `build-native.bat` i uruchomić jako pojedynczy `NestCafe.exe`.
+> `run-native.bat` wykona build automatycznie, jeśli będzie potrzebny. Szczegóły opisuje
 > [`docs/supercli-migration.md`](docs/supercli-migration.md).
 
 <p align="center">

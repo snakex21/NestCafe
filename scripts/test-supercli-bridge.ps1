@@ -1,5 +1,6 @@
 param(
-    [string]$Engine = (Join-Path $PSScriptRoot '..\..\SuperCli\supercli-web.exe')
+    [string]$Engine = (Join-Path $PSScriptRoot '..\..\SuperCli\supercli-web.exe'),
+    [switch]$UseBundledUI
 )
 
 $ErrorActionPreference = 'Stop'
@@ -24,9 +25,11 @@ $arguments = @(
     '--echo',
     '--addr', "127.0.0.1:$port",
     '--home', $testHome,
-    '--workspace', $project,
-    '--ui-dir', $ui
+    '--workspace', $project
 )
+if (-not $UseBundledUI) {
+    $arguments += @('--ui-dir', $ui)
+}
 
 $process = Start-Process `
     -FilePath $enginePath `

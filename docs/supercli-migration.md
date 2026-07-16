@@ -28,14 +28,18 @@ supercli-web.exe (Go + natywne okno WebView2)
 Polecenie:
 
 ```bat
-run-native.bat
+build-native.bat
 ```
 
-Launcher uruchamia `supercli-web.exe` z:
+Polecenie tworzy pojedynczy `NestCafe.exe` bez okna konsoli. Interfejs z
+`native-ui/` jest osadzony w binarce i nie musi być kopiowany obok programu.
+`run-native.bat` automatycznie wykona build, jeśli pliku EXE jeszcze nie ma.
 
-- przenośną konfiguracją providerów SuperCli,
-- workspace ustawionym na katalog NestCafe,
-- interfejsem z `native-ui/`.
+Gotowa aplikacja korzysta z:
+
+- przenośnej konfiguracji providerów SuperCli,
+- zapamiętanego folderu roboczego,
+- interfejsu osadzonego bezpośrednio w `NestCafe.exe`.
 
 Gotowe elementy:
 
