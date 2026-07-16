@@ -1,0 +1,172 @@
+.provider-dialog {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #fafaf8;
+  box-shadow: none;
+  grid-template-columns: 240px 320px minmax(0, 1fr);
+  grid-template-rows: 65px minmax(0, 1fr);
+}
+
+.provider-dialog[open] { display: grid; }
+.provider-dialog::backdrop { background: #fafaf8; backdrop-filter: none; }
+
+.settings-navigation {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  padding: 20px 16px;
+  border-right: 1px solid var(--line);
+  background: #f7f7f4;
+}
+
+.settings-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 22px;
+  padding: 0 10px;
+}
+
+.settings-brand img {
+  width: 22px;
+  height: 22px;
+  clip-path: inset(17% round 4px);
+  transform: scale(1.4);
+}
+
+.settings-brand strong { font-size: 15px; }
+
+.settings-navigation > button,
+.settings-navigation nav button {
+  width: 100%;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #4c534c;
+  text-align: left;
+  cursor: pointer;
+}
+
+.settings-navigation > button { margin-bottom: 10px; }
+.settings-navigation nav { display: grid; gap: 3px; padding-top: 10px; border-top: 1px solid var(--line); }
+.settings-navigation nav button.active { border: 1px solid #e0e1dc; background: #fff; color: #202520; box-shadow: 0 2px 7px rgba(32,37,32,.04); }
+.settings-navigation nav button:hover:not(:disabled) { background: #f0f0ed; }
+.settings-navigation nav button:disabled { color: #a0a5a0; cursor: default; }
+.settings-navigation nav small { float: right; color: #a3a8a3; font-size: 9px; }
+
+.provider-dialog-head {
+  grid-column: 2 / 4;
+  grid-row: 1;
+  padding: 0 31px;
+  border-bottom: 1px solid var(--line);
+  background: #fcfcfb;
+}
+
+.provider-dialog-head .eyebrow { display: none; }
+.provider-dialog-head h2 { margin: 0; font-size: 18px; }
+.provider-dialog-head #close-providers { display: none; }
+
+.provider-layout {
+  display: grid;
+  grid-column: 2 / 4;
+  grid-row: 2;
+  grid-template-columns: 320px minmax(0, 1fr);
+  min-height: 0;
+}
+
+.provider-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 18px 16px;
+  border-right: 1px solid var(--line);
+  background: #fbfbf9;
+}
+
+.provider-browse-head {
+  display: grid;
+  gap: 13px;
+  margin-bottom: 10px;
+}
+
+.provider-browse-head > div { display: grid; gap: 4px; }
+.provider-browse-head strong { font-size: 14px; }
+.provider-browse-head span { color: #737a73; font-size: 11px; }
+
+.provider-browse-head input {
+  width: 100%;
+  padding: 10px 11px;
+  border: 1px solid #dedfda;
+  border-radius: 5px;
+  outline: 0;
+  background: #fff;
+  color: #303630;
+}
+
+.provider-browse-head input:focus { border-color: #aeb6ae; }
+
+.add-provider {
+  order: -1;
+  align-self: end;
+  width: 35px;
+  height: 35px;
+  margin-bottom: -35px;
+  padding: 0;
+  overflow: hidden;
+  border-color: #dedfda;
+  color: #4f564f;
+  font-size: 16px;
+}
+
+.provider-list {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.provider-group-label {
+  padding: 13px 8px 6px;
+  color: #8a908a;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .08em;
+}
+
+.provider-row { border-radius: 5px; }
+.provider-row.template strong { text-transform: capitalize; }
+.provider-row.template .dot { background: #c7cbc7; }
+
+.provider-form {
+  width: min(720px, calc(100% - 64px));
+  margin: 0 auto;
+  padding: 34px 0 50px;
+  overflow-y: auto;
+}
+
+.provider-empty-state {
+  display: none;
+  grid-column: 2;
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+  color: #6d746d;
+  text-align: center;
+}
+
+.provider-empty-state strong { color: #272c27; font-size: 14px; }
+.provider-empty-state span { max-width: 460px; font-size: 12px; }
+.provider-dialog.no-selection .provider-form { display: none; }
+.provider-dialog.no-selection .provider-empty-state { display: grid; }
+
+@media (max-width: 980px) {
+  .provider-dialog { grid-template-columns: 205px 270px minmax(0, 1fr); }
+  .provider-layout { grid-template-columns: 270px minmax(0, 1fr); }
+  .provider-form { width: calc(100% - 38px); }
+}
