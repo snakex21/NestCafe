@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="classic.css" />
     <link rel="stylesheet" href="home.css" />
     <link rel="stylesheet" href="legacy.css" />
+    <link rel="stylesheet" href="parity.css" />
   </head>
   <body class="empty-state">
     <div class="app-shell">
@@ -23,17 +24,20 @@
           Folder roboczy
         </button>
 
+        <div class="module-heading"><span>Moduły</span></div>
+        <button class="plan-button" id="plan-button" type="button">
+          <span aria-hidden="true">◎</span> Plan pracy <small id="plan-badge" hidden></small>
+        </button>
+
         <div class="sidebar-actions">
           <button class="new-chat" id="new-chat" type="button">
             <span aria-hidden="true">＋</span>
             Nowe zadanie
           </button>
-          <button class="plan-button" id="plan-button" type="button" title="Plan pracy" aria-label="Plan pracy">
-            <span aria-hidden="true">◎</span>
-            <small id="plan-badge" hidden></small>
-          </button>
+          <button class="search-button" id="search-sessions" type="button" title="Szukaj rozmów" aria-label="Szukaj rozmów">⌕</button>
         </div>
 
+        <button class="clear-sessions" id="clear-sessions" type="button" hidden>⌫&nbsp; Usuń wszystkie rozmowy</button>
         <div class="sidebar-heading">
           <span>Ostatnie rozmowy</span>
           <button id="refresh-sessions" type="button" title="Odśwież">↻</button>
@@ -64,20 +68,27 @@
         <section class="conversation" id="conversation" aria-live="polite">
           <div class="welcome" id="welcome">
             <h2>Co dziś osiągniesz?</h2>
+            <div class="favorites" id="favorites"><h3>Ulubione</h3><p>Oznacz gwiazdką ukończone rozmowy, by zobaczyć je tutaj.</p><div id="favorite-list"></div></div>
             <div class="welcome-examples">
               <h3>Przykładowe zadania</h3>
-              <button type="button" data-example-prompt="Przygotuj uporządkowaną notatkę ze spotkania.">
-                <strong>Notatka ze spotkania</strong>
-                <span>Uporządkuj ustalenia i kolejne kroki.</span>
+              <button type="button" data-example-prompt="Przejrzyj jutrzejsze spotkania i przygotuj notatki.">
+                <strong>Notatki do spotkań</strong>
+                <span>Przejrzyj jutrzejsze spotkania i przygotuj notatki.</span>
+                <span class="example-icons"><img src="google-calendar.png" alt="" /><img src="google-docs.png" alt="" /></span>
               </button>
-              <button type="button" data-example-prompt="Przeanalizuj wskazany dokument i wypisz najważniejsze punkty.">
-                <strong>Analiza dokumentu</strong>
-                <span>Wyciągnij najważniejsze informacje.</span>
+              <button type="button" data-example-prompt="Usuń maile promocyjne z ostatnich 24 godzin.">
+                <strong>Czyszczenie skrzynki</strong>
+                <span>Usuń maile promocyjne z ostatnich 24 godzin.</span>
+                <span class="example-icons"><img src="gmail.png" alt="" /></span>
               </button>
-              <button type="button" data-example-prompt="Ułóż krótką, profesjonalną wiadomość e-mail.">
-                <strong>Wiadomość e-mail</strong>
-                <span>Przygotuj zwięzłą odpowiedź.</span>
+              <button type="button" data-example-prompt="Przeanalizuj ceny konkurencji i przygotuj rekomendacje.">
+                <strong>Analiza cen konkurencji</strong>
+                <span>Przeanalizuj ceny i przygotuj rekomendacje.</span>
+                <span class="example-icons"><img src="google-slides.png" alt="" /><img src="google-sheets.png" alt="" /></span>
               </button>
+              <button type="button" data-example-prompt="Przeskanuj wiki Notion pod kątem starych wzmianek o API."><strong>Audyt API w Notion</strong><span>Znajdź stare wzmianki o API wraz z linkami.</span><span class="example-icons"><img src="notion.png" alt="" /></span></button>
+              <button type="button" data-example-prompt="Porównaj wizualnie stronę staging z produkcyjną."><strong>Porównanie staging vs prod</strong><span>Porównaj obie strony za pomocą zrzutów ekranu.</span><span class="example-icons"><img src="chrome.png" alt="" /></span></button>
+              <button type="button" data-example-prompt="Sprawdź stronę pod kątem uszkodzonych linków."><strong>Uszkodzone linki</strong><span>Znajdź wszystkie niedziałające odnośniki.</span><span class="example-icons"><img src="chrome.png" alt="" /></span></button>
             </div>
           </div>
         </section>
@@ -87,12 +98,12 @@
           <textarea
             id="prompt"
             rows="1"
-            placeholder="Napisz wiadomość do NestCafe…"
+            placeholder="Opisz zadanie, a AI zajmie się resztą"
             aria-label="Wiadomość"
           ></textarea>
           <div class="composer-footer">
             <div class="composer-context">
-              <button class="attach-button" id="attach-button" type="button">＋ Załącz plik</button>
+              <button class="attach-button" id="attach-button" type="button" title="Załącz plik" aria-label="Załącz plik">＋</button>
               <span>Enter wysyła · Shift+Enter dodaje nową linię</span>
             </div>
             <div class="composer-actions">
@@ -279,5 +290,7 @@
     <script src="attachments.js" defer></script>
     <script src="results.js" defer></script>
     <script src="plan.js" defer></script>
+    <script src="search.js" defer></script>
+    <script src="favorites.js" defer></script>
   </body>
 </html>

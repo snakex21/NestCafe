@@ -177,16 +177,20 @@ async function loadHealth() {
 async function loadSessions() {
   try {
     const sessions = await json("/api/sessions?limit=30");
+    $("#clear-sessions").hidden = sessions.length === 0;
     sessionList.replaceChildren();
     for (const session of sessions) {
       const button = document.createElement("button");
       button.type = "button";
       button.className = `session-item${session.id === activeSession ? " active" : ""}`;
+      const dot = document.createElement("i");
+      dot.className = "session-dot";
       const name = document.createElement("strong");
       name.textContent = session.first_user_msg || "Rozmowa";
       const meta = document.createElement("span");
       meta.textContent = `${session.message_count || 0} wiadomości · ${session.model || "model"}`;
-      button.append(name, meta);
+      button.append(dot, name, meta);
+      window.decorateNestCafeSession?.(button, session);
       button.addEventListener("click", () => openSession(session));
       sessionList.appendChild(button);
     }
@@ -228,6 +232,7 @@ function newConversation() {
   activeSession = "";
   toolRows.clear();
   conversation.innerHTML = welcomeHTML;
+  window.renderNestCafeFavorites?.();
   document.body.classList.add("empty-state");
   title.textContent = "Dzień dobry";
   window.clearNestCafeAttachments?.();
