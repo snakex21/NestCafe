@@ -7,6 +7,7 @@
     <title>NestCafe</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="models.css" />
+    <link rel="stylesheet" href="providers.css" />
   </head>
   <body>
     <div class="app-shell">
@@ -46,6 +47,7 @@
             <h1 id="conversation-title">Dzień dobry</h1>
           </div>
           <div class="topbar-actions">
+            <button class="provider-button" id="provider-button" type="button">Dostawcy</button>
             <button class="model-button" id="model-button" type="button">Wybierz model</button>
             <div class="run-state" id="run-state">Gotowy</div>
           </div>
@@ -92,8 +94,90 @@
       <div class="model-list" id="model-list"></div>
     </dialog>
 
+    <dialog class="provider-dialog" id="provider-dialog">
+      <div class="provider-dialog-head">
+        <div>
+          <span class="eyebrow">POŁĄCZENIA AI</span>
+          <h2>Dostawcy modeli</h2>
+        </div>
+        <button id="close-providers" type="button" aria-label="Zamknij">×</button>
+      </div>
+
+      <div class="provider-layout">
+        <aside class="provider-sidebar">
+          <button class="add-provider" id="add-provider" type="button">＋ Dodaj dostawcę</button>
+          <div class="provider-list" id="provider-list"></div>
+        </aside>
+
+        <form class="provider-form" id="provider-form">
+          <div class="provider-form-title">
+            <div>
+              <span class="eyebrow" id="provider-mode">NOWE POŁĄCZENIE</span>
+              <h3 id="provider-title">Dodaj dostawcę</h3>
+            </div>
+            <span class="provider-status" id="provider-status">Nie sprawdzono</span>
+          </div>
+
+          <label>
+            <span>Gotowy szablon</span>
+            <select id="provider-template">
+              <option value="">Własna konfiguracja</option>
+            </select>
+          </label>
+
+          <div class="provider-grid">
+            <label>
+              <span>Nazwa</span>
+              <input id="provider-name" autocomplete="off" required />
+            </label>
+            <label>
+              <span>Typ API</span>
+              <select id="provider-type">
+                <option value="openai">OpenAI compatible</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="codex">Konto Codex</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            <span>Adres serwera</span>
+            <input id="provider-url" type="url" placeholder="http://localhost:1234/v1" required />
+          </label>
+
+          <label>
+            <span>Domyślny model <small>opcjonalnie</small></span>
+            <input id="provider-model" autocomplete="off" placeholder="np. gpt-5 lub nazwa modelu lokalnego" />
+          </label>
+
+          <label>
+            <span>Klucz API <small id="provider-key-hint">pozostaw pusty, jeśli serwer go nie wymaga</small></span>
+            <input id="provider-key" type="password" autocomplete="new-password" />
+          </label>
+
+          <div class="provider-options" id="provider-options" hidden>
+            <label><input id="provider-disabled" type="checkbox" /> Zachowaj, ale wyłącz dostawcę</label>
+            <label><input id="provider-clear-key" type="checkbox" /> Usuń zapisany klucz</label>
+          </div>
+
+          <div class="provider-diagnostic" id="provider-diagnostic">
+            Po zapisaniu NestCafe sprawdzi endpoint modeli bez uruchamiania inferencji.
+          </div>
+
+          <div class="provider-actions">
+            <button class="danger-button" id="delete-provider" type="button" hidden>Usuń</button>
+            <div>
+              <button class="secondary-button" id="check-provider" type="button" hidden>Sprawdź</button>
+              <button class="save-provider" id="save-provider" type="submit">Dodaj i sprawdź</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
     <div class="toast" id="toast" role="status" hidden></div>
     <script src="app.js" defer></script>
     <script src="models.js" defer></script>
+    <script src="providers.js" defer></script>
   </body>
 </html>
