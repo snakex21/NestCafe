@@ -1,26 +1,31 @@
 .module-heading {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 12px 8px 5px;
   color: #515851;
   font-size: 12px;
 }
 
 .module-heading::before { content: "♧"; margin-right: 8px; }
+.module-heading span { flex: 1; }
+.module-heading button {
+  width: 25px;
+  height: 25px;
+  border: 0;
+  background: transparent;
+  color: #515851;
+  cursor: pointer;
+  font-size: 18px;
+}
+.module-heading button:hover { background: #f0f1ed; }
+.module-empty { margin: 2px 10px 12px 42px; color: #7d837d; font-size: 10px; }
 
 .sidebar > .plan-button {
-  justify-content: flex-start;
-  width: 100%;
-  padding: 7px 9px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: #626862;
-  text-align: left;
+  display: none;
 }
 
-.sidebar > .plan-button:hover { background: #f3f3f0; }
-.sidebar > .plan-button > span { margin-right: 7px; }
+.sidebar-heading { display: none; }
 
 .search-button {
   display: grid;

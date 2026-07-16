@@ -4,6 +4,18 @@ body.empty-state .workspace {
   position: relative;
 }
 
+body.empty-state .app-shell {
+  height: 100dvh;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+body.empty-state .sidebar {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
 body.empty-state .conversation {
   grid-column: 1;
   grid-row: 1;
@@ -12,20 +24,24 @@ body.empty-state .conversation {
 
 body.empty-state .welcome {
   max-width: 720px;
-  margin-top: clamp(160px, 25vh, 230px);
+  margin-top: clamp(160px, 25vh, 246px);
 }
 
 body.empty-state .composer {
+  display: flex;
+  flex-direction: column;
   z-index: 2;
   grid-column: 1;
   grid-row: 1;
   width: min(720px, calc(100% - 48px));
+  min-height: 145px;
   align-self: start;
-  margin-top: clamp(265px, 35vh, 315px);
+  margin-top: clamp(265px, 35vh, 334px);
 }
 
+body.empty-state .composer-footer { margin-top: auto; }
 body.empty-state .favorites { margin-top: 175px; }
-body.empty-state .welcome-examples { margin-top: 55px; }
+body.empty-state .welcome-examples { margin-top: 66px; }
 
 body.empty-state .welcome-examples h3 {
   grid-column: 1 / -1;
@@ -42,4 +58,23 @@ body.empty-state .welcome-examples button {
   height: 164px;
   justify-content: space-between;
   background: var(--bg);
+}
+
+@media (max-height: 850px) {
+  body.empty-state .conversation { padding-top: 0; }
+  body.empty-state .welcome { margin-top: clamp(70px, 12vh, 105px); }
+  body.empty-state .composer {
+    min-height: 110px;
+    margin-top: clamp(122px, 19vh, 165px);
+  }
+  body.empty-state .favorites { margin-top: clamp(125px, 20vh, 145px); }
+  body.empty-state .welcome-examples { margin-top: clamp(18px, 3vh, 26px); }
+  body.empty-state .welcome-examples button { height: clamp(104px, 17vh, 128px); }
+}
+
+@media (max-width: 920px) {
+  body.empty-state .welcome-examples {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: none;
+  }
 }

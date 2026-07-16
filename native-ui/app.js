@@ -170,7 +170,7 @@ async function loadHealth() {
 async function loadSessions() {
   try {
     const sessions = await json("/api/sessions?limit=30");
-    $("#clear-sessions").hidden = sessions.length === 0;
+    $("#clear-sessions").hidden = false;
     sessionList.replaceChildren();
     for (const session of sessions) {
       const button = document.createElement("button");
