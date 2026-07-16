@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>NestCafe</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">N</span>
+          <div>
+            <strong>NestCafe</strong>
+            <span>Asystent biurowy</span>
+          </div>
+        </div>
+
+        <button class="new-chat" id="new-chat" type="button">
+          <span aria-hidden="true">＋</span>
+          Nowa rozmowa
+        </button>
+
+        <div class="sidebar-heading">
+          <span>Ostatnie rozmowy</span>
+          <button id="refresh-sessions" type="button" title="Odśwież">↻</button>
+        </div>
+        <nav class="session-list" id="session-list" aria-label="Ostatnie rozmowy"></nav>
+
+        <div class="engine-state">
+          <span class="status-dot" id="status-dot"></span>
+          <div>
+            <strong id="engine-label">Łączenie z SuperCli…</strong>
+            <span id="model-label">Sprawdzam model</span>
+          </div>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <span class="eyebrow">PRZESTRZEŃ ROBOCZA</span>
+            <h1 id="conversation-title">Dzień dobry</h1>
+          </div>
+          <div class="run-state" id="run-state">Gotowy</div>
+        </header>
+
+        <section class="conversation" id="conversation" aria-live="polite">
+          <div class="welcome" id="welcome">
+            <span class="welcome-mark">N</span>
+            <h2>W czym mogę dziś pomóc?</h2>
+            <p>
+              Napisz, co trzeba przygotować, sprawdzić lub uporządkować.
+              NestCafe użyje silnika SuperCli i pokaże postęp na żywo.
+            </p>
+          </div>
+        </section>
+
+        <form class="composer" id="composer">
+          <textarea
+            id="prompt"
+            rows="1"
+            placeholder="Napisz wiadomość do NestCafe…"
+            aria-label="Wiadomość"
+          ></textarea>
+          <div class="composer-footer">
+            <span>Enter wysyła · Shift+Enter dodaje nową linię</span>
+            <div class="composer-actions">
+              <button class="stop-button" id="stop-button" type="button" hidden>Zatrzymaj</button>
+              <button class="send-button" id="send-button" type="submit">Wyślij</button>
+            </div>
+          </div>
+        </form>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" hidden></div>
+    <script src="app.js" defer></script>
+  </body>
+</html>
