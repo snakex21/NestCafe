@@ -24,9 +24,8 @@ body.empty-state .composer {
   margin-top: clamp(265px, 35vh, 315px);
 }
 
-body.empty-state .welcome-examples {
-  margin-top: 175px;
-}
+body.empty-state .favorites { margin-top: 175px; }
+body.empty-state .welcome-examples { margin-top: 55px; }
 
 body.empty-state .welcome-examples h3 {
   grid-column: 1 / -1;

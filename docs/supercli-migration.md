@@ -49,6 +49,8 @@ Gotowe elementy:
 - własny interfejs NestCafe bez frameworka,
 - jasny, klasyczny wygląd NestCafe z dawną ikoną, zielonym akcentem i
   centralnym polem zadania,
+- sidebar zgodny z dawnym układem: moduły, wyszukiwanie i czyszczenie rozmów,
+- lokalne ulubione sesje oraz sześć przykładowych zadań z ikonami integracji,
 - lista i wznawianie sesji,
 - strumieniowa rozmowa SSE,
 - widoczne wywołania narzędzi i workerów,
