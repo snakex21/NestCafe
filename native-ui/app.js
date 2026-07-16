@@ -78,11 +78,14 @@ function handleEvent(event, current) {
     current = current || addMessage("assistant", "");
     current.textContent += event.text || "";
   } else if (event.type === "tool_call") {
-    addActivity(event.name || "Narzędzie", event.args || "", event.id);
+    const row = addActivity(event.name || "Narzędzie", event.args || "", event.id);
+    row.dataset.toolName = event.name || "";
+    row.dataset.toolArgs = event.args || "";
   } else if (event.type === "tool_result") {
     const row = toolRows.get(event.id) || addActivity("Wynik narzędzia", "", event.id);
     row.classList.add(event.err ? "error" : "done");
     row.textContent = event.err || event.output || "Gotowe";
+    window.enhanceNestCafeToolResult?.(row, event);
   } else if (event.type === "worker" || event.type === "worker_progress") {
     addActivity(`Delegacja · ${event.name || "worker"}`, event.output || event.tool || event.status || "");
   } else if (event.type === "notice" || event.type === "compact" || event.type === "reflection") {
