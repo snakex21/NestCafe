@@ -59,6 +59,12 @@ function showProviderMessage(text, state = "") {
 
 function renderProviderList() {
   providerList.replaceChildren();
+  if (providers.length) {
+    const label = document.createElement("div");
+    label.className = "provider-group-label";
+    label.textContent = "SKONFIGUROWANE";
+    providerList.appendChild(label);
+  }
   for (const provider of providers) {
     const row = document.createElement("button");
     row.type = "button";
@@ -73,6 +79,30 @@ function renderProviderList() {
     text.append(name, meta);
     row.append(dot, text);
     row.addEventListener("click", () => editProvider(provider));
+    providerList.appendChild(row);
+  }
+  const available = providerTemplates.filter((template) => {
+    const name = field(template, "name");
+    return name && name !== "custom" && !providers.some((provider) => provider.name === name);
+  });
+  if (available.length) {
+    const label = document.createElement("div");
+    label.className = "provider-group-label";
+    label.textContent = "DOSTĘPNE";
+    providerList.appendChild(label);
+  }
+  for (const template of available) {
+    const row = document.createElement("button");
+    row.type = "button";
+    row.className = "provider-row template";
+    row.innerHTML = `<span class="dot"></span><span><strong></strong><small></small></span>`;
+    row.querySelector("strong").textContent = field(template, "name");
+    row.querySelector("small").textContent = field(template, "desc") || "Gotowy szablon";
+    row.addEventListener("click", () => {
+      resetProviderForm();
+      providerTemplate.value = field(template, "name");
+      providerTemplate.dispatchEvent(new Event("change"));
+    });
     providerList.appendChild(row);
   }
 }

@@ -60,6 +60,8 @@ Gotowe elementy:
 - status silnika i aktywnego modelu.
 - wyszukiwalny wybór modeli,
 - ustawienia providerów z bezpieczną obsługą kluczy,
+- pełnoekranowe ustawienia dostawców z katalogiem gotowych połączeń,
+  wyszukiwaniem i przejściem do modeli, pamięci, celu oraz folderu roboczego,
 - pasywna diagnostyka serwerów bez uruchamiania inferencji.
 - wybór folderu roboczego przez natywne okno Windows,
 - załączanie do ośmiu plików bez kopiowania ich do bazy ani kodowania base64,
