@@ -1,0 +1,98 @@
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.model-button {
+  max-width: 270px;
+  overflow: hidden;
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: #d3d2ca;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.model-button:hover { border-color: #5a493d; }
+
+.model-dialog {
+  width: min(620px, calc(100vw - 48px));
+  max-height: min(720px, calc(100vh - 64px));
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
+}
+
+.model-dialog::backdrop {
+  background: rgba(6, 7, 6, 0.76);
+  backdrop-filter: blur(4px);
+}
+
+.model-dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 24px 16px;
+}
+
+.model-dialog h2 { margin: 4px 0 0; font-size: 22px; font-weight: 560; }
+
+.model-dialog-head button {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+#model-search {
+  width: calc(100% - 48px);
+  margin: 0 24px 14px;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  outline: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+#model-search:focus { border-color: #6e513d; }
+
+.model-list {
+  max-height: 540px;
+  padding: 0 12px 14px;
+  overflow-y: auto;
+}
+
+.model-row {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.model-row:hover, .model-row.active { background: var(--surface-raised); }
+.model-row .dot { width: 7px; height: 7px; border-radius: 50%; background: #55584f; }
+.model-row.active .dot { background: var(--success); }
+.model-row strong { display: block; overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.model-row small { color: var(--muted); font-size: 11px; }
+.model-row .caps { color: #777a71; font: 10px Consolas, monospace; }
+.model-empty { padding: 32px 20px; color: var(--muted); text-align: center; }

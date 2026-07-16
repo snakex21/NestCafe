@@ -53,6 +53,11 @@ try {
         throw 'NestCafe UI was not served'
     }
 
+    $models = Invoke-RestMethod "$baseUrl/api/models"
+    if ($null -eq $models.models -or $null -eq $models.active) {
+        throw 'Model catalog contract is incomplete'
+    }
+
     $body = @{ prompt = 'NestCafe bridge contract test' } | ConvertTo-Json -Compress
     $chat = Invoke-WebRequest `
         -UseBasicParsing `
