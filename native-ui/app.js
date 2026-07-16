@@ -37,6 +37,7 @@ function setRunning(value) {
   sendButton.textContent = value ? "Dodaj do kolejki" : "Wyślij";
   sendButton.disabled = false;
   stopButton.hidden = !value;
+  sendButton.classList.toggle("queue-mode", value);
   runState.textContent = value ? "SuperCli pracuje" : "Gotowy";
 }
 
@@ -276,6 +277,7 @@ conversation.addEventListener("click", (event) => {
 
 stopButton.addEventListener("click", () => abortController?.abort());
 $("#new-chat").addEventListener("click", newConversation);
+$("#execution-back").addEventListener("click", newConversation);
 $("#refresh-sessions").addEventListener("click", loadSessions);
 
 Promise.all([loadHealth(), loadSessions()]).finally(() => promptInput.focus());
