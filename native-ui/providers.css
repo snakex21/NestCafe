@@ -91,10 +91,9 @@
 
 .provider-row {
   display: grid;
-  grid-template-columns: 8px minmax(0, 1fr);
-  gap: 10px;
+  grid-template-columns: minmax(0, 1fr);
   width: 100%;
-  padding: 10px;
+  padding: 9px 10px;
   border: 0;
   border-radius: 8px;
   background: transparent;
@@ -106,15 +105,7 @@
 .provider-row:hover,
 .provider-row.active { background: var(--surface-raised); }
 
-.provider-row .dot {
-  width: 7px;
-  height: 7px;
-  margin-top: 5px;
-  border-radius: 50%;
-  background: #686b62;
-}
-
-.provider-row.disabled .dot { background: #4b4d47; }
+.provider-row.disabled { opacity: .52; }
 .provider-row strong { display: block; overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
 .provider-row small { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
 
