@@ -59,6 +59,7 @@ Gotowe elementy:
 - zatrzymanie bieżącej odpowiedzi,
 - status silnika i aktywnego modelu.
 - wyszukiwalny wybór modeli,
+- pełnoekranowy katalog modeli ze wspólną nawigacją ustawień,
 - ustawienia providerów z bezpieczną obsługą kluczy,
 - pełnoekranowe ustawienia dostawców z katalogiem gotowych połączeń,
   wyszukiwaniem i przejściem do modeli, pamięci, celu oraz folderu roboczego,

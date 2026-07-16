@@ -96,3 +96,83 @@
 .model-row small { color: var(--muted); font-size: 11px; }
 .model-row .caps { color: #777a71; font: 10px Consolas, monospace; }
 .model-empty { padding: 32px 20px; color: var(--muted); text-align: center; }
+
+.model-dialog {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #fafaf8;
+  color: #252a25;
+  box-shadow: none;
+  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-rows: 65px 74px minmax(0, 1fr);
+}
+
+.model-dialog[open] { display: grid; }
+.model-dialog::backdrop { background: #fafaf8; backdrop-filter: none; }
+.model-dialog .settings-navigation { grid-column: 1; grid-row: 1 / 4; }
+
+.model-dialog-head {
+  grid-column: 2;
+  grid-row: 1;
+  height: auto;
+  padding: 0 31px;
+  border-bottom: 1px solid #e1e2de;
+  background: #fcfcfb;
+}
+
+.model-dialog-head .eyebrow { display: none; }
+.model-dialog h2 { margin: 0; font-size: 18px; }
+.model-dialog-head button { color: #707770; }
+
+#model-search {
+  grid-column: 2;
+  grid-row: 2;
+  width: min(720px, calc(100% - 64px));
+  height: 40px;
+  margin: 20px auto 14px;
+  border-color: #dedfda;
+  border-radius: 5px;
+  background: #fff;
+  color: #303630;
+}
+
+#model-search:focus { border-color: #aeb6ae; }
+
+.model-list {
+  display: grid;
+  grid-column: 2;
+  grid-row: 3;
+  align-content: start;
+  width: min(760px, calc(100% - 64px));
+  max-height: none;
+  margin: 0 auto;
+  padding: 8px 0 48px;
+}
+
+.model-row {
+  min-height: 56px;
+  padding: 10px 13px;
+  border-bottom: 1px solid #ecece8;
+  border-radius: 0;
+}
+
+.model-row:hover { background: #f3f3f0; }
+.model-row.active { border-radius: 5px; background: #e9efe8; }
+.model-row .dot { background: #c7cbc7; }
+.model-row.active .dot { background: #26743a; }
+.model-row strong { color: #252a25; }
+.model-row small { color: #777d77; }
+.model-row .caps { color: #858b85; }
+
+@media (max-width: 760px) {
+  .model-dialog { grid-template-columns: 205px minmax(0, 1fr); }
+  #model-search, .model-list { width: calc(100% - 38px); }
+}
