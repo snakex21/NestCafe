@@ -33,8 +33,8 @@ async function json(path, options) {
 
 function setRunning(value) {
   running = value;
-  sendButton.textContent = value ? "Pracuję…" : "Wyślij";
-  sendButton.disabled = value;
+  sendButton.textContent = value ? "Dodaj do kolejki" : "Wyślij";
+  sendButton.disabled = false;
   stopButton.hidden = !value;
   runState.textContent = value ? "SuperCli pracuje" : "Gotowy";
 }
@@ -153,6 +153,7 @@ async function sendPrompt(text, attachments = []) {
     setRunning(false);
     abortController = null;
     await loadSessions();
+    window.onNestCafeRunFinished?.();
     promptInput.focus();
   }
 }
@@ -211,6 +212,13 @@ async function openSession(session) {
   }
 }
 
+async function resumeSessionByID(id) {
+  const sessions = await json("/api/sessions?limit=100");
+  const session = sessions.find((item) => item.id === id);
+  if (!session) throw new Error("Nie znaleziono rozmowy powiązanej z zadaniem.");
+  await openSession(session);
+}
+
 function newConversation() {
   if (running) return;
   activeSession = "";
@@ -231,6 +239,16 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
   const text = promptInput.value;
   const attachments = window.getNestCafeAttachments?.() || [];
+  if (running) {
+    if (attachments.length) {
+      showToast("Załączniki można wysłać po zakończeniu bieżącego zadania.");
+      return;
+    }
+    promptInput.value = "";
+    promptInput.style.height = "auto";
+    window.enqueueNestCafePrompt?.(text);
+    return;
+  }
   promptInput.value = "";
   promptInput.style.height = "auto";
   sendPrompt(text, attachments);
@@ -255,3 +273,7 @@ $("#refresh-sessions").addEventListener("click", loadSessions);
 Promise.all([loadHealth(), loadSessions()]).finally(() => promptInput.focus());
 window.refreshNestCafeHealth = loadHealth;
 window.startNestCafeConversation = newConversation;
+window.getNestCafeSession = () => activeSession;
+window.isNestCafeRunning = () => running;
+window.runNestCafePrompt = sendPrompt;
+window.resumeNestCafeSession = resumeSessionByID;

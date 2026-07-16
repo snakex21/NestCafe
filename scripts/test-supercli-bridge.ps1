@@ -56,7 +56,11 @@ try {
     }
 
     $root = Invoke-WebRequest -UseBasicParsing "$baseUrl/"
-    if ($root.StatusCode -ne 200 -or $root.Content -notmatch '<title>NestCafe</title>') {
+    if (
+        $root.StatusCode -ne 200 -or
+        $root.Content -notmatch '<title>NestCafe</title>' -or
+        $root.Content -notmatch 'id="plan-dialog"'
+    ) {
         throw 'NestCafe UI was not served'
     }
 
@@ -73,6 +77,49 @@ try {
     if (($providers | ConvertTo-Json -Depth 8) -match '"(api_key|APIKey)"') {
         throw 'Provider list exposed an API key field'
     }
+
+    $goal = Invoke-WebRequest -UseBasicParsing "$baseUrl/api/goal"
+    $memory = Invoke-WebRequest -UseBasicParsing "$baseUrl/api/memory?limit=5"
+    $tasks = Invoke-WebRequest -UseBasicParsing "$baseUrl/api/tasks"
+    if ($goal.StatusCode -ne 200 -or $memory.StatusCode -ne 200 -or $tasks.StatusCode -ne 200) {
+        throw 'Work plan API contract is incomplete'
+    }
+
+    $goalBody = @{
+        action = 'set'
+        title = 'NestCafe bridge goal'
+        success_criteria = 'contract passes'
+    } | ConvertTo-Json -Compress
+    $createdGoal = Invoke-RestMethod `
+        -Method Post `
+        -Uri "$baseUrl/api/goal" `
+        -ContentType 'application/json' `
+        -Body $goalBody
+    if ($createdGoal.title -ne 'NestCafe bridge goal') {
+        throw 'Goal creation contract failed'
+    }
+
+    $stepBody = @{ action = 'add_task'; title = 'Run bridge test' } | ConvertTo-Json -Compress
+    $goalWithStep = Invoke-RestMethod `
+        -Method Post `
+        -Uri "$baseUrl/api/goal" `
+        -ContentType 'application/json' `
+        -Body $stepBody
+    if ($goalWithStep.tasks.Count -ne 1) {
+        throw 'Goal task contract failed'
+    }
+
+    $queueBody = @{ prompt = 'Queued NestCafe bridge task' } | ConvertTo-Json -Compress
+    $queuedTask = Invoke-RestMethod `
+        -Method Post `
+        -Uri "$baseUrl/api/tasks" `
+        -ContentType 'application/json' `
+        -Body $queueBody
+    $queueAfterAdd = @(Invoke-RestMethod "$baseUrl/api/tasks")
+    if (-not $queuedTask.id -or $queueAfterAdd.Count -ne 1) {
+        throw 'Persistent queue contract failed'
+    }
+    Invoke-RestMethod -Method Delete "$baseUrl/api/tasks?id=$($queuedTask.id)" | Out-Null
 
     $body = @{
         prompt = 'NestCafe bridge contract test'
