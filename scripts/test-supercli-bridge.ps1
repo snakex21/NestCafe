@@ -58,6 +58,14 @@ try {
         throw 'Model catalog contract is incomplete'
     }
 
+    $providers = Invoke-RestMethod "$baseUrl/api/providers"
+    if ($null -eq $providers.providers -or $null -eq $providers.templates) {
+        throw 'Provider settings contract is incomplete'
+    }
+    if (($providers | ConvertTo-Json -Depth 8) -match '"(api_key|APIKey)"') {
+        throw 'Provider list exposed an API key field'
+    }
+
     $body = @{ prompt = 'NestCafe bridge contract test' } | ConvertTo-Json -Compress
     $chat = Invoke-WebRequest `
         -UseBasicParsing `

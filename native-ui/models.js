@@ -106,3 +106,4 @@ modelButton.addEventListener("click", async () => {
 
 modelSearch.addEventListener("input", renderModels);
 loadModels().catch(() => {});
+window.refreshNestCafeModels = loadModels;

@@ -46,6 +46,9 @@ Gotowe elementy:
 - widoczne wywołania narzędzi i workerów,
 - zatrzymanie bieżącej odpowiedzi,
 - status silnika i aktywnego modelu.
+- wyszukiwalny wybór modeli,
+- ustawienia providerów z bezpieczną obsługą kluczy,
+- pasywna diagnostyka serwerów bez uruchamiania inferencji.
 
 Test kontraktowy:
 
@@ -55,13 +58,12 @@ powershell -ExecutionPolicy Bypass -File scripts/test-supercli-bridge.ps1
 
 ## Kolejność dalszej migracji
 
-1. Ustawienia modeli i providerów przez istniejące API SuperCli.
-2. Załączniki, wybór folderu i narzędzia Office.
-3. Pamięć, cele, harmonogram oraz kolejka zadań.
-4. MCP i integracje potrzebne w pracy biurowej.
-5. Import danych użytkownika ze starej bazy NestCafe.
-6. Zastąpienie pozostałych ekranów React ich lekkimi odpowiednikami.
-7. Usunięcie `layers/daemon`, starego desktopu i zależności OpenCode.
+1. Załączniki, wybór folderu i narzędzia Office.
+2. Pamięć, cele, harmonogram oraz kolejka zadań.
+3. MCP i integracje potrzebne w pracy biurowej.
+4. Import danych użytkownika ze starej bazy NestCafe.
+5. Zastąpienie pozostałych ekranów React ich lekkimi odpowiednikami.
+6. Usunięcie `layers/daemon`, starego desktopu i zależności OpenCode.
 
 Stare warstwy pozostają dostępne podczas migracji wyłącznie jako referencja
 funkcjonalna. Nowe funkcje nie mogą dodawać kolejnych zależności od Node.
