@@ -38,7 +38,8 @@ function setRunning(value) {
   sendButton.disabled = false;
   stopButton.hidden = !value;
   sendButton.classList.toggle("queue-mode", value);
-  runState.textContent = value ? "SuperCli pracuje" : "Gotowy";
+  document.body.classList.toggle("running-state", value);
+  runState.textContent = value ? "W toku" : "Gotowy";
 }
 
 function clearWelcome() {
@@ -49,26 +50,14 @@ function clearWelcome() {
 
 function addMessage(role, text) {
   clearWelcome();
-  const article = document.createElement("article");
-  article.className = `message ${role}`;
-  const label = document.createElement("div");
-  label.className = "message-label";
-  label.textContent = role === "user" ? "Ty" : "NestCafe";
-  const body = document.createElement("pre");
-  body.className = "message-body";
-  body.textContent = text || "";
-  article.append(label, body);
-  conversation.appendChild(article);
+  const body = window.createNestCafeMessage(role, text, conversation);
   conversation.scrollTop = conversation.scrollHeight;
   return body;
 }
 
 function addActivity(label, detail, id) {
   clearWelcome();
-  const row = document.createElement("div");
-  row.className = "activity";
-  row.textContent = detail ? `${label} · ${detail}` : label;
-  conversation.appendChild(row);
+  const row = window.createNestCafeActivity(label, detail, id, conversation);
   if (id) toolRows.set(id, row);
   conversation.scrollTop = conversation.scrollHeight;
   return row;
@@ -81,13 +70,14 @@ function handleEvent(event, current) {
     current = current || addMessage("assistant", "");
     current.textContent += event.text || "";
   } else if (event.type === "tool_call") {
+    window.finalizeNestCafeMessage?.(current);
     const row = addActivity(event.name || "Narzędzie", event.args || "", event.id);
     row.dataset.toolName = event.name || "";
     row.dataset.toolArgs = event.args || "";
+    current = null;
   } else if (event.type === "tool_result") {
     const row = toolRows.get(event.id) || addActivity("Wynik narzędzia", "", event.id);
-    row.classList.add(event.err ? "error" : "done");
-    row.textContent = event.err || event.output || "Gotowe";
+    window.completeNestCafeActivity(row, event);
     window.enhanceNestCafeToolResult?.(row, event);
   } else if (event.type === "worker" || event.type === "worker_progress") {
     addActivity(`Delegacja · ${event.name || "worker"}`, event.output || event.tool || event.status || "");
@@ -96,9 +86,12 @@ function handleEvent(event, current) {
   } else if (event.type === "question") {
     addActivity("Pytanie od agenta", event.question?.question || "Odpowiedź wymaga interfejsu pytań.");
   } else if (event.type === "done") {
+    window.finalizeNestCafeMessage?.(current);
     const cached = event.tok_cached ? ` · cache ${event.tok_cached}` : "";
     addActivity("Ukończono", `${event.tok_total || 0} tokenów${cached}`);
+    current = null;
   } else if (event.type === "error") {
+    window.finalizeNestCafeMessage?.(current);
     addActivity("Błąd", event.err || "Nieznany błąd").classList.add("error");
   }
   conversation.scrollTop = conversation.scrollHeight;
@@ -211,7 +204,8 @@ async function openSession(session) {
       if (message.role === "user" || message.role === "assistant") {
         addMessage(message.role, message.content || "");
       } else if (message.role === "tool") {
-        addActivity(message.name || "Narzędzie", message.content || "");
+        const row = addActivity(message.name || "Narzędzie", "", `history-${message.seq || Math.random()}`);
+        window.completeNestCafeActivity(row, { output: message.content || "" });
       }
     }
     await loadSessions();
