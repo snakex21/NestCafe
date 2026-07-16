@@ -6,6 +6,7 @@
     <meta name="color-scheme" content="dark" />
     <title>NestCafe</title>
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="models.css" />
   </head>
   <body>
     <div class="app-shell">
@@ -44,7 +45,10 @@
             <span class="eyebrow">PRZESTRZEŃ ROBOCZA</span>
             <h1 id="conversation-title">Dzień dobry</h1>
           </div>
-          <div class="run-state" id="run-state">Gotowy</div>
+          <div class="topbar-actions">
+            <button class="model-button" id="model-button" type="button">Wybierz model</button>
+            <div class="run-state" id="run-state">Gotowy</div>
+          </div>
         </header>
 
         <section class="conversation" id="conversation" aria-live="polite">
@@ -76,7 +80,20 @@
       </main>
     </div>
 
+    <dialog class="model-dialog" id="model-dialog">
+      <form method="dialog" class="model-dialog-head">
+        <div>
+          <span class="eyebrow">SILNIK AI</span>
+          <h2>Wybierz model</h2>
+        </div>
+        <button type="submit" aria-label="Zamknij">×</button>
+      </form>
+      <input id="model-search" type="search" placeholder="Szukaj modelu lub providera…" />
+      <div class="model-list" id="model-list"></div>
+    </dialog>
+
     <div class="toast" id="toast" role="status" hidden></div>
     <script src="app.js" defer></script>
+    <script src="models.js" defer></script>
   </body>
 </html>

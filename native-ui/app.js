@@ -241,3 +241,4 @@ $("#new-chat").addEventListener("click", newConversation);
 $("#refresh-sessions").addEventListener("click", loadSessions);
 
 Promise.all([loadHealth(), loadSessions()]).finally(() => promptInput.focus());
+window.refreshNestCafeHealth = loadHealth;
