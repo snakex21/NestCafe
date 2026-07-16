@@ -1,0 +1,23 @@
+body.empty-state .workspace {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  position: relative;
+}
+
+body.empty-state .conversation {
+  grid-column: 1;
+  grid-row: 2;
+  height: 100%;
+}
+
+body.empty-state .composer {
+  z-index: 2;
+  grid-column: 1;
+  grid-row: 2;
+  align-self: start;
+  margin-top: 235px;
+}
+
+body.empty-state .welcome-examples {
+  margin-top: 190px;
+}
