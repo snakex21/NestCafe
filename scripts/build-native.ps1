@@ -25,6 +25,27 @@ function Remove-TemporaryUI {
     Remove-Item -LiteralPath $resolvedTarget -Recurse -Force
 }
 
+function Refresh-WindowsIcon([string]$Path) {
+    $source = @'
+using System;
+using System.Runtime.InteropServices;
+public static class NestCafeShellRefresh {
+    [DllImport("shell32.dll", CharSet=CharSet.Unicode)]
+    public static extern void SHChangeNotify(uint eventId, uint flags, string item1, IntPtr item2);
+}
+'@
+    if (-not ('NestCafeShellRefresh' -as [type])) {
+        Add-Type $source
+    }
+    (Get-Item -LiteralPath $Path).LastWriteTime = Get-Date
+    [NestCafeShellRefresh]::SHChangeNotify(0x00002000, 0x0005, $Path, [IntPtr]::Zero)
+    [NestCafeShellRefresh]::SHChangeNotify(0x08000000, 0x0000, $null, [IntPtr]::Zero)
+    $iconRefresh = Join-Path $env:WINDIR 'System32\ie4uinit.exe'
+    if (Test-Path -LiteralPath $iconRefresh) {
+        & $iconRefresh -show
+    }
+}
+
 if (-not (Get-Command go -ErrorAction SilentlyContinue)) {
     throw 'Nie znaleziono Go w PATH.'
 }
@@ -72,6 +93,7 @@ try {
 if (-not (Test-Path -LiteralPath $output)) {
     throw "Nie utworzono pliku: $output"
 }
+Refresh-WindowsIcon $output
 
 if (-not $SkipTests) {
     & (Join-Path $PSScriptRoot 'test-supercli-bridge.ps1') -Engine $output -UseBundledUI
