@@ -8,6 +8,9 @@ $engineRoot = (Resolve-Path (Join-Path $project '..\SuperCli')).Path
 $uiRoot = Join-Path $project 'native-ui'
 $embedParent = Join-Path $engineRoot 'cmd\supercli-web'
 $embedRoot = Join-Path $embedParent 'nestcafe-ui'
+$resourceSource = Join-Path $project 'build\windows\nestcafe_windows_amd64.syso'
+$engineResource = Join-Path $embedParent 'rsrc_windows_amd64.syso'
+$resourceBackup = Join-Path $env:TEMP ("supercli-resource-" + [guid]::NewGuid().ToString('N') + '.syso')
 $output = Join-Path $project 'NestCafe.exe'
 
 function Remove-TemporaryUI {
@@ -28,12 +31,20 @@ if (-not (Get-Command go -ErrorAction SilentlyContinue)) {
 if (-not (Test-Path -LiteralPath (Join-Path $uiRoot 'index.html'))) {
     throw "Nie znaleziono interfejsu NestCafe: $uiRoot"
 }
+if (-not (Test-Path -LiteralPath $resourceSource)) {
+    throw "Nie znaleziono zasobu ikony NestCafe: $resourceSource"
+}
+if (-not (Test-Path -LiteralPath $engineResource)) {
+    throw "Nie znaleziono zasobu Windows SuperCli: $engineResource"
+}
 
 Remove-TemporaryUI
 New-Item -ItemType Directory -Path $embedRoot | Out-Null
+Copy-Item -LiteralPath $engineResource -Destination $resourceBackup
 
 try {
     Get-ChildItem -LiteralPath $uiRoot -File | Copy-Item -Destination $embedRoot
+    Copy-Item -LiteralPath $resourceSource -Destination $engineResource -Force
 
     Push-Location $engineRoot
     try {
@@ -51,6 +62,10 @@ try {
         Pop-Location
     }
 } finally {
+    if (Test-Path -LiteralPath $resourceBackup) {
+        Copy-Item -LiteralPath $resourceBackup -Destination $engineResource -Force
+        Remove-Item -LiteralPath $resourceBackup -Force
+    }
     Remove-TemporaryUI
 }
 

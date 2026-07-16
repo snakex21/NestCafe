@@ -34,6 +34,8 @@ build-native.bat
 Polecenie tworzy pojedynczy `NestCafe.exe` bez okna konsoli. Interfejs z
 `native-ui/` jest osadzony w binarce i nie musi być kopiowany obok programu.
 `run-native.bat` automatycznie wykona build, jeśli pliku EXE jeszcze nie ma.
+Build osadza również oryginalną, wielorozdzielczą ikonę NestCafe w zasobach
+Windows, więc jest ona używana w Eksploratorze, Alt+Tab i na pasku zadań.
 
 Gotowa aplikacja korzysta z:
 
