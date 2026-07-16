@@ -47,6 +47,8 @@ Gotowe elementy:
 
 - natywne okno SuperCli/WebView2,
 - własny interfejs NestCafe bez frameworka,
+- jasny, klasyczny wygląd NestCafe z dawną ikoną, zielonym akcentem i
+  centralnym polem zadania,
 - lista i wznawianie sesji,
 - strumieniowa rozmowa SSE,
 - widoczne wywołania narzędzi i workerów,

@@ -10,6 +10,7 @@ const runState = $("#run-state");
 const title = $("#conversation-title");
 const sessionList = $("#session-list");
 const toolRows = new Map();
+const welcomeHTML = conversation.innerHTML;
 
 let activeSession = "";
 let running = false;
@@ -42,6 +43,7 @@ function setRunning(value) {
 function clearWelcome() {
   const welcome = $("#welcome");
   if (welcome) welcome.remove();
+  document.body.classList.remove("empty-state");
 }
 
 function addMessage(role, text) {
@@ -197,6 +199,7 @@ async function openSession(session) {
   try {
     const messages = await json(`/api/transcript?id=${encodeURIComponent(session.id)}`);
     activeSession = session.id;
+    document.body.classList.remove("empty-state");
     conversation.replaceChildren();
     title.textContent = session.first_user_msg || "Rozmowa";
     for (const message of messages) {
@@ -223,12 +226,8 @@ function newConversation() {
   if (running) return;
   activeSession = "";
   toolRows.clear();
-  conversation.innerHTML = `
-    <div class="welcome" id="welcome">
-      <span class="welcome-mark">N</span>
-      <h2>W czym mogę dziś pomóc?</h2>
-      <p>Napisz, co trzeba przygotować, sprawdzić lub uporządkować.</p>
-    </div>`;
+  conversation.innerHTML = welcomeHTML;
+  document.body.classList.add("empty-state");
   title.textContent = "Dzień dobry";
   window.clearNestCafeAttachments?.();
   loadSessions();
@@ -264,6 +263,15 @@ promptInput.addEventListener("keydown", (event) => {
 promptInput.addEventListener("input", () => {
   promptInput.style.height = "auto";
   promptInput.style.height = `${Math.min(promptInput.scrollHeight, 180)}px`;
+});
+
+conversation.addEventListener("click", (event) => {
+  const example = event.target.closest("[data-example-prompt]");
+  if (example) {
+    promptInput.value = example.dataset.examplePrompt || "";
+    promptInput.dispatchEvent(new Event("input"));
+    promptInput.focus();
+  }
 });
 
 stopButton.addEventListener("click", () => abortController?.abort());

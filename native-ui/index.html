@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark" />
+    <meta name="color-scheme" content="light" />
     <title>NestCafe</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="models.css" />
@@ -11,12 +11,14 @@
     <link rel="stylesheet" href="attachments.css" />
     <link rel="stylesheet" href="results.css" />
     <link rel="stylesheet" href="plan.css" />
+    <link rel="stylesheet" href="classic.css" />
+    <link rel="stylesheet" href="home.css" />
   </head>
-  <body>
+  <body class="empty-state">
     <div class="app-shell">
       <aside class="sidebar">
         <div class="brand">
-          <span class="brand-mark" aria-hidden="true">N</span>
+          <img class="brand-logo" src="nestcafe-icon.png" alt="" />
           <div>
             <strong>NestCafe</strong>
             <span>Asystent biurowy</span>
@@ -66,12 +68,22 @@
 
         <section class="conversation" id="conversation" aria-live="polite">
           <div class="welcome" id="welcome">
-            <span class="welcome-mark">N</span>
-            <h2>W czym mogę dziś pomóc?</h2>
-            <p>
-              Napisz, co trzeba przygotować, sprawdzić lub uporządkować.
-              NestCafe użyje silnika SuperCli i pokaże postęp na żywo.
-            </p>
+            <img class="welcome-logo" src="nestcafe-icon.png" alt="" />
+            <h2>Co dziś osiągniesz?</h2>
+            <div class="welcome-examples">
+              <button type="button" data-example-prompt="Przygotuj uporządkowaną notatkę ze spotkania.">
+                <strong>Notatka ze spotkania</strong>
+                <span>Uporządkuj ustalenia i kolejne kroki.</span>
+              </button>
+              <button type="button" data-example-prompt="Przeanalizuj wskazany dokument i wypisz najważniejsze punkty.">
+                <strong>Analiza dokumentu</strong>
+                <span>Wyciągnij najważniejsze informacje.</span>
+              </button>
+              <button type="button" data-example-prompt="Ułóż krótką, profesjonalną wiadomość e-mail.">
+                <strong>Wiadomość e-mail</strong>
+                <span>Przygotuj zwięzłą odpowiedź.</span>
+              </button>
+            </div>
           </div>
         </section>
 
