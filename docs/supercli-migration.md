@@ -51,6 +51,8 @@ Gotowe elementy:
   centralnym polem zadania,
 - sidebar zgodny z dawnym układem: moduły, wyszukiwanie i czyszczenie rozmów,
 - lokalne ulubione sesje oraz sześć przykładowych zadań z ikonami integracji,
+- widok wykonania z kartami wiadomości, czasem, zwijanym myśleniem i
+  rozwijanymi wynikami narzędzi,
 - lista i wznawianie sesji,
 - strumieniowa rozmowa SSE,
 - widoczne wywołania narzędzi i workerów,
