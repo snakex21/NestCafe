@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="providers.css" />
     <link rel="stylesheet" href="attachments.css" />
     <link rel="stylesheet" href="results.css" />
+    <link rel="stylesheet" href="plan.css" />
   </head>
   <body>
     <div class="app-shell">
@@ -25,6 +26,11 @@
         <button class="new-chat" id="new-chat" type="button">
           <span aria-hidden="true">＋</span>
           Nowa rozmowa
+        </button>
+        <button class="plan-button" id="plan-button" type="button">
+          <span aria-hidden="true">◎</span>
+          Plan pracy
+          <small id="plan-badge" hidden></small>
         </button>
 
         <div class="sidebar-heading">
@@ -184,11 +190,86 @@
       </div>
     </dialog>
 
+    <dialog class="plan-dialog" id="plan-dialog">
+      <div class="plan-head">
+        <div>
+          <span class="eyebrow">ORGANIZACJA PRACY</span>
+          <h2>Plan pracy</h2>
+        </div>
+        <button id="close-plan" type="button" aria-label="Zamknij">×</button>
+      </div>
+      <nav class="plan-tabs" aria-label="Plan pracy">
+        <button class="active" type="button" data-plan-tab="goal">Cel</button>
+        <button type="button" data-plan-tab="queue">Kolejka <small id="queue-count">0</small></button>
+        <button type="button" data-plan-tab="memory">Pamięć</button>
+      </nav>
+
+      <section class="plan-panel active" id="plan-goal">
+        <form class="goal-create" id="goal-create">
+          <div class="plan-empty">
+            <h3>Brak aktywnego celu</h3>
+            <p>Cel utrzymuje kierunek pracy między rozmowami i pokazuje modelowi otwarte kroki.</p>
+          </div>
+          <label><span>Nazwa celu</span><input id="goal-title-input" required /></label>
+          <label><span>Co ma powstać</span><textarea id="goal-description-input" rows="2"></textarea></label>
+          <label><span>Kiedy uznamy pracę za gotową</span><input id="goal-criteria-input" /></label>
+          <button class="plan-primary" type="submit">Utwórz cel</button>
+        </form>
+
+        <div class="goal-active" id="goal-active" hidden>
+          <div class="goal-summary">
+            <div>
+              <span class="eyebrow">AKTYWNY CEL</span>
+              <h3 id="goal-title"></h3>
+            </div>
+            <span class="goal-status" id="goal-status"></span>
+          </div>
+          <p id="goal-description"></p>
+          <div class="goal-criteria" id="goal-criteria" hidden></div>
+          <div class="goal-progress" id="goal-progress"></div>
+          <div class="goal-tasks" id="goal-tasks"></div>
+          <form class="goal-add-task" id="goal-add-task">
+            <input id="goal-task-input" placeholder="Dodaj kolejny krok…" required />
+            <button type="submit">Dodaj</button>
+          </form>
+          <div class="goal-verify" id="goal-verify" hidden>
+            <label><span>Dowód wykonania</span><input id="goal-evidence" placeholder="np. dokument sprawdzony i zapisany" /></label>
+            <button class="plan-primary" id="verify-goal" type="button">Potwierdź wykonanie</button>
+          </div>
+          <div class="goal-actions">
+            <button id="abandon-goal" type="button">Porzuć cel</button>
+            <button class="plan-primary" id="finish-goal" type="button" hidden>Zakończ cel</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="plan-panel" id="plan-queue">
+        <div class="plan-intro">
+          <div><h3>Kolejka wiadomości</h3><p>Zadania pozostają zapisane po zamknięciu aplikacji.</p></div>
+          <button id="run-queue" type="button">Uruchom pierwsze</button>
+        </div>
+        <form class="queue-add" id="queue-add">
+          <input id="queue-input" placeholder="Dodaj zadanie do wykonania później…" required />
+          <button class="plan-primary" type="submit">Dodaj</button>
+        </form>
+        <div class="queue-list" id="queue-list"></div>
+      </section>
+
+      <section class="plan-panel" id="plan-memory">
+        <div class="plan-intro">
+          <div><h3>Pamięć projektu</h3><p>Fakty zapisane przez agenta dla bieżącego folderu i wszystkich projektów.</p></div>
+          <button id="refresh-memory" type="button">Odśwież</button>
+        </div>
+        <div class="memory-list" id="memory-list"></div>
+      </section>
+    </dialog>
+
     <div class="toast" id="toast" role="status" hidden></div>
     <script src="app.js" defer></script>
     <script src="models.js" defer></script>
     <script src="providers.js" defer></script>
     <script src="attachments.js" defer></script>
     <script src="results.js" defer></script>
+    <script src="plan.js" defer></script>
   </body>
 </html>

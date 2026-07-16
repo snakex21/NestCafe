@@ -56,6 +56,10 @@ Gotowe elementy:
 - wybór folderu roboczego przez natywne okno Windows,
 - załączanie do ośmiu plików bez kopiowania ich do bazy ani kodowania base64,
 - walidacja załączników tym samym sandboxem co narzędzia Word, Excel i PDF.
+- aktywny cel widoczny dla modelu w kolejnych rozmowach,
+- kroki celu z obowiązkową weryfikacją przed zakończeniem,
+- trwała kolejka wiadomości działająca także podczas generowania odpowiedzi,
+- podgląd pamięci projektu bez dodatkowego wywołania modelu.
 
 Test kontraktowy:
 
@@ -65,12 +69,11 @@ powershell -ExecutionPolicy Bypass -File scripts/test-supercli-bridge.ps1
 
 ## Kolejność dalszej migracji
 
-1. Widoki pracy z dokumentami oraz otwieranie gotowych wyników.
-2. Pamięć, cele, harmonogram oraz kolejka zadań.
-3. MCP i integracje potrzebne w pracy biurowej.
-4. Import danych użytkownika ze starej bazy NestCafe.
-5. Zastąpienie pozostałych ekranów React ich lekkimi odpowiednikami.
-6. Usunięcie `layers/daemon`, starego desktopu i zależności OpenCode.
+1. Harmonogram oraz uruchamianie zadań o wskazanej porze.
+2. MCP i integracje potrzebne w pracy biurowej.
+3. Import danych użytkownika ze starej bazy NestCafe.
+4. Zastąpienie pozostałych ekranów React ich lekkimi odpowiednikami.
+5. Usunięcie `layers/daemon`, starego desktopu i zależności OpenCode.
 
 Stare warstwy pozostają dostępne podczas migracji wyłącznie jako referencja
 funkcjonalna. Nowe funkcje nie mogą dodawać kolejnych zależności od Node.
