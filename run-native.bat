@@ -1,20 +1,15 @@
 @echo off
 setlocal
 set "ROOT=%~dp0"
-set "ENGINE=%ROOT%..\SuperCli\supercli-web.exe"
+set "APP=%ROOT%NestCafe.exe"
 
-if not exist "%ENGINE%" (
-  echo Nie znaleziono silnika SuperCli:
-  echo %ENGINE%
-  echo.
-  echo Najpierw zbuduj SuperCli poleceniem:
-  echo go build -o supercli-web.exe ./cmd/supercli-web
-  pause
-  exit /b 1
+if not exist "%APP%" (
+  call "%ROOT%build-native.bat"
+  if errorlevel 1 exit /b %ERRORLEVEL%
 )
 
 pushd "%ROOT%"
-"%ENGINE%" --workspace "%ROOT%" --ui-dir "%ROOT%native-ui"
+start "" "%APP%"
 set "CODE=%ERRORLEVEL%"
 popd
 exit /b %CODE%

@@ -2,6 +2,7 @@
 node_modules/
 
 # Build outputs
+/NestCafe.exe
 dist/
 dist-electron/
 release/
