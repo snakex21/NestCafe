@@ -1,207 +1,174 @@
-<p align="center">
-  <img src="layers/desktop/public/assets/logo.png" alt="NestCafe" width="120" height="120">
-  <h1 align="center">NestCafe</h1>
-  <p align="center">
-    <strong>Open-source AI assistant for your desktop</strong><br>
-    Automate tasks, manage files, browse the web, handle email — all with AI agents running locally on your machine.
-  </p>
-</p>
+# NestCafe
 
-> **Migracja do SuperCli:** natywną wersję bez Node można zbudować przez
-> `build-native.bat` i uruchomić jako pojedynczy `NestCafe.exe`.
-> `run-native.bat` wykona build automatycznie, jeśli będzie potrzebny. Szczegóły opisuje
-> [`docs/supercli-migration.md`](docs/supercli-migration.md).
-
-<p align="center">
-  <a href="#-quick-start">Quick Start</a> ·
-  <a href="#-features">Features</a> ·
-  <a href="#-supported-ai-providers">AI Providers</a> ·
-  <a href="#-translations">Translations</a> ·
-  <a href="#-architecture">Architecture</a> ·
-  <a href="#-development">Development</a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Version-1.0.5-blue" alt="Version">
-  <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
-  <img src="https://img.shields.io/badge/Node-24%2B-339933" alt="Node.js">
-  <img src="https://img.shields.io/badge/pnpm-10.33%2B-F69220" alt="pnpm">
-  <img src="https://img.shields.io/badge/Electron-41-47848F" alt="Electron">
-  <img src="https://img.shields.io/badge/React-19-61DAFB" alt="React">
-</p>
+Native Windows AI assistant — SuperCli engine + WebView2 UI.  
+No Node.js, no Electron, no npm, no Vite.
 
 ---
 
-## 🖼️ Screenshots
+## Quick start
 
-| | |
-|:---:|:---:|
-| **Home — Task Input** | **Execution — AI at work** |
-| ![Home Screen](screenshots/home.png) | ![Execution](screenshots/execution.png) |
-| **Settings — AI Providers** | **History — Past Tasks** |
-| ![Settings](screenshots/settings.png) | ![History](screenshots/history.png) |
+Double-click **`NestCafe.exe`**. That's it.
+
+The first time you launch NestCafe, it reads your Windows system language and configures the UI accordingly. You can change it anytime in **Settings → General → Language**.
 
 ---
 
-## 🚀 Quick Start
+## Version
 
-### Prerequisites
-- **Node.js 24+** — [Download](https://nodejs.org/)
-- **pnpm 10.33+** — `npm install -g pnpm`
-- **Windows**, macOS, or Linux
+| Where | How |
+|---|---|
+| File on disk | Root `VERSION` file (e.g. `1.0.5`) |
+| In the app | **Settings → About** — shows product version, engine version, UI language, and loaded modules |
+| Build artifact | `native-ui/version.json` — synced from `VERSION` by `build.bat` |
 
-### Run in development mode
+---
 
-```bash
-# Clone the repo
-git clone https://github.com/snakex21/NestCafe.git
+## Supported languages (20)
+
+The UI is fully translated. System language is auto-detected on first launch.
+
+| Code | Language | Code | Language |
+|------|----------|------|----------|
+| `pl` | Polski | `cs` | Čeština |
+| `en` | English | `sk` | Slovenčina |
+| `de` | Deutsch | `uk` | Українська |
+| `fr` | Français | `ru` | Русский |
+| `es` | Español | `tr` | Türkçe |
+| `it` | Italiano | `ja` | 日本語 |
+| `pt` | Português | `ko` | 한국어 |
+| `nl` | Nederlands | `zh` | 中文 |
+| `sv` | Svenska | `fi` | Suomi |
+| `no` | Norsk | `da` | Dansk |
+
+Full docs in each language: **[`readme/` folder](readme/)**
+
+---
+
+## Documentation in other languages
+
+| Language | File |
+|----------|------|
+| [Polski](readme/README.pl.md) | [Deutsch](readme/README.de.md) | [Français](readme/README.fr.md) |
+| [Español](readme/README.es.md) | [Italiano](readme/README.it.md) | [Português](readme/README.pt.md) |
+| [Nederlands](readme/README.nl.md) | [Svenska](readme/README.sv.md) | [Norsk](readme/README.no.md) |
+| [Dansk](readme/README.da.md) | [Suomi](readme/README.fi.md) | [Čeština](readme/README.cs.md) |
+| [Slovenčina](readme/README.sk.md) | [Українська](readme/README.uk.md) | [Русский](readme/README.ru.md) |
+| [Türkçe](readme/README.tr.md) | [日本語](readme/README.ja.md) | [한국어](readme/README.ko.md) |
+| [中文](readme/README.zh.md) | [English](readme/README.en.md) | |
+
+---
+
+## Project structure
+
+```
+NestCafe.exe                  launcher (Go + WebView2)
+runtime/NestCafe.exe          SuperCli engine
+native-ui/                    web UI
+  css/app.css                 single stylesheet (historical + redesign-v2)
+  js/
+    core/namespace.js         window.NestCafe bus
+    core/i18n.js              20-language system + detection
+    core/version.js           version.json reader
+    chat/                     chat panel, images, attachments
+    models/                   providers, model list, switching
+    settings/                 settings pages (general, providers, models, about)
+  assets/                     icons, logos
+  modules/                    OCR viewer, etc.
+  version.json                synced from VERSION at build
+VERSION                       root version file
+scripts/
+  build.bat                   one-shot build (embeds UI + modules into exe)
+  build-native.ps1            PowerShell build script
+  smoke-test.ps1              quick health/version/OCR/bridge test
+supercli-data/                portable data (sessions, config, exports)
+readme/                       multi-language READMEs (20 languages)
+```
+
+---
+
+## Features
+
+### Chat
+Type a message, press Enter. Supports text and image attachments. Images are previewed inline; the gallery viewer lets you browse all images in a conversation with arrow keys.
+
+### Providers and models
+Add OpenAI-compatible providers in **Settings → Providers**. Each provider needs a name, base URL, optional API key, and a default model. Toggle individual models on/off. NestCafe fetches the model list from the provider's `/v1/models` endpoint automatically.
+
+### OCR Viewer
+The **OCR Viewer** module (`modules/ocr-viewer/`) processes images and PDFs:
+- Word-like preview panel with formatted output
+- Configurable page limit for PDFs (1–100)
+- Save results to `supercli-data\exports\ocr\` or a custom folder
+- Auto-open folder option in **Settings → OCR**
+
+### Settings
+- **General** — language, theme, diagnostic details toggle
+- **Providers** — add/edit/delete AI providers, test connectivity
+- **Models & context** — search models, set context limits per model
+- **About** — version info, engine version, system details
+
+### DevTools
+Only visible when **Settings → General → Szczegóły diagnostyczne** (Diagnostic details) is enabled. Then right-click → "Zbadaj element" (Inspect element) opens WebView2 DevTools.
+
+---
+
+## Build
+
+```bat
 cd NestCafe
-
-# Install dependencies
-pnpm install
-
-# Start the app
-pnpm dev        # or run start.bat on Windows
+build.bat
 ```
 
-The app will start the web UI dev server, build the daemon, and launch Electron — all automatically.
+Replace the SuperCli engine only (keep your UI changes):
 
-### Build for production
+```bat
+build.bat C:\path\to\supercli-web.exe
+```
 
-```bash
-pnpm build:electron
+The build script:
+1. Copies `VERSION` → `native-ui/version.json`
+2. Embeds `native-ui/` and `modules/` into `NestCafe.exe`
+3. Outputs a single portable executable
+
+---
+
+## Verify
+
+```powershell
+# Quick bridge + runtime test
+powershell -ExecutionPolicy Bypass -File scripts\test-supercli-bridge.ps1 -Launcher .\NestCafe.exe
+
+# Comprehensive smoke test (health, version, i18n, OCR, bridge, readme count)
+powershell -ExecutionPolicy Bypass -File scripts\smoke-test.ps1
 ```
 
 ---
 
-## ✨ Features
+## Data
 
-- **Multi-provider AI** — Connect to 25+ AI providers (OpenAI, Anthropic, Google, DeepSeek, local models via Ollama/LM Studio, and more)
-- **Task automation** — AI agents use tools: browser, terminal, filesystem, APIs, email
-- **Workspaces** — Organize projects with knowledge notes and folder indexing for context
-- **Skills system** — Extend agent capabilities with custom SKILL.md definitions
-- **Connectors** — OAuth integrations with Slack, GitHub, Jira, Notion, Google, and more
-- **WhatsApp bridge** — Interact with agents via WhatsApp messages
-- **Scheduler** — Run recurring AI tasks on cron schedules
-- **Modules** — Pluggable extensions (OCR viewer, dev browser, and more)
-- **Cloud browsers** — Remote browser automation (Browserbase, Steel)
-- **Sandbox** — Isolated execution environments (native or Docker)
-- **Speech-to-text** — Voice input support
-- **Multi-language** — UI available in 12 languages
-- **Auto-updater** — Built-in update checking and installation
+NestCafe stores all data in `supercli-data/` next to the executable:
+- `sessions/` — chat sessions
+- `config/` — provider keys, user preferences
+- `exports/ocr/` — OCR output files
+- Attachments are staged as copies in `.supercli/attachments/`
+
+No data is written outside the app folder.
 
 ---
 
-## 🤖 Supported AI Providers
+## Technical details
 
-| Provider | Type | Free Tier |
-|----------|------|-----------|
-| **Anthropic** (Claude) | Cloud API | ❌ |
-| **OpenAI** (GPT) | Cloud API | ❌ |
-| **Google AI** (Gemini) | Cloud API | ✅ |
-| **DeepSeek** | Cloud API | ❌ |
-| **xAI** (Grok) | Cloud API | ❌ |
-| **OpenRouter** | Multi-provider | ✅ |
-| **Groq** | Cloud API | ✅ |
-| **GitHub Copilot** | OAuth | ✅ (with subscription) |
-| **Ollama** | Local | ✅ |
-| **LM Studio** | Local | ✅ |
-| **LiteLLM** | Local proxy | ✅ |
-| **Amazon Bedrock** | Enterprise | ❌ |
-| **Google Vertex AI** | Enterprise | ❌ |
-| **Azure Foundry** | Enterprise | ❌ |
-| **NVIDIA NIM** | Local/Cloud | ❌ |
-| **HuggingFace Local** | Local | ✅ |
-| **Moonshot AI** | Cloud API | ❌ |
-| **Z.AI** (GLM) | Cloud API | ❌ |
-| **MiniMax** | Cloud API | ❌ |
-| **Nebius AI** | Cloud API | ❌ |
-| **Together AI** | Cloud API | ❌ |
-| **Fireworks AI** | Cloud API | ❌ |
-| **Venice AI** | Cloud API | ❌ |
-| **Perplexity** | Cloud API | ❌ |
-| **Qwen (DashScope)** | Cloud API | ❌ |
-| **Xiaomi (MiMo)** | Cloud API | ❌ |
+### JS bus
+All UI functionality is exposed through `window.NestCafe.*`. No legacy `window.*NestCafe*` aliases exist. Modules register themselves on the bus in `js/core/namespace.js`.
+
+### CSS
+Single file: `native-ui/css/app.css`. The top section is the historical design; the `redesign-v2` layer at the bottom provides the current Linear-style look.
+
+### Modules
+The `modules/` directory contains optional components (OCR viewer, etc.) that are embedded into the exe at build time. Each module has a `manifest.json`.
 
 ---
 
-## 🌍 Translations
+## License
 
-- [English](README.md)
-- [Polski](readme/README.pl.md)
-- [العربية](readme/README.ar.md)
-- [Español](readme/README.es.md)
-- [हिन्दी](readme/README.hi.md)
-- [Bahasa Indonesia](readme/README.id.md)
-- [日本語](readme/README.ja.md)
-- [한국어](readme/README.ko.md)
-- [Русский](readme/README.ru.md)
-- [தமிழ்](readme/README.ta.md)
-- [Türkçe](readme/README.tr.md)
-- [中文](readme/README.zh-CN.md)
-
----
-
-## 🏗️ Architecture
-
-NestCafe uses a **4-layer monorepo** architecture:
-
-```
-layers/web/          React 19 + Vite + Tailwind + Zustand + React Router
-layers/desktop/      Electron 41 shell (main process + preload)
-layers/daemon/       Background Node.js process (task execution, SQLite)
-packages/agent-core/ Shared business logic, types, storage, providers
-packages/core/       Next-gen core (v2, in development)
-```
-
-```
-[React UI] ←contextBridge→ [Electron Main] ←JSON-RPC socket→ [Daemon] ←imports→ [agent-core]
-```
-
-📖 **Full architecture documentation:** [AD.md](AD.md)
-
----
-
-## 💻 Development
-
-### Project structure
-
-```
-├── layers/
-│   ├── web/              React frontend (components, pages, stores, hooks)
-│   ├── desktop/           Electron shell (main, preload, IPC handlers)
-│   └── daemon/            Background process (RPC routes, services, scheduler)
-├── packages/
-│   ├── agent-core/        Shared library (types, storage, providers, factories)
-│   └── core/              Next-gen core (v2, in development)
-├── scripts/               Build scripts and dev tooling
-├── docs/                  Architecture documentation
-├── modules/               Pluggable modules (OCR viewer)
-├── memory/                AI agent memory files
-└── readme/                Multi-language README translations
-```
-
-### Common commands
-
-```bash
-pnpm dev              # Start in development mode
-pnpm dev:web          # Web UI only
-pnpm build            # Build all workspaces
-pnpm typecheck        # Type check all workspaces
-pnpm format           # Auto-fix code formatting
-pnpm test             # Run tests (per workspace)
-pnpm clean            # Clean build outputs
-```
-
-### Environment variables
-
-| Variable | Description |
-|----------|-------------|
-| `CLEAN_START=1` | Clear all stored data on app start |
-| `NESTCAFE_MEMORY_DIR` | Override AI memory directory |
-
----
-
-## 📄 License
-
-MIT © [NestCafe](https://github.com/snakex21/NestCafe)
+See `LICENSE` in the project root.

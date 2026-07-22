@@ -1,165 +1,129 @@
-<p align="center">
-  <img src="../apps/desktop/public/assets/logo.png" alt="NestCafe" width="120" height="120">
-  <h1 align="center">NestCafe</h1>
-  <p align="center">
-    <strong>Open-source'owy asystent AI na Twoim pulpicie</strong><br>
-    Automatyzuj zadania, zarządzaj plikami, przeglądaj internet, obsługuj pocztę — wszystko z agentami AI działającymi lokalnie na Twoim komputerze.
-  </p>
-</p>
+[← Powrót do README](../README.md)
 
-<p align="center">
-  <a href="#szybki-start">Szybki start</a> · 
-  <a href="#funkcje">Funkcje</a> · 
-  <a href="#obslugiwani-dostawcy">Dostawcy AI</a> · 
-  <a href="#architektura">Architektura</a> · 
-  <a href="#programowanie">Programowanie</a>
-</p>
+# NestCafe
 
-<p align="center">
-  <img src="https://img.shields.io/badge/License-MIT-green" alt="Licencja">
-  <img src="https://img.shields.io/badge/Node-24%2B-339933" alt="Node.js">
-  <img src="https://img.shields.io/badge/pnpm-10.33%2B-F69220" alt="pnpm">
-  <img src="https://img.shields.io/badge/Electron-41-47848F" alt="Electron">
-</p>
+Natywny asystent AI na Windows — silnik SuperCli + interfejs WebView2.  
+Bez Node.js, bez Electrona, bez npm, bez Vite.
 
 ---
-
-## Tłumaczenia
-
-- [English](../README.md)
-- [中文 (Chiński)](README.zh-CN.md)
-- [Русский (Rosyjski)](README.ru.md)
-- [日本語 (Japoński)](README.ja.md)
-- [한국어 (Koreański)](README.ko.md)
-- [Español (Hiszpański)](README.es.md)
-- [العربية (Arabski)](README.ar.md)
-- [हिन्दी (Hindi)](README.hi.md)
-- [Bahasa Indonesia](README.id.md)
-- [தமிழ் (Tamilski)](README.ta.md)
-- [Türkçe (Turecki)](README.tr.md)
-
----
-
-## Czym jest NestCafe?
-
-NestCafe to **lokalny agent AI na pulpit**, który daje modelom AI bezpośredni dostęp do Twojego komputera — za Twoim pozwoleniem. W przeciwieństwie do chatbotów w chmurze, NestCafe potrafi czytać i zapisywać pliki, przeglądać internet, wykonywać polecenia terminala, wysyłać e-maile, zarządzać kalendarzem i wiele więcej.
-
-Pomyśl o tym jak o współpracowniku AI, który faktycznie _robi_ rzeczy, a nie tylko o nich mówi.
-
-## Funkcje
-
-- **Wieloagentowe wykonywanie** — Główny agent koordynuje wyspecjalizowanych pod-agentów do realizacji złożonych, wieloetapowych zadań
-- **25+ dostawców AI** — Użyj OpenAI, Anthropic, Google, DeepSeek, Qwen, Perplexity, Ollama, LM Studio lub własnego API
-- **Automatyzacja przeglądarki** — Wbudowany Chromium pozwala agentom nawigować po stronach, wypełniać formularze i pobierać dane
-- **Dostęp do systemu plików** — Agenci czytają, zapisują i organizują pliki i foldery na Twoim komputerze (za zgodą)
-- **Polecenia terminala** — Wykonuj PowerShell, Bash lub dowolne narzędzie CLI z poziomu zadań
-- **E-mail i kalendarz** — Połącz Gmail i Kalendarz Google do automatycznej komunikacji i planowania
-- **Integracja z WhatsApp** — Wysyłaj wiadomości i odbieraj polecenia przez WhatsApp
-- **Harmonogram zadań** — Ustawiaj cykliczne zadania działające według harmonogramu cron
-- **Rozszerzalne umiejętności** — Ładuj własną logikę przez umiejętności definiowane w Markdown — ucz swoich agentów nowych sztuczek
-- **Tryby piaskownicy** — Uruchamiaj agentów w kontenerach Docker lub natywnie z konfigurowalnymi zabezpieczeniami
-- **Jasny/ciemny motyw** — Piękny interfejs z personalizacją wyglądu i motywów
-- **Wielojęzyczność** — Interfejs dostępny po angielsku, polsku, chińsku, japońsku i nie tylko
-
-## Obsługiwani dostawcy
-
-NestCafe współpracuje z praktycznie każdym liczącym się dostawcą AI:
-
-| Dostawcy chmurowi     | Lokalni / Self-Hosted      | Enterprise       |
-| :-------------------- | :------------------------- | :--------------- |
-| OpenAI                | Ollama                     | Azure Foundry    |
-| Anthropic             | LM Studio                  | AWS Bedrock      |
-| Google (Gemini)       | HuggingFace Local          | Google Vertex AI |
-| DeepSeek              | LiteLLM                    | NVIDIA NIM       |
-| xAI (Grok)            | Własny (OpenAI-compatible) | Copilot          |
-| Groq                  |                            |                  |
-| Fireworks             |                            |                  |
-| Together AI           |                            |                  |
-| OpenRouter            |                            |                  |
-| Moonshot              |                            |                  |
-| MiniMax               |                            |                  |
-| Nebius                |                            |                  |
-| Z.AI                  |                            |                  |
-| Qwen (Chiny)          |                            |                  |
-| Qwen (Międzynarodowy) |                            |                  |
-| Perplexity            |                            |                  |
-| Xiaomi                |                            |                  |
 
 ## Szybki start
 
-**Wymagania:** Node.js 24+, pnpm 10.33+
+Kliknij dwukrotnie **`NestCafe.exe`**. To wszystko.
 
-```bash
-# Sklonuj repozytorium
-git clone https://github.com/snakex21/NestCafe.git
+Przy pierwszym uruchomieniu NestCafe odczytuje język systemu Windows i konfiguruje interfejs. Możesz go zmienić w **Ustawienia → Ogólne → Język**.
+
+---
+
+## Wersja
+
+| Gdzie | Jak sprawdzić |
+|---|---|
+| Plik na dysku | Plik `VERSION` w katalogu głównym (np. `1.0.5`) |
+| W aplikacji | **Ustawienia → O programie** — wersja produktu, wersja silnika, język UI |
+| Po buildzie | `native-ui/version.json` — synchronizowany z `VERSION` przez `build.bat` |
+
+---
+
+## Obsługiwane języki (20)
+
+Interfejs jest w pełni przetłumaczony. Język systemu jest wykrywany automatycznie.
+
+| Kod | Język | Kod | Język |
+|-----|-------|-----|-------|
+| `pl` | Polski | `cs` | Čeština |
+| `en` | English | `sk` | Slovenčina |
+| `de` | Deutsch | `uk` | Українська |
+| `fr` | Français | `ru` | Русский |
+| `es` | Español | `tr` | Türkçe |
+| `it` | Italiano | `ja` | 日本語 |
+| `pt` | Português | `ko` | 한국어 |
+| `nl` | Nederlands | `zh` | 中文 |
+| `sv` | Svenska | `fi` | Suomi |
+| `no` | Norsk | `da` | Dansk |
+
+---
+
+## Struktura projektu
+
+```
+NestCafe.exe                  launcher (Go + WebView2)
+runtime/NestCafe.exe          silnik SuperCli
+native-ui/                    interfejs web
+  css/app.css                 jeden plik CSS
+  js/                         logika UI
+  assets/                     ikony, logo
+  modules/                    moduły (np. OCR)
+  version.json                wersja (synchronizowana z VERSION)
+VERSION                       plik wersji
+scripts/                      build, testy
+supercli-data/                dane przenośne (sesje, config, eksporty)
+readme/                       README w 20 językach
+```
+
+---
+
+## Funkcje
+
+### Czat
+Wpisz wiadomość i naciśnij Enter. Obsługuje tekst i załączniki graficzne. Obrazki są podglądane inline, galeria umożliwia przeglądanie strzałkami.
+
+### Dostawcy i modele
+Dodawaj dostawców OpenAI-kompatybilnych w **Ustawienia → Dostawcy**. Każdy wymaga nazwy, URLa bazowego, opcjonalnego klucza API i domyślnego modelu. Włączaj/wyłączaj modele indywidualnie.
+
+### Przeglądarka OCR
+Moduł **OCR Viewer** (`modules/ocr-viewer/`) przetwarza obrazy i PDF-y:
+- Podgląd jak w Wordzie
+- Limit stron PDF (1–100)
+- Zapis do `supercli-data\exports\ocr\` lub własnego folderu
+- Automatyczne otwieranie folderu w **Ustawienia → OCR**
+
+### Ustawienia
+- **Ogólne** — język, motyw, szczegóły diagnostyczne
+- **Dostawcy** — dodawanie/edycja/usuwanie dostawców, testowanie połączenia
+- **Modele i kontekst** — wyszukiwanie modeli, ustawianie limitów kontekstu
+- **O programie** — informacje o wersji, silniku, systemie
+
+### DevTools
+Widoczne tylko gdy włączone: **Ustawienia → Ogólne → Szczegóły diagnostyczne**. Wtedy prawym przyciskiem → „Zbadaj element" otwiera DevTools WebView2.
+
+---
+
+## Build
+
+```bat
 cd NestCafe
-
-# Zainstaluj zależności
-pnpm install
-
-# Uruchom w trybie deweloperskim
-pnpm dev
+build.bat
 ```
 
-Na Windowsie możesz też kliknąć dwukrotnie `start.bat`.
+Podmiana tylko silnika SuperCli:
 
-> **Pierwsze uruchomienie?** Zostaniesz poprowadzony przez konfigurację — wybierz dostawcę, dodaj klucz API (lub połącz z modelem lokalnym) i gotowe.
-
-## Architektura
-
-NestCafe używa podzielonej architektury dla bezpieczeństwa i wydajności:
-
-```
-┌─────────────────────────────────────────────────────┐
-│  apps/web          React UI (Vite + Tailwind)        │
-│  apps/desktop      Powłoka Electron (main + preload) │
-│  apps/daemon       Wykonywanie zadań w tle           │
-│  packages/agent-core    Logika, storage, typy        │
-└─────────────────────────────────────────────────────┘
+```bat
+build.bat C:\sciezka\do\supercli-web.exe
 ```
 
-- **Web UI** — Samodzielna aplikacja React z zarządzaniem stanem Zustand, komponentami shadcn/ui i animacjami Framer Motion
-- **Powłoka Electron** — Cienka nakładka desktopowa, mostek IPC, auto-aktualizator, ikona w zasobniku
-- **Daemon** — Długo działający proces w tle, który odpowiada za wykonywanie zadań, uruchamia podprocesy `opencode`
-- **Agent Core** — Współdzielona logika biznesowa, migracje bazy danych, narzędzia MCP, integracje dostawców, typy
+---
 
-Klucze API są przechowywane lokalnie z **szyfrowaniem AES-256-GCM**. Nic nie opuszcza Twojego komputera, chyba że to skonfigurujesz.
+## Weryfikacja
 
-## Budowanie
-
-```bash
-pnpm build            # Zbuduj wszystkie pakiety
-pnpm build:desktop    # Spakuj jako aplikację desktopową (Windows/Mac/Linux)
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\test-supercli-bridge.ps1 -Launcher .\NestCafe.exe
+powershell -ExecutionPolicy Bypass -File scripts\smoke-test.ps1
 ```
 
-## Programowanie
+---
 
-```bash
-pnpm typecheck        # Walidacja TypeScript
-pnpm lint:eslint      # ESLint
-pnpm format:check     # Sprawdzenie Prettier
-pnpm -F @nestcafe/web test        # Testy web
-pnpm -F @nestcafe/desktop test     # Testy desktop
-pnpm -F @nestcafe_ai/agent-core test  # Testy core
-```
+## Dane
 
-Zobacz [AGENTS.md](../AGENTS.md) ze szczegółowymi instrukcjami, konwencjami kodu i typowymi przepływami pracy.
+NestCafe przechowuje dane w `supercli-data/` obok pliku wykonywalnego:
+- `sessions/` — sesje czatu
+- `config/` — klucze dostawców, preferencje
+- `exports/ocr/` — wyniki OCR
 
-## Stack technologiczny
+Żadne dane nie są zapisywane poza folderem aplikacji.
 
-| Warstwa           | Technologia                      |
-| :---------------- | :------------------------------- |
-| Język             | TypeScript (strict)              |
-| Frontend          | React 19, Vite 8, Tailwind CSS 3 |
-| Desktop           | Electron 41                      |
-| Stan              | Zustand                          |
-| Komponenty UI     | shadcn/ui, Radix UI              |
-| Animacje          | Framer Motion                    |
-| Baza danych       | SQLite (better-sqlite3)          |
-| Testy             | Vitest, Playwright               |
-| Menadżer pakietów | pnpm (monorepo)                  |
-| Środowisko AI     | OpenCode SDK                     |
+---
 
 ## Licencja
 
-MIT — zobacz [LICENSE](../LICENSE).
+Zobacz `LICENSE` w katalogu głównym projektu.
