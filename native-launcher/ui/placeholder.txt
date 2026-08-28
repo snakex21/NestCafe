@@ -1,0 +1,1 @@
+This directory is populated temporarily by scripts/build-native.ps1.

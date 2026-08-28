@@ -17,9 +17,22 @@ The first time you launch NestCafe, it reads your Windows system language and co
 
 | Where | How |
 |---|---|
-| File on disk | Root `VERSION` file (e.g. `1.0.5`) |
+| File on disk | Root `VERSION` file (e.g. `2.0.0`) |
 | In the app | **Settings → About** — shows product version, engine version, UI language, and loaded modules |
 | Build artifact | `native-ui/version.json` — synced from `VERSION` by `build.bat` |
+
+---
+
+## Updates and migration from the old Node/Electron build
+
+NestCafe 2.x is the native Go + HTML/CSS/JS line. The former Node/Electron application is preserved on the **`legacy/node-1.x`** branch.
+
+Windows releases publish two update manifests:
+
+- `latest.yml` keeps the existing 1.x Electron updater compatible with the 2.x migration installer;
+- `native-update.json` is used by the native launcher for later 2.x updates.
+
+The migration installer removes the old application files from the install directory, installs the native launcher and SuperCli runtime, and keeps an existing `supercli-data/` directory intact. Native updates are downloaded from GitHub Releases and verified with SHA-256 before installation.
 
 ---
 
@@ -76,9 +89,10 @@ native-ui/                    web UI
   modules/                    OCR viewer, etc.
   version.json                synced from VERSION at build
 VERSION                       root version file
+build.bat                     one-shot build (embeds UI + modules into exe)
 scripts/
-  build.bat                   one-shot build (embeds UI + modules into exe)
   build-native.ps1            PowerShell build script
+  update-engine.ps1           replace only the SuperCli runtime
   smoke-test.ps1              quick health/version/OCR/bridge test
 supercli-data/                portable data (sessions, config, exports)
 readme/                       multi-language READMEs (20 languages)
@@ -162,7 +176,7 @@ No data is written outside the app folder.
 All UI functionality is exposed through `window.NestCafe.*`. No legacy `window.*NestCafe*` aliases exist. Modules register themselves on the bus in `js/core/namespace.js`.
 
 ### CSS
-Single file: `native-ui/css/app.css`. The top section is the historical design; the `redesign-v2` layer at the bottom provides the current Linear-style look.
+Single file: `native-ui/css/app.css`. The historical layers remain for compatibility; the final redesign/polish layers define the current desktop look.
 
 ### Modules
 The `modules/` directory contains optional components (OCR viewer, etc.) that are embedded into the exe at build time. Each module has a `manifest.json`.
