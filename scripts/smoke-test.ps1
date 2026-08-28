@@ -138,6 +138,12 @@ try {
         if ($js.Contains($token)) { Pass "ocr code $token" } else { Fail "ocr code missing $token" }
     }
 
+    $ocrCss = Join-Path $Project 'modules\ocr-viewer\native.css'
+    $css = Get-Content -LiteralPath $ocrCss -Raw -Encoding UTF8
+    foreach ($token in @('height: auto;', 'min-height: 920px;', '.ocr-markdown-preview.ocr-word-page h4')) {
+        if ($css.Contains($token)) { Pass "ocr word preview $token" } else { Fail "ocr word preview missing $token" }
+    }
+
     $versionJson = Join-Path $Project 'native-ui\version.json'
     if (Test-Path -LiteralPath $versionJson) {
         $ver = Get-Content -LiteralPath $versionJson -Raw | ConvertFrom-Json
