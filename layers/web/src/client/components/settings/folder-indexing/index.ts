@@ -1,1 +1,0 @@
-export { FolderIndexingSection } from './FolderIndexingSection';

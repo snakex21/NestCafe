@@ -3,119 +3,117 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="dark light" />
     <title>NestCafe</title>
-    <link rel="stylesheet" href="fonts.css" />
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="models.css" />
-    <link rel="stylesheet" href="providers.css" />
-    <link rel="stylesheet" href="attachments.css" />
-    <link rel="stylesheet" href="results.css" />
-    <link rel="stylesheet" href="plan.css" />
-    <link rel="stylesheet" href="classic.css" />
-    <link rel="stylesheet" href="home.css" />
-    <link rel="stylesheet" href="legacy.css" />
-    <link rel="stylesheet" href="parity.css" />
-    <link rel="stylesheet" href="execution.css" />
-    <link rel="stylesheet" href="settings.css" />
-    <link rel="stylesheet" href="skills.css" />
+    <link rel="stylesheet" href="css/fonts.css" />
+    <link rel="stylesheet" href="css/app.css" />
   </head>
   <body class="empty-state">
     <div class="app-shell">
       <aside class="sidebar">
-        <button class="workspace-button" id="workspace-button" type="button" title="Zmień folder roboczy">
-          Folder roboczy
-        </button>
-
-        <div class="module-heading">
-          <span>Moduły</span>
-          <button id="module-add" type="button" title="Przeglądaj umiejętności">+</button>
+        <div class="sidebar-brand">
+          <img class="brand-logo" src="assets/nestcafe-icon.png" alt="" />
+          <div><strong>NestCafe</strong><span>Pulpit roboczy</span></div>
         </div>
-        <p class="module-empty">Brak modułów. Kliknij +, by wybrać.</p>
-        <button class="plan-button" id="plan-button" type="button">
-          <span aria-hidden="true">◎</span> Plan pracy <small id="plan-badge" hidden></small>
+
+        <button class="document-library-button" id="document-library-button" type="button">
+          <span class="document-library-glyph" aria-hidden="true"></span>
+          <span class="document-library-copy">
+            <small>ŹRÓDŁA</small>
+            <strong>Pliki i foldery</strong>
+          </span>
+          <span class="document-library-arrow" aria-hidden="true">→</span>
         </button>
 
         <div class="sidebar-actions">
           <button class="new-chat" id="new-chat" type="button">
             <span aria-hidden="true">＋</span>
-            Nowe zadanie
+            Nowa rozmowa
           </button>
           <button class="search-button" id="search-sessions" type="button" title="Szukaj rozmów" aria-label="Szukaj rozmów">⌕</button>
         </div>
 
-        <button class="clear-sessions" id="clear-sessions" type="button">Usuń wszystkie rozmowy</button>
-        <div class="sidebar-heading">
-          <span>Ostatnie rozmowy</span>
-          <button id="refresh-sessions" type="button" title="Odśwież">↻</button>
-        </div>
-        <nav class="session-list" id="session-list" aria-label="Ostatnie rozmowy"></nav>
+        <section class="sidebar-section module-section">
+          <div class="module-heading">
+            <span>Moduły</span>
+            <button id="module-add" type="button" title="Przeglądaj umiejętności">+</button>
+          </div>
+          <div class="module-list" id="module-list"></div>
+          <p class="module-empty" id="module-empty">Brak aktywnych modułów.</p>
+        </section>
+
+        <section class="sidebar-section favorite-section" id="favorites" hidden>
+          <div class="sidebar-heading favorite-heading">
+            <span>Ulubione</span>
+          </div>
+          <nav class="favorite-list" id="favorite-list" aria-label="Ulubione rozmowy"></nav>
+        </section>
+
+        <section class="sidebar-section history-section">
+          <div class="sidebar-heading">
+            <span>Historia</span>
+            <button id="refresh-sessions" type="button" title="Odśwież">↻</button>
+          </div>
+          <nav class="session-list" id="session-list" aria-label="Historia rozmów"></nav>
+          <button class="clear-sessions" id="clear-sessions" type="button">Wyczyść historię</button>
+        </section>
 
         <div class="engine-state">
-          <div class="sidebar-brand">
-            <img class="brand-logo" src="nestcafe-icon.png" alt="" />
-            <strong>NestCafe</strong>
+          <span class="status-dot" id="status-dot"></span>
+          <div class="engine-copy">
+            <strong id="model-label">Model</strong>
+            <span id="engine-label">Łączenie…</span>
           </div>
-          <div class="sidebar-settings">
-            <span class="status-dot" id="status-dot"></span>
-            <button class="provider-button" id="provider-button" type="button" title="Ustawienia dostawców" aria-label="Ustawienia dostawców">⚙</button>
-          </div>
-          <span id="engine-label" hidden>Łączenie z SuperCli…</span>
-          <span id="model-label" hidden>Sprawdzam model</span>
+          <button class="provider-button" id="provider-button" type="button" title="Ustawienia" aria-label="Ustawienia">⚙</button>
         </div>
       </aside>
 
       <main class="workspace">
         <header class="topbar">
-          <button class="execution-back" id="execution-back" type="button" aria-label="Wróć do strony głównej">←</button>
-          <h1 id="conversation-title">Dzień dobry</h1>
+          <button class="execution-back" id="execution-back" type="button" aria-label="Wróć do pustej rozmowy">←</button>
+          <div class="topbar-title"><span>ROZMOWA</span><h1 id="conversation-title">Nowa rozmowa</h1></div>
           <div class="run-state" id="run-state">Gotowy</div>
         </header>
 
+        <section class="module-workspace" id="module-workspace" hidden>
+          <header class="module-workspace-head">
+            <div>
+              <span>MODUŁ</span>
+              <h2 id="module-workspace-title">Moduł</h2>
+            </div>
+            <button id="module-close" type="button" aria-label="Zamknij moduł">×</button>
+          </header>
+          <div class="module-workspace-content" id="module-workspace-content"></div>
+        </section>
+
         <section class="conversation" id="conversation" aria-live="polite">
           <div class="welcome" id="welcome">
-            <h2>Co dziś osiągniesz?</h2>
-            <div class="favorites" id="favorites"><h3>Ulubione</h3><p>Oznacz gwiazdką ukończone rozmowy, by zobaczyć je tutaj.</p><div id="favorite-list"></div></div>
-            <div class="welcome-examples">
-              <h3>Przykładowe zadania</h3>
-              <button type="button" data-example-prompt="Przejrzyj jutrzejsze spotkania i przygotuj notatki.">
-                <strong>Notatki do spotkań</strong>
-                <span>Przejrzyj jutrzejsze spotkania i przygotuj notatki.</span>
-                <span class="example-icons"><img src="google-calendar.png" alt="" /><img src="google-docs.png" alt="" /></span>
-              </button>
-              <button type="button" data-example-prompt="Usuń maile promocyjne z ostatnich 24 godzin.">
-                <strong>Czyszczenie skrzynki</strong>
-                <span>Usuń maile promocyjne z ostatnich 24 godzin.</span>
-                <span class="example-icons"><img src="gmail.png" alt="" /></span>
-              </button>
-              <button type="button" data-example-prompt="Przeanalizuj ceny konkurencji i przygotuj rekomendacje.">
-                <strong>Analiza cen konkurencji</strong>
-                <span>Przeanalizuj ceny i przygotuj rekomendacje.</span>
-                <span class="example-icons"><img src="google-slides.png" alt="" /><img src="google-sheets.png" alt="" /></span>
-              </button>
-              <button type="button" data-example-prompt="Przeskanuj wiki Notion pod kątem starych wzmianek o API."><strong>Audyt API w Notion</strong><span>Znajdź stare wzmianki o API wraz z linkami.</span><span class="example-icons"><img src="notion.png" alt="" /></span></button>
-              <button type="button" data-example-prompt="Porównaj wizualnie stronę staging z produkcyjną."><strong>Porównanie staging vs prod</strong><span>Porównaj obie strony za pomocą zrzutów ekranu.</span><span class="example-icons"><img src="chrome.png" alt="" /></span></button>
-              <button type="button" data-example-prompt="Sprawdź stronę pod kątem uszkodzonych linków."><strong>Uszkodzone linki</strong><span>Znajdź wszystkie niedziałające odnośniki.</span><span class="example-icons"><img src="chrome.png" alt="" /></span></button>
+            <div class="welcome-intro">
+              <span class="welcome-kicker">START</span>
+              <h2>Wpisz zadanie</h2>
+              <p>Model, pliki i narzędzia działają w tym oknie. Enter wysyła, Shift+Enter nowa linia.</p>
             </div>
           </div>
         </section>
+
+        <section class="composer-queue" id="composer-queue" aria-label="Kolejka wiadomości" hidden></section>
 
         <form class="composer" id="composer">
           <div class="attachment-list" id="attachment-list" hidden></div>
           <textarea
             id="prompt"
             rows="1"
-            placeholder="Opisz zadanie, a AI zajmie się resztą"
+            placeholder="Wiadomość lub polecenie…"
             aria-label="Wiadomość"
           ></textarea>
           <div class="composer-footer">
             <div class="composer-context">
               <button class="attach-button" id="attach-button" type="button" title="Załącz plik" aria-label="Załącz plik">＋</button>
-              <span>Enter wysyła · Shift+Enter dodaje nową linię</span>
+              <span class="composer-keys"><kbd>Enter</kbd> wyślij <i>·</i> <kbd>Shift+Enter</kbd> nowa linia</span>
             </div>
             <div class="composer-actions">
-              <button class="model-button" id="model-button" type="button">Wybierz model</button>
-              <button class="stop-button" id="stop-button" type="button" hidden>Zatrzymaj</button>
+              <button class="model-button" id="model-button" type="button">Model</button>
+              <button class="stop-button" id="stop-button" type="button" hidden>Stop</button>
               <button class="send-button" id="send-button" type="submit">Wyślij</button>
             </div>
           </div>
@@ -218,6 +216,21 @@
             Po zapisaniu NestCafe sprawdzi endpoint modeli bez uruchamiania inferencji.
           </div>
 
+          <section class="provider-models" id="provider-models" hidden>
+            <div class="provider-models-head">
+              <div>
+                <strong>Lista modeli</strong>
+                <small id="provider-models-count">0 modeli</small>
+              </div>
+              <div class="provider-models-actions">
+                <button class="secondary-button" id="provider-models-enable" type="button">Włącz wszystkie</button>
+                <button class="secondary-button" id="provider-models-disable" type="button">Wyłącz wszystkie</button>
+              </div>
+            </div>
+            <input id="provider-model-search" type="search" placeholder="Szukaj modeli…" autocomplete="off" />
+            <div class="provider-model-list" id="provider-model-list"></div>
+          </section>
+
           <div class="provider-actions">
             <button class="danger-button" id="delete-provider" type="button" hidden>Usuń</button>
             <div>
@@ -295,7 +308,7 @@
 
       <section class="plan-panel" id="plan-memory">
         <div class="plan-intro">
-          <div><h3>Pamięć projektu</h3><p>Fakty zapisane przez agenta dla bieżącego folderu i wszystkich projektów.</p></div>
+          <div><h3>Pamięć NestCafe</h3><p>Fakty zapisane dla bieżącego kontekstu oraz we wspólnej pamięci aplikacji.</p></div>
           <button id="refresh-memory" type="button">Odśwież</button>
         </div>
         <div class="memory-list" id="memory-list"></div>
@@ -303,16 +316,33 @@
     </dialog>
 
     <div class="toast" id="toast" role="status" hidden></div>
-    <script src="execution.js" defer></script>
-    <script src="app.js" defer></script>
-    <script src="models.js" defer></script>
-    <script src="providers.js" defer></script>
-    <script src="attachments.js" defer></script>
-    <script src="results.js" defer></script>
-    <script src="plan.js" defer></script>
-    <script src="search.js" defer></script>
-    <script src="favorites.js" defer></script>
-    <script src="skills.js" defer></script>
-    <script src="settings.js" defer></script>
+    <!-- Load order: SuperCli runtime → NestCafe bus → shell → features → settings pages → modules -->
+    <script src="/.__supercli/ui/runtime.js"></script>
+    <script src="js/core/namespace.js"></script>
+    <script src="js/core/version.js"></script>
+    <script src="js/core/i18n.js"></script>
+    <script src="js/core/appearance.js"></script>
+    <script src="js/chat/execution.js" defer></script>
+    <script src="js/chat/results.js" defer></script>
+    <script src="js/sidebar/marquee.js" defer></script>
+    <script src="js/sidebar/favorites.js" defer></script>
+    <script src="js/core/app.js" defer></script>
+    <script src="js/models/models.js" defer></script>
+    <script src="js/models/providers.js" defer></script>
+    <script src="js/composer/attachments.js" defer></script>
+    <script src="js/plan/plan.js" defer></script>
+    <script src="js/sidebar/search.js" defer></script>
+    <script src="js/sidebar/skills.js" defer></script>
+    <script src="js/settings/settings.js" defer></script>
+    <script src="js/settings/settings-pages.js" defer></script>
+    <script src="js/settings/settings-models.js" defer></script>
+    <script src="js/settings/settings-plan.js" defer></script>
+    <script src="js/settings/settings-integrations.js" defer></script>
+    <script src="js/settings/settings-scheduler.js" defer></script>
+    <script src="js/settings/settings-general.js" defer></script>
+    <script src="js/settings/settings-folders.js" defer></script>
+    <script src="js/settings/settings-memory.js" defer></script>
+    <script src="js/settings/settings-instructions.js" defer></script>
+    <script src="js/modules/modules.js" defer></script>
   </body>
 </html>

@@ -1,0 +1,118 @@
+name: Build native NestCafe release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.x'
+
+      - name: Verify tag matches VERSION
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $tag = '${{ github.ref_name }}'.TrimStart('v')
+          if ($version -ne $tag) { throw "VERSION=$version but tag=$tag" }
+
+      - name: Test launcher and installer
+        shell: pwsh
+        run: |
+          Push-Location native-launcher
+          go test ./...
+          Pop-Location
+          Push-Location native-installer
+          go test ./...
+          Pop-Location
+
+      - name: Build native launcher
+        shell: pwsh
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-native.ps1 -SkipTests
+
+      - name: Stage installer payload
+        shell: pwsh
+        run: |
+          $payload = Join-Path $PWD 'native-installer\payload'
+          Get-ChildItem $payload -Force | Remove-Item -Recurse -Force
+          Copy-Item NestCafe.exe (Join-Path $payload 'NestCafe.exe')
+          Copy-Item LICENSE (Join-Path $payload 'LICENSE')
+          Copy-Item README.md (Join-Path $payload 'README.md')
+          New-Item -ItemType Directory -Force (Join-Path $payload 'runtime') | Out-Null
+          Copy-Item runtime\NestCafe.exe (Join-Path $payload 'runtime\NestCafe.exe')
+          if (Test-Path supercli-data\skills\builtin-skills.zip) {
+            New-Item -ItemType Directory -Force (Join-Path $payload 'supercli-data\skills') | Out-Null
+            Copy-Item supercli-data\skills\builtin-skills.zip (Join-Path $payload 'supercli-data\skills\builtin-skills.zip')
+          }
+
+      - name: Build migration-compatible installer
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          Push-Location native-installer
+          go build -trimpath -ldflags='-H=windowsgui' -o "..\NestCafe-$version-win-x64.exe" .
+          Pop-Location
+
+      - name: Build portable ZIP and update manifests
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $installer = "NestCafe-$version-win-x64.exe"
+          $portable = "NestCafe-$version-portable-win-x64.zip"
+          $stage = Join-Path $env:RUNNER_TEMP 'NestCafe-portable'
+          New-Item -ItemType Directory -Force $stage | Out-Null
+          Copy-Item NestCafe.exe $stage
+          Copy-Item LICENSE $stage
+          Copy-Item README.md $stage
+          Copy-Item runtime $stage -Recurse
+          if (Test-Path supercli-data\skills\builtin-skills.zip) {
+            New-Item -ItemType Directory -Force (Join-Path $stage 'supercli-data\skills') | Out-Null
+            Copy-Item supercli-data\skills\builtin-skills.zip (Join-Path $stage 'supercli-data\skills\builtin-skills.zip')
+          }
+          Compress-Archive -Path "$stage\*" -DestinationPath $portable -CompressionLevel Optimal
+
+          $sha512Bytes = [Security.Cryptography.SHA512]::HashData([IO.File]::ReadAllBytes((Resolve-Path $installer)))
+          $sha512 = [Convert]::ToBase64String($sha512Bytes)
+          $sha256 = (Get-FileHash $installer -Algorithm SHA256).Hash.ToLowerInvariant()
+          $size = (Get-Item $installer).Length
+          $date = (Get-Date).ToUniversalTime().ToString('o')
+          @"
+          version: $version
+          files:
+            - url: $installer
+              sha512: $sha512
+              size: $size
+          path: $installer
+          sha512: $sha512
+          releaseDate: '$date'
+          "@ | Set-Content -Encoding utf8 latest.yml
+
+          $native = [ordered]@{
+            version = $version
+            url = "https://github.com/${{ github.repository }}/releases/download/v$version/$installer"
+            sha256 = $sha256
+          } | ConvertTo-Json -Compress
+          [IO.File]::WriteAllText((Join-Path $PWD 'native-update.json'), $native + "`n", [Text.UTF8Encoding]::new($false))
+
+      - name: Publish release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            NestCafe-*-win-x64.exe
+            NestCafe-*-portable-win-x64.zip
+            latest.yml
+            native-update.json
+          generate_release_notes: true

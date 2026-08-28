@@ -1,15 +1,26 @@
 param(
-    [string]$Engine = (Join-Path $PSScriptRoot '..\..\SuperCli\supercli-web.exe'),
-    [switch]$UseBundledUI
+    [string]$Engine = '',
+    [string]$Launcher = ''
 )
 
 $ErrorActionPreference = 'Stop'
 $project = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $ui = Join-Path $project 'native-ui'
-$enginePath = (Resolve-Path $Engine).Path
+$usingLauncher = -not [string]::IsNullOrWhiteSpace($Launcher)
+if ($usingLauncher) {
+    $processPath = (Resolve-Path -LiteralPath $Launcher).Path
+} else {
+    if ([string]::IsNullOrWhiteSpace($Engine)) {
+        $Engine = Join-Path $project 'runtime\NestCafe.exe'
+    }
+    $processPath = (Resolve-Path -LiteralPath $Engine).Path
+}
 $tempRoot = [System.IO.Path]::GetFullPath($env:TEMP)
-$testHome = Join-Path $tempRoot ("nestcafe-bridge-" + [guid]::NewGuid().ToString('N'))
-New-Item -ItemType Directory -Path $testHome | Out-Null
+$testRoot = Join-Path $tempRoot ("nestcafe-bridge-" + [guid]::NewGuid().ToString('N'))
+$testHome = Join-Path $testRoot 'home'
+$testData = Join-Path $testRoot 'data'
+New-Item -ItemType Directory -Path $testHome -Force | Out-Null
+New-Item -ItemType Directory -Path $testData -Force | Out-Null
 
 $listener = [System.Net.Sockets.TcpListener]::new(
     [System.Net.IPAddress]::Loopback,
@@ -25,14 +36,16 @@ $arguments = @(
     '--echo',
     '--addr', "127.0.0.1:$port",
     '--home', $testHome,
+    '--data-dir', $testData,
     '--workspace', $project
 )
-if (-not $UseBundledUI) {
+if (-not $usingLauncher) {
     $arguments += @('--ui-dir', $ui)
+    $arguments += @('--app-name', 'NestCafe', '--app-profile', 'nestcafe', '--require-ui-contract', '1')
 }
 
 $process = Start-Process `
-    -FilePath $enginePath `
+    -FilePath $processPath `
     -ArgumentList $arguments `
     -WorkingDirectory $project `
     -WindowStyle Hidden `
@@ -55,13 +68,46 @@ try {
         throw "Unexpected workspace: $($health.home)"
     }
 
+    $runtime = Invoke-RestMethod "$baseUrl/api/runtime"
+    if ($runtime.app -ne 'NestCafe' -or $runtime.engine -ne 'SuperCli' -or $runtime.ui_contract -lt 1) {
+        throw "Unexpected launcher contract: $($runtime | ConvertTo-Json -Compress)"
+    }
+    if (-not $runtime.full_filesystem_access) {
+        throw 'NestCafe office profile did not enable access to ordinary user files'
+    }
+
     $root = Invoke-WebRequest -UseBasicParsing "$baseUrl/"
     if (
         $root.StatusCode -ne 200 -or
         $root.Content -notmatch '<title>NestCafe</title>' -or
-        $root.Content -notmatch 'id="plan-dialog"'
+        $root.Content -notmatch '/\.__supercli/ui/runtime\.js' -or
+        $root.Content -notmatch 'id="plan-dialog"' -or
+        $root.Content -notmatch 'id="module-workspace"'
     ) {
         throw 'NestCafe UI was not served'
+    }
+
+    $sharedRuntime = Invoke-WebRequest -UseBasicParsing "$baseUrl/.__supercli/ui/runtime.js"
+    if (
+        $sharedRuntime.StatusCode -ne 200 -or
+        $sharedRuntime.Content -notmatch 'SuperCliUI' -or
+        $sharedRuntime.Content -notmatch 'normalizeFileChanges'
+    ) {
+        throw 'Shared SuperCli UI runtime is unavailable'
+    }
+
+    if ($usingLauncher) {
+        $moduleCatalog = @(Invoke-RestMethod "$baseUrl/modules/catalog.json")
+        $ocrModule = $moduleCatalog | Where-Object { $_.name -eq 'ocr-viewer' } | Select-Object -First 1
+        if (-not $ocrModule -or $ocrModule.nativeEntry -ne 'native.js') {
+            throw 'OCR Viewer module is missing from the bundled catalog'
+        }
+        foreach ($asset in @('native.js', 'native.css', 'pdf.min.js', 'pdf.worker.min.js')) {
+            $moduleAsset = Invoke-WebRequest -UseBasicParsing "$baseUrl/modules/ocr-viewer/$asset"
+            if ($moduleAsset.StatusCode -ne 200 -or $moduleAsset.RawContentLength -le 0) {
+                throw "OCR Viewer asset is missing: $asset"
+            }
+        }
     }
 
     $models = Invoke-RestMethod "$baseUrl/api/models"
@@ -78,6 +124,20 @@ try {
         throw 'Provider list exposed an API key field'
     }
 
+    $visionBody = @{
+        imageBase64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('test-image'))
+        mimeType = 'image/png'
+        prompt = 'Read this page'
+    } | ConvertTo-Json -Compress
+    $vision = Invoke-RestMethod `
+        -Method Post `
+        -Uri "$baseUrl/api/vision/transcribe" `
+        -ContentType 'application/json' `
+        -Body $visionBody
+    if ($vision.text -notmatch 'Read this page') {
+        throw 'OCR vision bridge did not return provider output'
+    }
+
     $goal = Invoke-WebRequest -UseBasicParsing "$baseUrl/api/goal"
     $memory = Invoke-WebRequest -UseBasicParsing "$baseUrl/api/memory?limit=5"
     $skills = Invoke-RestMethod "$baseUrl/api/skills?limit=5"
@@ -91,9 +151,13 @@ try {
         throw 'Work plan API contract is incomplete'
     }
 
+    # This goal exists only to exercise the bridge contract. Give it an
+    # unmistakably temporary name and always close it below so a failed or
+    # misconfigured test process can never leave an apparently real goal active.
+    $bridgeGoalTitle = 'NestCafe bridge self-test (temporary)'
     $goalBody = @{
         action = 'set'
-        title = 'NestCafe bridge goal'
+        title = $bridgeGoalTitle
         success_criteria = 'contract passes'
     } | ConvertTo-Json -Compress
     $createdGoal = Invoke-RestMethod `
@@ -101,7 +165,7 @@ try {
         -Uri "$baseUrl/api/goal" `
         -ContentType 'application/json' `
         -Body $goalBody
-    if ($createdGoal.title -ne 'NestCafe bridge goal') {
+    if ($createdGoal.title -ne $bridgeGoalTitle) {
         throw 'Goal creation contract failed'
     }
 
@@ -113,6 +177,17 @@ try {
         -Body $stepBody
     if ($goalWithStep.tasks.Count -ne 1) {
         throw 'Goal task contract failed'
+    }
+
+    $closeGoalBody = @{ action = 'set_status'; status = 'abandoned' } | ConvertTo-Json -Compress
+    Invoke-RestMethod `
+        -Method Post `
+        -Uri "$baseUrl/api/goal" `
+        -ContentType 'application/json' `
+        -Body $closeGoalBody | Out-Null
+    $remainingGoal = Invoke-RestMethod "$baseUrl/api/goal"
+    if ($remainingGoal -and $remainingGoal.title -eq $bridgeGoalTitle) {
+        throw 'Temporary bridge goal remained active'
     }
 
     $queueBody = @{ prompt = 'Queued NestCafe bridge task' } | ConvertTo-Json -Compress
@@ -144,13 +219,48 @@ try {
         }
     }
 
+    $profileBody = @{ prompt = 'Hello, my name is Maks.' } | ConvertTo-Json -Compress
+    Invoke-WebRequest `
+        -UseBasicParsing `
+        -Method Post `
+        -Uri "$baseUrl/api/chat" `
+        -ContentType 'application/json; charset=utf-8' `
+        -Body ([Text.Encoding]::UTF8.GetBytes($profileBody)) | Out-Null
+    $memoryAfterProfile = Invoke-WebRequest -UseBasicParsing "$baseUrl/api/memory?limit=20"
+    if ($memoryAfterProfile.Content -notmatch 'Maks') {
+        throw 'Personal profile fact was not persisted by the Go web runtime'
+    }
+
     Write-Host "PASS NestCafe -> SuperCli bridge ($baseUrl)" -ForegroundColor Green
 } finally {
     if (-not $process.HasExited) {
         Stop-Process -Id $process.Id -Force
         $process.WaitForExit()
     }
-    $resolvedTestHome = [System.IO.Path]::GetFullPath($testHome)
+    if ($usingLauncher) {
+        $engineStopped = $false
+        for ($attempt = 0; $attempt -lt 30; $attempt++) {
+            try {
+                $probe = [System.Net.Sockets.TcpClient]::new()
+                $connect = $probe.BeginConnect('127.0.0.1', $port, $null, $null)
+                if (-not $connect.AsyncWaitHandle.WaitOne(50)) {
+                    $probe.Close()
+                    $engineStopped = $true
+                    break
+                }
+                $probe.EndConnect($connect)
+                $probe.Close()
+                Start-Sleep -Milliseconds 50
+            } catch {
+                $engineStopped = $true
+                break
+            }
+        }
+        if (-not $engineStopped) {
+            throw 'SuperCli engine remained alive after the NestCafe launcher exited'
+        }
+    }
+    $resolvedTestHome = [System.IO.Path]::GetFullPath($testRoot)
     $tempPrefix = $tempRoot.TrimEnd('\') + '\'
     if ($resolvedTestHome.StartsWith($tempPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
         Remove-Item -LiteralPath $resolvedTestHome -Recurse -Force -ErrorAction SilentlyContinue
