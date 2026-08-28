@@ -102,6 +102,28 @@
       .replace(/_([^_]+)_/g, "<em>$1</em>");
   }
 
+  function markdownToPlainText(value) {
+    return escapeText(value)
+      .replace(/\r\n?/g, "\n")
+      .replace(/^\s*```[^\n]*$/gm, "")
+      .replace(/^\s*#{1,6}\s+/gm, "")
+      .replace(/^\s*>\s?/gm, "")
+      .replace(/^\s*[-+*]\s+/gm, "")
+      .replace(/^\s*\d+[.)]\s+/gm, "")
+      .replace(/^\s*(?:---+|___+|\*\*\*+)\s*$/gm, "")
+      .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/\*\*([^*]+)\*\*/g, "$1")
+      .replace(/__([^_]+)__/g, "$1")
+      .replace(/~~([^~]+)~~/g, "$1")
+      .replace(/\*([^*]+)\*/g, "$1")
+      .replace(/_([^_]+)_/g, "$1")
+      .replace(/[ \t]+$/gm, "")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+  }
+
   function markdownToHTML(value) {
     const lines = escapeText(value).replace(/\r\n?/g, "\n").split("\n");
     const html = [];
@@ -205,8 +227,8 @@
               </select>
             </label>
             <label class="ocr-control">
-              <span>Plik końcowy</span>
-              <select class="ocr-format" aria-label="Format pliku końcowego">
+              <span>Eksport jako</span>
+              <select class="ocr-format" aria-label="Format eksportu; zmiana nie uruchamia OCR ponownie">
                 ${Object.entries(outputFormats).map(([value, item]) => `<option value="${value}">${item.label}</option>`).join("")}
               </select>
             </label>
@@ -248,11 +270,16 @@
                   <button class="ocr-copy" type="button">Kopiuj</button>
                   <button class="ocr-to-chat" type="button" disabled title="Wstaw wynik do pola wiadomości NestCafe">Do czatu</button>
                   <button class="ocr-preview-toggle" type="button" hidden>Edytuj</button>
+                  <span class="ocr-export-formats" aria-label="Format eksportu bez ponownego OCR">
+                    <button type="button" data-export-format="docx" title="Ustaw eksport do Worda bez ponownego OCR">DOCX</button>
+                    <button type="button" data-export-format="md" title="Ustaw eksport do Markdown bez ponownego OCR">MD</button>
+                    <button type="button" data-export-format="txt" title="Ustaw eksport do zwykłego tekstu bez ponownego OCR">TXT</button>
+                  </span>
                   <button class="ocr-save-folder" type="button" disabled title="Zapisz do folderu wyników (fallback: supercli-data\\exports\\ocr)">Zapisz do folderu</button>
                   <button class="ocr-open-folder" type="button" disabled title="Otwórz folder z ostatnim zapisem">Otwórz folder</button>
                   <button class="ocr-open-file" type="button" disabled title="Otwórz ostatni zapisany plik (np. Word)">Otwórz plik</button>
                   <button class="ocr-choose-folder" type="button" title="Ustaw własny folder wyników">Folder…</button>
-                  <button class="ocr-download" type="button" disabled>Pobierz…</button>
+                  <button class="ocr-download" type="button" disabled>Zapisz jako…</button>
                 </span>
               </header>
               <div class="ocr-document-editor">
@@ -295,6 +322,7 @@
     const resultTitle = $(".ocr-result-title");
     const resultMeta = $(".ocr-result-meta");
     const downloadButton = $(".ocr-download");
+    const exportFormatButtons = [...container.querySelectorAll("[data-export-format]")];
     const saveFolderButton = $(".ocr-save-folder");
     const openFolderButton = $(".ocr-open-folder");
     const openFileButton = $(".ocr-open-file");
@@ -392,13 +420,11 @@
     }
 
     function buildPrompt() {
-      // Keep this short on purpose: long OCR prompts make small/local models
-      // overthink and emit more tokens. Rules only — no examples, no essays.
+      // Keep one canonical representation regardless of the selected export.
+      // DOCX/MD/TXT conversion happens locally afterwards, so changing the
+      // export format never requires another model call.
       const lang = languagePromptNames[languageSelect.value] || "Polish";
-      const asPlain = formatSelect.value === "txt";
-      const shape = asPlain
-        ? "plain text, keep line breaks"
-        : "light Markdown (headings/lists only if present in the scan)";
+      const shape = "light Markdown (headings/lists only if present in the scan)";
       if (modeSelect.value === "translate") {
         return [
           `OCR this scan and output only the full ${lang} translation.`,
@@ -426,8 +452,14 @@
         resultTitle.textContent = "Wynik dokumentu";
       }
       resultMeta.textContent = format.label;
-      downloadButton.textContent = format.action.replace(/^Pobierz/, "Pobierz…");
+      downloadButton.textContent = `Zapisz jako ${formatSelect.value.toUpperCase()}…`;
       downloadButton.disabled = busy || !output.value.trim();
+      exportFormatButtons.forEach((button) => {
+        const active = button.dataset.exportFormat === formatSelect.value;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+        button.disabled = busy;
+      });
       if (saveFolderButton) {
         saveFolderButton.disabled = busy || !output.value.trim();
         saveFolderButton.title = `Zapisz do: ${outputFolderLabel()}`;
@@ -445,14 +477,20 @@
       updateOutputPresentation();
     }
 
+    function exportText(format = formatSelect.value) {
+      const text = stripReasoning(output.value);
+      return format === "txt" ? markdownToPlainText(text) : text;
+    }
+
     async function saveToOutputFolder() {
       if (!output.value.trim()) return;
+      const format = formatSelect.value || "docx";
       if (saveFolderButton) saveFolderButton.disabled = true;
       try {
         const result = await api.saveDocument({
-          format: formatSelect.value,
-          filename: outputFilename(),
-          text: output.value,
+          format,
+          filename: outputFilename(format),
+          text: exportText(format),
           dir: outputFolder || "",
         });
         const path = result?.path || "";
@@ -532,26 +570,32 @@
 
     function updateOutputPresentation() {
       const format = formatSelect.value || "docx";
-      const canPreview = format !== "txt" && Boolean(output.value.trim());
-      const showPreview = canPreview && !outputEditing;
+      const hasText = Boolean(output.value.trim());
+      const showPreview = hasText && !outputEditing;
       const isWord = format === "docx";
+      const isPlain = format === "txt";
       output.hidden = showPreview;
       if (wordStage) wordStage.hidden = !showPreview;
       outputPreview.hidden = !showPreview;
       outputPreview.classList.toggle("ocr-word-page", isWord);
-      previewToggle.hidden = !canPreview;
+      outputPreview.classList.toggle("ocr-plain-preview", isPlain);
+      previewToggle.hidden = !hasText;
       if (outputEditing) {
-        previewToggle.textContent = isWord ? "Jak w Wordzie" : "Podgląd";
+        previewToggle.textContent = isWord ? "Jak w Wordzie" : isPlain ? "Podgląd TXT" : "Podgląd MD";
       } else {
-        previewToggle.textContent = "Edytuj";
+        previewToggle.textContent = "Edytuj treść";
       }
-      if (canPreview) {
-        outputPreview.innerHTML = markdownToHTML(output.value) || "<p></p>";
+      if (showPreview) {
+        if (isPlain) {
+          outputPreview.textContent = markdownToPlainText(output.value);
+        } else {
+          outputPreview.innerHTML = markdownToHTML(output.value) || "<p></p>";
+        }
       }
     }
 
-    function outputFilename() {
-      const extension = formatSelect.value || "docx";
+    function outputFilename(format = formatSelect.value || "docx") {
+      const extension = format || "docx";
       const source = currentFile?.name || documentName.textContent || "transkrypcja";
       return `${source.replace(/\.[^.]+$/, "") || "transkrypcja"}.${extension}`;
     }
@@ -578,7 +622,8 @@
 
     async function saveBlob(blob, filename) {
       if (typeof window.supercliSaveFile === "function") {
-        return window.supercliSaveFile(filename, await blobToBase64(blob));
+        const result = await window.supercliSaveFile(filename, await blobToBase64(blob));
+        return result && typeof result === "object" ? result : { saved: false };
       }
       if (typeof window.showSaveFilePicker === "function") {
         const handle = await window.showSaveFilePicker({ suggestedName: filename });
@@ -761,7 +806,7 @@
           setActivePage(index);
           setBusy(true, `Rozpoznawanie strony ${index + 1} z ${currentImages.length}…`);
           const text = await recognizeImage(currentImages[index]);
-          const pageLabel = formatSelect.value === "txt" ? `Strona ${index + 1}` : `## Strona ${index + 1}`;
+          const pageLabel = `## Strona ${index + 1}`;
           chunks.push(currentImages.length > 1 ? `${pageLabel}\n\n${text}` : text);
           output.value = chunks.join("\n\n");
           updateResultLabels();
@@ -904,10 +949,20 @@
       api.setSetting("language", languageSelect.value);
       if (currentImages.length && modeSelect.value === "translate") status.textContent = `Język tłumaczenia: ${languages[languageSelect.value]}. Kliknij „Rozpoznaj i przygotuj”.`;
     });
-    formatSelect.addEventListener("change", () => {
+    function selectExportFormat(format, announce = true) {
+      if (!outputFormats[format]) return;
+      formatSelect.value = format;
       outputEditing = false;
       updateResultLabels();
-      api.setSetting("format", formatSelect.value);
+      void api.setSetting("format", format);
+      if (announce && output.value.trim()) {
+        setBusy(false, `Eksport: ${outputFormats[format].label}. Gotowy wynik zostaje bez zmian — OCR nie uruchamia się ponownie.`);
+      }
+    }
+
+    formatSelect.addEventListener("change", () => selectExportFormat(formatSelect.value));
+    exportFormatButtons.forEach((button) => {
+      button.addEventListener("click", () => selectExportFormat(button.dataset.exportFormat));
     });
     modelSelect.addEventListener("change", () => api.setSetting("model", modelSelect.value));
     clearHistoryButton.addEventListener("click", () => requestHistoryDelete());
@@ -1000,15 +1055,24 @@
     });
     downloadButton.addEventListener("click", async () => {
       if (!output.value) return;
+      const format = formatSelect.value || "docx";
+      const filename = outputFilename(format);
       downloadButton.disabled = true;
       try {
         const blob = await api.exportDocument({
-          format: formatSelect.value,
-          filename: outputFilename(),
-          text: output.value,
+          format,
+          filename,
+          text: exportText(format),
         });
-        const result = await saveBlob(blob, outputFilename());
-        if (result?.saved) api.toast(`Pobrano: ${result.path || outputFilename()}`);
+        const result = await saveBlob(blob, filename);
+        if (result?.saved) {
+          const savedPath = result.path || filename;
+          if (result.path) rememberSavedPath(result.path, "", false);
+          api.toast(`Zapisano: ${savedPath}`);
+          setBusy(false, `Zapisano jako ${format.toUpperCase()}: ${savedPath}`);
+        } else if (!result?.browserFallback) {
+          setBusy(false, "Anulowano zapis pliku.");
+        }
       } catch (error) {
         if (error?.name !== "AbortError") api.toast(error.message || "Nie udało się przygotować dokumentu.");
       } finally {
@@ -1032,7 +1096,7 @@
             "Edit the document text below per the user request.",
             "Return the full corrected text only — no notes or code fences in the final answer.",
             `Keep language: ${modeSelect.value === "original" ? "source language" : languagePromptNames[languageSelect.value] || "Polish"}.`,
-            `Keep format: ${formatSelect.value === "txt" ? "plain text" : "light Markdown"}.`,
+            "Keep format: light Markdown. Export conversion to DOCX/MD/TXT happens locally afterwards.",
             "",
             "TEXT:",
             output.value,

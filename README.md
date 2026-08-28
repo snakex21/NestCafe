@@ -17,7 +17,7 @@ The first time you launch NestCafe, it reads your Windows system language and co
 
 | Where | How |
 |---|---|
-| File on disk | Root `VERSION` file (e.g. `2.0.0`) |
+| File on disk | Root `VERSION` file (e.g. `2.0.1`) |
 | In the app | **Settings → About** — shows product version, engine version, UI language, and loaded modules |
 | Build artifact | `native-ui/version.json` — synced from `VERSION` by `build.bat` |
 
@@ -111,6 +111,7 @@ Add OpenAI-compatible providers in **Settings → Providers**. Each provider nee
 ### OCR Viewer
 The **OCR Viewer** module (`modules/ocr-viewer/`) processes images and PDFs:
 - Word-like preview panel with formatted output
+- Instant DOCX / Markdown / TXT export from one OCR result — changing the export format does not call the model again
 - Configurable page limit for PDFs (1–100)
 - Save results to `supercli-data\exports\ocr\` or a custom folder
 - Auto-open folder option in **Settings → OCR**
