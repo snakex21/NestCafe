@@ -132,7 +132,8 @@ try {
     foreach ($token in @(
         'ocr-open-folder', 'ocr-open-file', 'ocr-pages-limit', 'maxPdfPages',
         'saveToOutputFolder', 'openLastFile', 'clearOutputFolder', 'autoOpenFolderAfterSave',
-        'ocr-word-page', 'ocr-auto-open-folder'
+        'ocr-word-page', 'ocr-auto-open-folder', 'markdownToPlainText', 'data-export-format',
+        'selectExportFormat', 'Zapisz jako'
     )) {
         if ($js.Contains($token)) { Pass "ocr code $token" } else { Fail "ocr code missing $token" }
     }

@@ -462,7 +462,33 @@
 
 .ocr-text-actions {
   display: flex;
+  align-items: center;
   gap: 5px;
+  min-width: 0;
+}
+
+.ocr-export-formats {
+  display: inline-flex;
+  padding: 2px;
+  gap: 2px;
+  border: 1px solid #d6d9d2;
+  border-radius: 7px;
+  background: #f2f4ef;
+}
+
+.ocr-export-formats button {
+  min-width: 34px;
+  padding: 4px 6px !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  color: #687069 !important;
+  font-weight: 700;
+}
+
+.ocr-export-formats button.active {
+  background: #fff !important;
+  color: #202521 !important;
+  box-shadow: 0 1px 4px rgba(29, 36, 30, 0.12);
 }
 
 .ocr-result-heading {
@@ -486,6 +512,7 @@
 }
 
 .ocr-text-actions button:disabled { cursor: default; opacity: 0.45; }
+.ocr-export-formats button:disabled { opacity: 0.6; }
 
 .ocr-text-actions .ocr-save-folder:not(:disabled),
 .ocr-text-actions .ocr-download:not(:disabled) {
@@ -723,6 +750,9 @@
 .ocr-correction button,
 .ocr-toolbar select,
 .ocr-correction input { border-color: var(--nc-line); background: var(--nc-panel); color: var(--nc-text); }
+.ocr-export-formats { border-color: var(--nc-line); background: var(--nc-panel-soft); }
+.ocr-export-formats button { background: transparent !important; color: var(--nc-muted) !important; }
+.ocr-export-formats button.active { background: var(--nc-panel-raised) !important; color: var(--nc-text-strong) !important; box-shadow: 0 1px 4px var(--nc-shadow); }
 .ocr-history-item { color: var(--nc-text); }
 .ocr-history-item span { color: var(--nc-muted); }
 .ocr-history-item:hover { background: var(--nc-panel-soft); }
@@ -741,6 +771,10 @@
 .ocr-markdown-preview:not(.ocr-word-page) {
   background: var(--nc-panel);
   color: var(--nc-text);
+}
+.ocr-markdown-preview.ocr-plain-preview {
+  white-space: pre-wrap;
+  font-family: "Segoe UI Variable", "Segoe UI", sans-serif;
 }
 .ocr-file-button span,
 .ocr-toolbar .ocr-run,
