@@ -572,10 +572,12 @@
 
 .ocr-markdown-preview.ocr-word-page {
   width: min(720px, 100%);
-  min-height: min(920px, 100%);
+  height: auto;
+  min-height: 920px;
   margin: 0 auto;
   padding: 48px 56px 64px;
   overflow: visible;
+  box-sizing: border-box;
   border: 1px solid #cfd4cc;
   border-radius: 2px;
   background: #fff;
@@ -612,10 +614,18 @@
 .ocr-markdown-preview h2 { font-size: 1.32em; }
 .ocr-markdown-preview h3 { font-size: 1.16em; }
 .ocr-markdown-preview h4 { font-size: 1.05em; }
+.ocr-markdown-preview.ocr-word-page h1,
+.ocr-markdown-preview.ocr-word-page h2,
+.ocr-markdown-preview.ocr-word-page h3,
+.ocr-markdown-preview.ocr-word-page h4 {
+  color: #1f2420;
+}
 .ocr-markdown-preview.ocr-word-page h1 { font-size: 18pt; font-weight: 700; }
 .ocr-markdown-preview.ocr-word-page h2 { font-size: 14pt; font-weight: 700; }
 .ocr-markdown-preview.ocr-word-page h3 { font-size: 12.5pt; font-weight: 700; }
 .ocr-markdown-preview.ocr-word-page p { margin: 0 0 10pt; }
+.ocr-markdown-preview.ocr-word-page blockquote { color: #555d56; }
+.ocr-markdown-preview.ocr-word-page code { background: #f1f2ef; color: #1f2420; }
 .ocr-markdown-preview p { margin: 0 0 1em; }
 .ocr-markdown-preview ul,
 .ocr-markdown-preview ol { margin: 0 0 1em; padding-left: 1.6em; }
