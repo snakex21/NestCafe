@@ -28,6 +28,7 @@ let providers = [];
 let providerTemplates = [];
 let providerModelCatalog = [];
 let selectedProvider = null;
+let providerDiagnosticSeq = 0;
 
 const providerLogoAliases = {
   kilo: "kilocode",
@@ -110,8 +111,9 @@ function modelsForProvider(name) {
   return providerModelCatalog.filter((model) => model.provider === name);
 }
 
-async function reloadProviderModelCatalog() {
+async function reloadProviderModelCatalog(isCurrent) {
   const catalog = await providerJson("/api/models");
+  if (!isCurrent()) return;
   providerModelCatalog = (catalog.models || []).map((model) => ({
     ...model,
     id: String(model.id || ""),
@@ -263,6 +265,7 @@ function renderProviderList() {
 }
 
 function resetProviderForm() {
+  providerDiagnosticSeq += 1;
   selectedProvider = null;
   providerForm.reset();
   providerTemplate.value = "";
@@ -283,6 +286,11 @@ function resetProviderForm() {
 }
 
 function editProvider(provider) {
+  providerDiagnosticSeq += 1;
+  if (!provider) {
+    resetProviderForm();
+    return;
+  }
   selectedProvider = provider;
   providerTemplate.value = "";
   providerName.value = provider.name;
@@ -339,15 +347,19 @@ async function loadProviders(preferred = "") {
 }
 
 async function diagnoseProvider(name) {
+  const seq = ++providerDiagnosticSeq;
+  const isCurrent = () => providerDialog.open && seq === providerDiagnosticSeq && selectedProvider?.name === name;
   showProviderMessage("Sprawdzam endpoint modeli…");
   try {
     const result = await providerJson(`/api/provider/diagnostics?name=${encodeURIComponent(name)}`);
+    if (!isCurrent()) return;
     const models = result.models?.length ? `${result.models.length} modeli` : "brak modeli";
     const latency = result.latency_ms ? ` · ${result.latency_ms} ms` : "";
     const endpoint = result.endpoint ? ` · ${result.endpoint}` : "";
     showProviderMessage(`${result.server || "provider"} · ${models}${latency}${endpoint}`, result.status === "online" ? "online" : "offline");
-    if (result.status === "online") await reloadProviderModelCatalog();
+    if (result.status === "online") await reloadProviderModelCatalog(isCurrent);
   } catch (error) {
+    if (!isCurrent()) return;
     showProviderMessage(error.message, "offline");
   }
 }
@@ -423,4 +435,8 @@ document.querySelector("#provider-button").addEventListener("click", async () =>
   try { await loadProviders(); } catch (error) { showProviderMessage(error.message, "offline"); }
 });
 document.querySelector("#close-providers").addEventListener("click", () => providerDialog.close());
+providerDialog.addEventListener("close", () => {
+  if (!providerDialog.open) providerDiagnosticSeq += 1;
+});
+providerDialog.addEventListener("cancel", () => { providerDiagnosticSeq += 1; });
 document.querySelector("#add-provider").addEventListener("click", resetProviderForm);
