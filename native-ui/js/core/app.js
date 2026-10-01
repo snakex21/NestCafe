@@ -21,6 +21,7 @@ let liveTurnAppend = false;
 let questionPending = false;
 let abortController = null;
 let pendingImmediateTask = null;
+let runSequence = 0;
 let followConversation = true;
 let conversationScrollFrame = null;
 let conversationScrollForced = false;
@@ -283,10 +284,11 @@ function handleEvent(event, current) {
   return current;
 }
 
-async function sendPrompt(text, attachments = [], draft = null) {
+async function sendPrompt(text, attachments = [], draft = null, onAccepted = null) {
   const prompt = String(text || "").trim();
   const sentAttachments = [...(attachments || [])];
-  if (running || (!prompt && !sentAttachments.length)) return;
+  if (running || (!prompt && !sentAttachments.length)) return false;
+  const sequence = ++runSequence;
 
   // A question belongs to the run that created it. Never let a stale panel
   // survive into a newer run and keep the composer locked.
@@ -306,6 +308,7 @@ async function sendPrompt(text, attachments = [], draft = null) {
   abortController = new AbortController();
   let current = null;
   let draftAccepted = false;
+  let outcome = "incomplete";
   try {
     const response = await fetch("/api/chat", {
       method: "POST",
@@ -321,10 +324,17 @@ async function sendPrompt(text, attachments = [], draft = null) {
     draftAccepted = true;
     if (draft) composerDraftStore.clear(draft.scope, draft.text);
     window.NestCafe?.attachments?.clear?.();
+    if (onAccepted) await onAccepted(abortController.signal);
     await superCliUI.readSSE(response.body, (event) => {
+      if (event.type === "done") outcome = "done";
+      else if (event.type === "error") outcome = "error";
       current = handleEvent(event, current);
     });
+    if (outcome === "incomplete") {
+      addActivity("Połączenie", "Połączenie zakończyło się bez potwierdzenia wyniku. Kolejka została wstrzymana.").classList.add("error");
+    }
   } catch (error) {
+    outcome = error.name === "AbortError" ? "interrupted" : "error";
     if (error.name !== "AbortError") {
       addActivity("Połączenie", error.message).classList.add("error");
       showToast(error.message);
@@ -338,7 +348,10 @@ async function sendPrompt(text, attachments = [], draft = null) {
     // stuck on an answer endpoint that already returned HTTP 410.
     clearPendingQuestion();
     chat().finalizeMessage?.(current);
+    chat().finishPendingActivities?.(toolRows.values(), outcome);
+    if (outcome !== "done" && !pendingImmediateTask) window.NestCafe?.plan?.pause?.();
     setRunning(false);
+    if (outcome !== "done") runState.textContent = outcome === "interrupted" ? "Przerwano" : "Błąd";
     liveTurnAppend = false;
     resetLiveConversationObserver();
     conversation.querySelectorAll(".live-turn").forEach((node) => node.classList.remove("live-turn"));
@@ -371,15 +384,20 @@ async function sendPrompt(text, attachments = [], draft = null) {
     } catch {
       // Non-fatal: the live turn already rendered.
     }
-    const immediate = pendingImmediateTask;
-    pendingImmediateTask = null;
-    if (immediate) {
-      setTimeout(() => window.NestCafe?.plan?.runScheduled?.(immediate, immediate.prompt), 0);
-    } else {
-      window.NestCafe?.plan?.onRunFinished?.();
+    // A newer prompt may start while the finished run refreshes its transcript.
+    // Its queue and explicit replacement choice belong to that newer run.
+    if (sequence === runSequence) {
+      const immediate = pendingImmediateTask;
+      pendingImmediateTask = null;
+      if (immediate) {
+        setTimeout(() => window.NestCafe?.plan?.runScheduled?.(immediate, immediate.prompt), 0);
+      } else {
+        window.NestCafe?.plan?.onRunFinished?.(outcome);
+      }
+      promptInput.focus();
     }
-    promptInput.focus();
   }
+  return draftAccepted;
 }
 
 function fileLabelFromAttachments(paths) {
@@ -742,7 +760,12 @@ promptInput.addEventListener("input", () => {
   promptInput.style.height = `${Math.min(promptInput.scrollHeight, 180)}px`;
 });
 
-stopButton.addEventListener("click", () => abortController?.abort());
+stopButton.addEventListener("click", () => {
+  // Stop pauses the queue; the separate explicit "Teraz" action replaces a run.
+  window.NestCafe?.plan?.pause?.();
+  pendingImmediateTask = null;
+  abortController?.abort();
+});
 $("#new-chat").addEventListener("click", newConversation);
 $("#execution-back").addEventListener("click", newConversation);
 $("#refresh-sessions").addEventListener("click", loadSessions);
