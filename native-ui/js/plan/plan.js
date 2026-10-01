@@ -11,6 +11,9 @@ const memoryList = document.querySelector("#memory-list");
 let currentGoal = null;
 let queuedTasks = [];
 let continueQueuedRuns = false;
+let queueContinuationTimer = null;
+let queueContinuationSeq = 0;
+const launchingQueuedTasks = new Set();
 
 async function planJson(path, options) {
   const response = await fetch(path, options);
@@ -221,12 +224,14 @@ function editQueuedTask(task) {
   input.select();
 }
 
-async function loadQueue() {
+async function loadQueue(signal) {
   try {
-    queuedTasks = await planJson("/api/tasks") || [];
+    queuedTasks = await planJson("/api/tasks", signal ? { signal } : undefined) || [];
     renderQueue();
+    return true;
   } catch (error) {
-    window.NestCafe?.toast?.(error.message);
+    if (error.name !== "AbortError") window.NestCafe?.toast?.(error.message);
+    return false;
   }
 }
 
@@ -249,13 +254,13 @@ async function enqueueTask(prompt, automatic = false) {
   }
 }
 
-async function removeQueuedTask(id) {
+async function removeQueuedTask(id, signal) {
   try {
-    await planJson(`/api/tasks?id=${encodeURIComponent(id)}`, { method: "DELETE" });
-    await loadQueue();
+    await planJson(`/api/tasks?id=${encodeURIComponent(id)}`, { method: "DELETE", signal });
+    await loadQueue(signal);
     return true;
   } catch (error) {
-    window.NestCafe?.toast?.(error.message);
+    if (error.name !== "AbortError") window.NestCafe?.toast?.(error.message);
     return false;
   }
 }
@@ -264,21 +269,45 @@ async function moveQueuedTask(task, position) {
   await patchQueuedTask(task, { position });
 }
 
-async function runQueuedTask(task, promptOverride = "") {
-  if (!task) return;
+async function runQueuedTask(task, promptOverride = "", options = {}) {
+  if (!task || launchingQueuedTasks.has(task.id)) return false;
+  const canContinue = () => options.sequence == null ||
+    (continueQueuedRuns && options.sequence === queueContinuationSeq);
+  if (!canContinue()) return false;
   if (window.NestCafe?.isRunning?.()) {
-    window.NestCafe?.interruptWithQueuedTask?.({ ...task, prompt: promptOverride || task.prompt });
-    return;
+    if (options.interrupt !== false) {
+      window.NestCafe?.interruptWithQueuedTask?.({ ...task, prompt: promptOverride || task.prompt });
+    }
+    return false;
   }
+  launchingQueuedTasks.add(task.id);
   try {
     if (task.session_id && task.session_id !== window.NestCafe?.getSession?.()) {
       await window.NestCafe?.resumeSession?.(task.session_id);
     }
-    if (!await removeQueuedTask(task.id)) return;
+    if (!canContinue() || window.NestCafe?.isRunning?.()) {
+      launchingQueuedTasks.delete(task.id);
+      if (options.sequence == null && window.NestCafe?.isRunning?.()) {
+        window.NestCafe?.toast?.("Rozpoczęto inne zadanie. Ta wiadomość pozostała w kolejce.");
+      }
+      return false;
+    }
     if (planDialog.open) planDialog.close();
-    window.NestCafe?.runPrompt?.(promptOverride || task.prompt);
+    // The composer claims the run synchronously. Remove the saved item only
+    // after the chat endpoint accepts it, never before a possible refusal.
+    const run = window.NestCafe?.runPrompt?.(promptOverride || task.prompt, [], null, async (signal) => {
+      if (!await removeQueuedTask(task.id, signal)) {
+        pauseQueuedRuns();
+        if (!signal.aborted) window.NestCafe?.toast?.("Zadanie uruchomiono, ale nie udało się usunąć go z kolejki. Kolejka została wstrzymana.");
+      }
+    });
+    Promise.resolve(run).catch((error) => window.NestCafe?.toast?.(error.message))
+      .finally(() => launchingQueuedTasks.delete(task.id));
+    return true;
   } catch (error) {
+    launchingQueuedTasks.delete(task.id);
     window.NestCafe?.toast?.(error.message);
+    return false;
   }
 }
 
@@ -376,22 +405,45 @@ function openPlanDialog(page = "goal") {
 
 document.querySelector("#plan-button")?.addEventListener("click", () => openPlanDialog("goal"));
 document.querySelector("#close-plan").addEventListener("click", () => planDialog.close());
-async function onRunFinished() {
+function pauseQueuedRuns() {
+  continueQueuedRuns = false;
+  queueContinuationSeq += 1;
+  clearTimeout(queueContinuationTimer);
+  queueContinuationTimer = null;
+}
+
+async function onRunFinished(outcome) {
+  if (outcome !== "done") {
+    pauseQueuedRuns();
+    return;
+  }
   if (!continueQueuedRuns) return;
-  await loadQueue();
+  const sequence = ++queueContinuationSeq;
+  const loaded = await loadQueue();
+  if (!continueQueuedRuns || sequence !== queueContinuationSeq) return;
+  if (!loaded) {
+    pauseQueuedRuns();
+    return;
+  }
   if (!queuedTasks.length) {
     continueQueuedRuns = false;
     return;
   }
-  setTimeout(() => runQueuedTask(queuedTasks[0]), 80);
+  queueContinuationTimer = setTimeout(() => {
+    queueContinuationTimer = null;
+    if (continueQueuedRuns && sequence === queueContinuationSeq) {
+      runQueuedTask(queuedTasks[0], "", { interrupt: false, sequence });
+    }
+  }, 80);
 }
 
 const planApi = {
   open: openPlanDialog,
   enqueue: (prompt) => enqueueTask(prompt, true),
-  runScheduled: (task, prompt) => runQueuedTask(task, prompt),
+  runScheduled: (task, prompt, options) => runQueuedTask(task, prompt, options),
   refresh: loadQueue,
   onRunFinished,
+  pause: pauseQueuedRuns,
 };
 
 window.NestCafe.export("plan", planApi);

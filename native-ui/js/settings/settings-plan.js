@@ -20,6 +20,7 @@
     const content = document.createElement("div");
     content.className = "settings-plan-content";
     let selected = "goal";
+    let queueLaunchPending = false;
 
     const mutateGoal = async (body) => {
       await postGoal(body);
@@ -144,11 +145,24 @@
         const actions = document.createElement("div");
         const run = ui.button("Uruchom", "settings-primary-button");
         run.addEventListener("click", async () => {
-          if (task.session_id && task.session_id !== window.NestCafe?.getSession?.()) await window.NestCafe?.resumeSession?.(task.session_id);
-          await ui.json(`/api/tasks?id=${encodeURIComponent(task.id)}`, { method: "DELETE" });
-          await window.NestCafe?.plan?.refresh?.();
-          document.querySelector("#settings-page-dialog")?.close();
-          window.NestCafe?.runPrompt?.(task.prompt);
+          if (queueLaunchPending) return;
+          const canStart = () => {
+            if (!window.NestCafe?.isRunning?.()) return true;
+            window.NestCafe?.toast?.("Zakończ bieżące zadanie przed uruchomieniem wiadomości z kolejki.");
+            return false;
+          };
+          if (!canStart()) return;
+          queueLaunchPending = true;
+          run.disabled = true;
+          try {
+            const started = await window.NestCafe?.plan?.runScheduled?.(task, task.prompt, { interrupt: false });
+            if (started) document.querySelector("#settings-page-dialog")?.close();
+          } catch (error) {
+            window.NestCafe?.toast?.(error.message);
+          } finally {
+            queueLaunchPending = false;
+            run.disabled = false;
+          }
         });
         const remove = ui.button("Usuń", "settings-danger-button");
         remove.addEventListener("click", async () => {

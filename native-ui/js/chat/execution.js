@@ -513,6 +513,19 @@ function completeActivity(row, event) {
   }
 }
 
+function finishPendingActivities(rows, outcome) {
+  for (const row of rows) {
+    if (!row.classList.contains("running")) continue;
+    clearInterval(row._clock);
+    row.classList.remove("running");
+    row.classList.add("interrupted");
+    const stat = row.querySelector("small");
+    if (stat) stat.textContent = outcome === "interrupted"
+      ? "Przerwano · wynik niepotwierdzony"
+      : "Wynik niepotwierdzony";
+  }
+}
+
 function closeQuestion(expectedOverlay = null) {
   if (expectedOverlay && activeQuestionOverlay !== expectedOverlay) {
     expectedOverlay.remove();
@@ -1084,6 +1097,7 @@ const chatApi = {
   enableRewind,
   createActivity,
   completeActivity,
+  finishPendingActivities,
   showQuestion,
   renderStoredQuestion,
   closeQuestion,
