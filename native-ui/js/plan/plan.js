@@ -283,7 +283,11 @@ async function runQueuedTask(task, promptOverride = "", options = {}) {
   launchingQueuedTasks.add(task.id);
   try {
     if (task.session_id && task.session_id !== window.NestCafe?.getSession?.()) {
-      await window.NestCafe?.resumeSession?.(task.session_id);
+      const resumed = await window.NestCafe?.resumeSession?.(task.session_id);
+      if (resumed === false || task.session_id !== window.NestCafe?.getSession?.()) {
+        launchingQueuedTasks.delete(task.id);
+        return false;
+      }
     }
     if (!canContinue() || window.NestCafe?.isRunning?.()) {
       launchingQueuedTasks.delete(task.id);
