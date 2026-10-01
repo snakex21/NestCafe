@@ -22,6 +22,7 @@ let questionPending = false;
 let abortController = null;
 let pendingImmediateTask = null;
 let runSequence = 0;
+let navigationSequence = 0;
 let followConversation = true;
 let conversationScrollFrame = null;
 let conversationScrollForced = false;
@@ -289,6 +290,9 @@ async function sendPrompt(text, attachments = [], draft = null, onAccepted = nul
   const sentAttachments = [...(attachments || [])];
   if (running || (!prompt && !sentAttachments.length)) return false;
   const sequence = ++runSequence;
+  // A prompt keeps the currently displayed conversation. Older navigation
+  // responses must never replace its live transcript, even after it finishes.
+  navigationSequence++;
 
   // A question belongs to the run that created it. Never let a stale panel
   // survive into a newer run and keep the composer locked.
@@ -546,10 +550,12 @@ async function loadSessions() {
   }
 }
 
-async function openSession(session, skipSessionReload = false) {
-  if (running) return;
+async function openSession(session, skipSessionReload = false, navigation = null) {
+  if (running) return false;
+  const sequence = navigation ?? ++navigationSequence;
   try {
     const transcript = await json(`/api/transcript?id=${encodeURIComponent(session.id)}`);
+    if (sequence !== navigationSequence || running) return false;
     const messages = Array.isArray(transcript) ? transcript : transcript?.messages || [];
     activeSession = session.id;
     composerDraftStore.restore(`session:${session.id}`);
@@ -590,8 +596,10 @@ async function openSession(session, skipSessionReload = false) {
     }
     scrollConversation(true);
     if (!skipSessionReload) await loadSessions();
+    return sequence === navigationSequence && !running;
   } catch (error) {
-    showToast(error.message);
+    if (sequence === navigationSequence && !running) showToast(error.message);
+    return false;
   }
 }
 
@@ -701,14 +709,25 @@ async function rewindMessage(seq, text, trigger, messageAttachments = []) {
 }
 
 async function resumeSessionByID(id) {
-  const sessions = await json("/api/sessions?limit=100");
-  const session = sessions.find((item) => item.id === id);
-  if (!session) throw new Error("Nie znaleziono rozmowy powiązanej z zadaniem.");
-  await openSession(session);
+  if (running) return false;
+  // Claim navigation before either request, so a slow catalog lookup cannot
+  // resurrect a selection that New chat or a newer selection has superseded.
+  const sequence = ++navigationSequence;
+  try {
+    const sessions = await json("/api/sessions?limit=100");
+    if (sequence !== navigationSequence || running) return false;
+    const session = sessions.find((item) => item.id === id);
+    if (!session) throw new Error("Nie znaleziono rozmowy powiązanej z zadaniem.");
+    return await openSession(session, false, sequence);
+  } catch (error) {
+    if (sequence !== navigationSequence || running) return false;
+    throw error;
+  }
 }
 
 function newConversation() {
   if (running) return;
+  navigationSequence++;
   activeSession = "";
   toolRows.clear();
   conversation.innerHTML = welcomeHTML;
