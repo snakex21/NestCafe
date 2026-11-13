@@ -190,6 +190,8 @@
 
   async function mount(container, context) {
     const { api } = context;
+    // Container queries in native.css size the layout from this host, not the viewport.
+    container.classList.add("ocr-viewer-host");
     container.innerHTML = `
       <div class="ocr-viewer">
         <aside class="ocr-history-panel">
