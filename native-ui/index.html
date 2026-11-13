@@ -108,11 +108,33 @@
           ></textarea>
           <div class="composer-footer">
             <div class="composer-context">
-              <button class="attach-button" id="attach-button" type="button" title="Załącz plik" aria-label="Załącz plik">＋</button>
+              <span class="attach-control">
+                <button class="attach-button" id="attach-button" type="button" title="Załącz plik" aria-label="Załącz plik">
+                  <span class="nc-fluent-icon" aria-hidden="true">&#xE723;</span>
+                </button>
+                <input class="attach-file-input" id="attachment-file-input" type="file" multiple tabindex="-1" aria-hidden="true" />
+              </span>
               <span class="composer-keys"><kbd>Enter</kbd> wyślij <i>·</i> <kbd>Shift+Enter</kbd> nowa linia</span>
             </div>
             <div class="composer-actions">
-              <button class="model-button" id="model-button" type="button">Model</button>
+              <button class="model-button" id="model-button" type="button">
+                <span class="model-button-label" id="model-button-label">Model</span>
+                <span class="nc-fluent-icon model-chevron" aria-hidden="true">&#xE70D;</span>
+              </button>
+              <div class="reasoning-control" id="reasoning-control">
+                <button class="reasoning-button" id="reasoning-button" type="button" aria-haspopup="menu" aria-expanded="false">
+                  <span>Myślenie</span>
+                  <span class="reasoning-level" id="reasoning-level">auto</span>
+                  <span class="nc-fluent-icon reasoning-chevron" aria-hidden="true">&#xE70D;</span>
+                </button>
+                <div class="reasoning-menu" id="reasoning-menu" role="menu" aria-label="Poziom rozumowania" hidden>
+                  <div class="reasoning-menu-head">
+                    <strong>Poziom rozumowania</strong>
+                    <small id="reasoning-effective">Automatyczny</small>
+                  </div>
+                  <div id="reasoning-options"></div>
+                </div>
+              </div>
               <button class="stop-button" id="stop-button" type="button" hidden>Stop</button>
               <button class="send-button" id="send-button" type="submit">Wyślij</button>
             </div>
@@ -185,8 +207,11 @@
             <label>
               <span>Typ API</span>
               <select id="provider-type">
-                <option value="openai">OpenAI compatible</option>
-                <option value="anthropic">Anthropic</option>
+                <option value="auto">Auto wykryj (OpenAI / Anthropic)</option>
+                <option value="openai">OpenAI Chat Completions</option>
+                <option value="responses">OpenAI Responses API</option>
+                <option value="anthropic">Anthropic Messages</option>
+                <option value="opencode">OpenCode gateway</option>
                 <option value="codex">Konto Codex</option>
               </select>
             </label>
@@ -319,6 +344,7 @@
     <!-- Load order: SuperCli runtime → NestCafe bus → shell → features → settings pages → modules -->
     <script src="/.__supercli/ui/runtime.js"></script>
     <script src="js/core/namespace.js"></script>
+    <script src="js/core/dialogs.js"></script>
     <script src="js/core/version.js"></script>
     <script src="js/core/i18n.js"></script>
     <script src="js/core/appearance.js"></script>
@@ -328,6 +354,7 @@
     <script src="js/sidebar/favorites.js" defer></script>
     <script src="js/core/app.js" defer></script>
     <script src="js/models/models.js" defer></script>
+    <script src="js/models/reasoning.js" defer></script>
     <script src="js/models/providers.js" defer></script>
     <script src="js/composer/attachments.js" defer></script>
     <script src="js/plan/plan.js" defer></script>

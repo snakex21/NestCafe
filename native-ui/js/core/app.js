@@ -28,6 +28,12 @@ const liveConversationResizeObserver = typeof ResizeObserver === "function"
   ? new ResizeObserver(() => scrollConversation())
   : null;
 let activeWorkspace = "";
+const transcriptPageSize = 60;
+let loadedTranscriptMessages = [];
+let transcriptHasMore = false;
+let transcriptBeforeSeq = 0;
+let transcriptSessionID = "";
+let transcriptAbortController = null;
 const defaultPromptPlaceholder = promptInput.getAttribute("placeholder") || "Wiadomość lub polecenie…";
 
 function scrollConversation(force = false) {
@@ -232,6 +238,11 @@ function handleEvent(event, current) {
     current = current || addMessage("assistant", "");
     if (chat().appendMessage) chat().appendMessage(current, event.text || "");
     else current.textContent += event.text || "";
+  } else if (event.type === "reasoning") {
+    current = current || addMessage("assistant", "");
+    if (chat().appendReasoning) chat().appendReasoning(current, event.text || "");
+    else if (chat().appendMessage) chat().appendMessage(current, `<thinking>${event.text || ""}</thinking>\n`);
+    else current.textContent += `<thinking>${event.text || ""}</thinking>\n`;
   } else if (event.type === "tool_call") {
     chat().finalizeMessage?.(current);
     if (event.name === "ask_user") {
@@ -262,6 +273,7 @@ function handleEvent(event, current) {
     if (chat().showQuestion) chat().showQuestion(event.question);
     else addActivity("Pytanie od agenta", event.question?.question || "Odpowiedź wymaga interfejsu pytań.");
   } else if (event.type === "done") {
+    chat().ensureReasoningVisibility?.(current, event.reasoning_tok);
     chat().finalizeMessage?.(current);
     clearPendingQuestion();
     addFileChanges(event.file_changes);
@@ -352,20 +364,13 @@ async function sendPrompt(text, attachments = [], draft = null) {
       // turns with attachments, so "Cofnij" works immediately and consistently
       // without requiring the user to reopen the conversation first.
       if (activeSession) {
-        const transcript = await json(`/api/transcript?id=${encodeURIComponent(activeSession)}`);
-        const list = Array.isArray(transcript) ? transcript : transcript?.messages || [];
-        let latestUserSeq = 0;
-        for (const message of list) {
-          if (message.role === "user" && Number(message.seq) > latestUserSeq) {
-            latestUserSeq = Number(message.seq);
-          }
-        }
-        if (latestUserSeq) {
+        const latestSeq = await findLatestUserSeq(activeSession);
+        if (latestSeq) {
           if (sentAttachments.length) {
-            window.NestCafe?.attachments?.remember?.(activeSession, latestUserSeq, sentAttachments);
+            window.NestCafe?.attachments?.remember?.(activeSession, latestSeq, sentAttachments);
           }
           const liveMessage = userMessage?.closest?.(".message");
-          chat().enableRewind?.(liveMessage, latestUserSeq, prompt, sentAttachments);
+          chat().enableRewind?.(liveMessage, latestSeq, prompt, sentAttachments);
         }
       }
     } catch {
@@ -379,6 +384,21 @@ async function sendPrompt(text, attachments = [], draft = null) {
       window.NestCafe?.plan?.onRunFinished?.();
     }
     promptInput.focus();
+  }
+}
+
+async function findLatestUserSeq(sessionID) {
+  let before = 0;
+  for (;;) {
+    const suffix = before ? `&before=${before}` : "";
+    const page = await json(`/api/transcript?id=${encodeURIComponent(sessionID)}&limit=${transcriptPageSize}${suffix}`);
+    const messages = page.messages || [];
+    for (let i = messages.length - 1; i >= 0; i -= 1) {
+      const message = messages[i];
+      if (message.role === "user" && Number(message.seq) > 0) return Number(message.seq);
+    }
+    if (!page.has_more || !page.before_seq) return 0;
+    before = Number(page.before_seq);
   }
 }
 
@@ -528,52 +548,119 @@ async function loadSessions() {
   }
 }
 
-async function openSession(session, skipSessionReload = false) {
-  if (running) return;
+function renderLoadedTranscript(preserveScroll = false) {
+  const oldHeight = conversation.scrollHeight;
+  const oldTop = conversation.scrollTop;
+  resetLiveConversationObserver();
+  toolRows.clear();
+  questionToolIDs.clear();
+  chat().closeQuestion?.();
+  conversation.replaceChildren();
+
+  if (transcriptHasMore) {
+    const older = document.createElement("button");
+    older.type = "button";
+    older.className = "history-older";
+    older.textContent = "Wczytaj starsze wiadomości";
+    older.addEventListener("click", loadOlderTranscript);
+    conversation.appendChild(older);
+  }
+
+  const questionResults = new Map(
+    loadedTranscriptMessages
+      .filter((message) => message.role === "tool" && message.name === "ask_user" && message.tool_call_id)
+      .map((message) => [message.tool_call_id, message.content || ""]),
+  );
+  for (const message of loadedTranscriptMessages) {
+    if (message.role === "user") {
+      addMessage("user", message.content || "", message.seq || 0, message.attachments || []);
+    } else if (message.role === "assistant") {
+      const content = chat().withReasoningFallback?.(
+        message.content || "",
+        message.turn?.reasoning_tok,
+      ) || message.content || "";
+      if (content.trim()) addMessage("assistant", content, message.seq || 0, message.attachments || []);
+      for (const call of message.tool_calls || []) {
+        if (call.name !== "ask_user") continue;
+        const stored = questionResults.get(call.id);
+        if (stored != null) chat().renderStoredQuestion?.(call, stored, conversation);
+      }
+      addFileChanges(message.turn?.file_changes);
+    } else if (message.role === "tool") {
+      if (message.name === "ask_user") continue;
+      const row = addActivity(message.name || "Narzędzie", "", `history-${message.seq || Math.random()}`);
+      row.dataset.toolName = message.name || "";
+      chat().completeActivity(row, { output: message.content || "" });
+    }
+  }
+
+  if (preserveScroll) {
+    conversation.scrollTop = oldTop + Math.max(0, conversation.scrollHeight - oldHeight);
+  } else {
+    scrollConversation(true);
+  }
+}
+
+async function loadOlderTranscript() {
+  if (!transcriptHasMore || !transcriptBeforeSeq || !transcriptSessionID) return;
+  const sessionID = transcriptSessionID;
+  const button = conversation.querySelector(".history-older");
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Wczytywanie…";
+  }
+  transcriptAbortController?.abort();
+  const controller = new AbortController();
+  transcriptAbortController = controller;
   try {
-    const transcript = await json(`/api/transcript?id=${encodeURIComponent(session.id)}`);
-    const messages = Array.isArray(transcript) ? transcript : transcript?.messages || [];
-    activeSession = session.id;
-    composerDraftStore.restore(`session:${session.id}`);
-    resetLiveConversationObserver();
-    followConversation = true;
-    toolRows.clear();
-    questionToolIDs.clear();
-    chat().closeQuestion?.();
-    document.body.classList.remove("empty-state");
-    conversation.replaceChildren();
-    title.textContent = sessionDisplayTitle(session);
-    const questionResults = new Map(
-      messages
-        .filter((message) => message.role === "tool" && message.name === "ask_user" && message.tool_call_id)
-        .map((message) => [message.tool_call_id, message.content || ""]),
+    const page = await json(
+      `/api/transcript?id=${encodeURIComponent(sessionID)}&limit=${transcriptPageSize}&before=${transcriptBeforeSeq}`,
+      { signal: controller.signal },
     );
-    for (const message of messages) {
-      if (message.role === "user") {
-        // createMessage restores remembered image galleries via session+seq.
-        addMessage("user", message.content || "", message.seq || 0, message.attachments || []);
-      } else if (message.role === "assistant") {
-        const content = message.content || "";
-        const assistantMessage = content.trim()
-          ? addMessage("assistant", content, message.seq || 0, message.attachments || [])
-          : null;
-        for (const call of message.tool_calls || []) {
-          if (call.name !== "ask_user") continue;
-          const stored = questionResults.get(call.id);
-          if (stored != null) chat().renderStoredQuestion?.(call, stored, conversation);
-        }
-        addFileChanges(message.turn?.file_changes);
-      } else if (message.role === "tool") {
-        if (message.name === "ask_user") continue;
-        const row = addActivity(message.name || "Narzędzie", "", `history-${message.seq || Math.random()}`);
-        row.dataset.toolName = message.name || "";
-        chat().completeActivity(row, { output: message.content || "" });
+    if (sessionID !== transcriptSessionID || controller !== transcriptAbortController) return;
+    loadedTranscriptMessages = [...(page.messages || []), ...loadedTranscriptMessages];
+    transcriptHasMore = Boolean(page.has_more);
+    transcriptBeforeSeq = Number(page.before_seq || 0);
+    renderLoadedTranscript(true);
+  } catch (error) {
+    if (error.name !== "AbortError") {
+      showToast(error.message);
+      if (button?.isConnected) {
+        button.disabled = false;
+        button.textContent = "Wczytaj starsze wiadomości";
       }
     }
-    scrollConversation(true);
+  } finally {
+    if (controller === transcriptAbortController) transcriptAbortController = null;
+  }
+}
+
+async function openSession(session, skipSessionReload = false) {
+  if (running) return;
+  transcriptAbortController?.abort();
+  const controller = new AbortController();
+  transcriptAbortController = controller;
+  try {
+    const page = await json(
+      `/api/transcript?id=${encodeURIComponent(session.id)}&limit=${transcriptPageSize}`,
+      { signal: controller.signal },
+    );
+    if (controller !== transcriptAbortController) return;
+    activeSession = session.id;
+    transcriptSessionID = session.id;
+    loadedTranscriptMessages = page.messages || [];
+    transcriptHasMore = Boolean(page.has_more);
+    transcriptBeforeSeq = Number(page.before_seq || 0);
+    composerDraftStore.restore(`session:${session.id}`);
+    followConversation = true;
+    document.body.classList.remove("empty-state");
+    title.textContent = sessionDisplayTitle(session);
+    renderLoadedTranscript(false);
     if (!skipSessionReload) await loadSessions();
   } catch (error) {
-    showToast(error.message);
+    if (error.name !== "AbortError") showToast(error.message);
+  } finally {
+    if (controller === transcriptAbortController) transcriptAbortController = null;
   }
 }
 

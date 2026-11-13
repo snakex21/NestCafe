@@ -1,0 +1,129 @@
+.reasoning-control {
+  position: relative;
+  flex: none;
+}
+
+.reasoning-button {
+  min-height: 28px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid transparent;
+  border-radius: var(--nc-radius-sm);
+  background: transparent;
+  color: var(--nc-muted);
+  font: 500 11.5px/1 var(--nc-body-font);
+  cursor: pointer;
+}
+
+.reasoning-button:hover,
+.reasoning-button[aria-expanded="true"] {
+  border-color: var(--nc-line);
+  background: var(--nc-panel-soft);
+  color: var(--nc-text);
+}
+
+.reasoning-button.active {
+  border-color: color-mix(in srgb, var(--nc-accent) 45%, var(--nc-line));
+}
+
+.reasoning-level {
+  color: var(--nc-accent);
+  font-size: 10.5px;
+  text-transform: lowercase;
+}
+
+.reasoning-level::before {
+  content: "·";
+  margin-right: 5px;
+  color: var(--nc-muted-soft);
+}
+
+.reasoning-chevron {
+  color: var(--nc-muted-soft);
+  font-size: 9px;
+}
+
+.reasoning-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 90;
+  width: 220px;
+  padding: 6px;
+  border: 1px solid var(--nc-line);
+  border-radius: var(--nc-radius-md);
+  background: var(--nc-panel);
+  box-shadow: 0 16px 46px var(--nc-shadow);
+}
+
+.reasoning-menu[hidden] {
+  display: none;
+}
+
+.reasoning-menu-head {
+  display: grid;
+  gap: 2px;
+  padding: 7px 9px 9px;
+  border-bottom: 1px solid var(--nc-hairline);
+}
+
+.reasoning-menu-head strong {
+  color: var(--nc-text-strong);
+  font-size: 12px;
+  font-weight: 620;
+}
+
+.reasoning-menu-head small {
+  color: var(--nc-muted);
+  font-size: 10.5px;
+}
+
+.reasoning-option {
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 8px;
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  border-radius: var(--nc-radius-sm);
+  background: transparent;
+  color: var(--nc-muted);
+  font: 500 11.5px/1.2 var(--nc-body-font);
+  text-align: left;
+  cursor: pointer;
+}
+
+.reasoning-option:hover,
+.reasoning-option:focus-visible {
+  outline: 0;
+  background: var(--nc-panel-soft);
+  color: var(--nc-text);
+}
+
+.reasoning-option.selected {
+  color: var(--nc-text-strong);
+  background: var(--nc-accent-soft);
+}
+
+.reasoning-check {
+  color: transparent;
+  font-size: 10px;
+}
+
+.reasoning-option.selected .reasoning-check {
+  color: var(--nc-accent);
+}
+
+@media (max-width: 760px) {
+  .reasoning-button > span:first-child {
+    display: none;
+  }
+
+  .reasoning-level::before {
+    display: none;
+  }
+}

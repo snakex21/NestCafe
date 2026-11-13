@@ -12,7 +12,11 @@ function notifyQuestionPending() {
 }
 
 function preferredThinkingOpen() {
-  return localStorage.getItem(THINKING_OPEN_KEY) === "1";
+  const saved = localStorage.getItem(THINKING_OPEN_KEY);
+  // Reasoning used to be visible by default. Keep an explicit user choice,
+  // but first-time users should see provider-exposed thinking without having
+  // to discover a collapsed disclosure control.
+  return saved == null ? true : saved === "1";
 }
 
 function rememberThinkingOpen(open) {
@@ -270,6 +274,22 @@ function splitReasoningSegments(text) {
   return segments;
 }
 
+function reasoningFirstSegments(segments) {
+  const thinking = segments
+    .filter((segment) => segment.kind === "thinking")
+    .map((segment) => segment.text.trim())
+    .filter(Boolean)
+    .join("\n\n");
+  const text = segments
+    .filter((segment) => segment.kind === "text")
+    .map((segment) => segment.text)
+    .join("");
+  const ordered = [];
+  if (thinking) ordered.push({ kind: "thinking", text: thinking });
+  if (text.trim()) ordered.push({ kind: "text", text });
+  return ordered;
+}
+
 function createMessageSegment(segment) {
   if (segment.kind === "text") {
     const host = document.createElement("div");
@@ -300,7 +320,11 @@ function updateMessageSegment(node, segment) {
 }
 
 function renderMessageContent(container, raw, live) {
-  const segments = splitReasoningSegments(raw);
+  // Providers do not all stream events in the same order. Some emit the final
+  // answer first and reasoning metadata/chunks afterwards. The transcript may
+  // therefore contain <thinking> after prose even though the UI must always
+  // present reasoning above the answer.
+  const segments = reasoningFirstSegments(splitReasoningSegments(raw));
   // Persisted assistant messages are initialized with raw textContent before
   // they are formatted. Remove only those direct text nodes; otherwise the raw
   // <thinking>...</thinking> transcript stays visible above the formatted
@@ -354,13 +378,32 @@ function scheduleMessageRender(container) {
 
 function appendMessage(container, chunk) {
   if (!container) return;
+  closeLiveReasoning(container);
   container._rawText = `${container._rawText || ""}${chunk || ""}`;
+  container.dataset.formatted = "false";
+  scheduleMessageRender(container);
+}
+
+function closeLiveReasoning(container) {
+  if (!container?._reasoningOpen) return;
+  container._rawText = `${container._rawText || ""}</thinking>\n`;
+  container._reasoningOpen = false;
+}
+
+function appendReasoning(container, chunk) {
+  if (!container) return;
+  if (!container._reasoningOpen) {
+    container._rawText = `${container._rawText || ""}<thinking>`;
+    container._reasoningOpen = true;
+  }
+  container._rawText += chunk || "";
   container.dataset.formatted = "false";
   scheduleMessageRender(container);
 }
 
 function finalizeMessage(container) {
   if (!container) return;
+  closeLiveReasoning(container);
   if (container._renderTimer != null) {
     clearTimeout(container._renderTimer);
     container._renderTimer = null;
@@ -371,6 +414,28 @@ function finalizeMessage(container) {
   container.dataset.formatted = "true";
   renderMessageContent(container, raw, false);
   container.dispatchEvent(new CustomEvent("nestcafe:message-rendered", { bubbles: true }));
+}
+
+function withReasoningFallback(text, reasoningTokens) {
+  const raw = String(text || "");
+  const tokens = Math.max(0, Number(reasoningTokens) || 0);
+  if (!tokens || /<(?:thinking|think|reasoning|reflection)>/i.test(raw)) return raw;
+  const count = new Intl.NumberFormat("pl-PL").format(tokens);
+  const fallback = `<thinking>Model wykorzystał ${count} tokenów rozumowania, ale nie udostępnił tekstowego podsumowania.</thinking>`;
+  return raw.trim() ? `${fallback}\n${raw}` : fallback;
+}
+
+function ensureReasoningVisibility(container, reasoningTokens) {
+  if (!container) return;
+  const raw = container._rawText ?? container.textContent ?? "";
+  const visible = withReasoningFallback(raw, reasoningTokens);
+  if (visible !== raw) {
+    container._rawText = visible;
+    // A message can already have been formatted before the terminal event
+    // supplies reasoning_tok. Force one final render so the fallback is moved
+    // above the answer instead of being left out or appended visually later.
+    container.dataset.formatted = "false";
+  }
 }
 
 function ensureRewindControl(article, seq, text, messageAttachments = []) {
@@ -433,6 +498,7 @@ function createMessage(role, text, conversation, seq = 0, persistedAttachments =
   content.className = "message-content";
   content._rawText = displayText;
   content._renderTimer = null;
+  content._reasoningOpen = false;
   content.textContent = displayText;
   const time = document.createElement("time");
   time.className = "message-time";
@@ -1079,7 +1145,10 @@ function addFileChanges(changes, conversation) {
 
 const chatApi = {
   appendMessage,
+  appendReasoning,
   finalizeMessage,
+  withReasoningFallback,
+  ensureReasoningVisibility,
   createMessage,
   enableRewind,
   createActivity,

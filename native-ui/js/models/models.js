@@ -4,10 +4,31 @@ const modelDialog = document.querySelector("#model-dialog");
 const modelButton = document.querySelector("#model-button");
 const modelSearch = document.querySelector("#model-search");
 const modelList = document.querySelector("#model-list");
+const modelButtonLabel = document.querySelector("#model-button-label");
 
 let modelCatalog = [];
 let activeModel = "";
 let activeProvider = "";
+
+function compactModelName(model) {
+  const original = String(model || "").trim();
+  if (!original || original === "no model") return "Wybierz model";
+  let name = original.split("/").pop() || original;
+  name = name
+    .replace(/[-_:](?:contributor[-_:])?free$/i, "")
+    .replace(/[-_:](?:preview|latest)$/i, "")
+    .replace(/[-_]+/g, " ")
+    .trim();
+  return name.split(/\s+/).map((part) => {
+    if (/^\d|\d$/.test(part)) return part.toUpperCase();
+    return part.charAt(0).toUpperCase() + part.slice(1);
+  }).join(" ");
+}
+
+function setModelButton(model, provider) {
+  modelButtonLabel.textContent = compactModelName(model);
+  modelButton.title = provider ? `${model} · ${provider}` : model || "Wybierz model";
+}
 
 async function modelJson(path, options) {
   const response = await fetch(path, options);
@@ -63,8 +84,7 @@ async function loadModels() {
   modelCatalog = response.models || [];
   activeModel = response.active || "";
   activeProvider = response.provider || "";
-  modelButton.textContent = activeModel && activeModel !== "no model" ? activeModel : "Wybierz model";
-  modelButton.title = activeProvider ? `${activeModel} · ${activeProvider}` : activeModel || "Wybierz model";
+  setModelButton(activeModel, activeProvider);
   renderModels();
   window.dispatchEvent(new CustomEvent("nestcafe:model-changed", { detail: getActiveModel() }));
 }
@@ -79,8 +99,7 @@ async function selectModel(model) {
     });
     activeModel = model.id;
     activeProvider = model.provider || "";
-    modelButton.textContent = model.id;
-    modelButton.title = activeProvider ? `${model.id} · ${activeProvider}` : model.id;
+    setModelButton(model.id, activeProvider);
     modelDialog.close();
     window.dispatchEvent(new CustomEvent("nestcafe:model-changed", { detail: getActiveModel() }));
     await window.NestCafe?.refreshHealth?.();
