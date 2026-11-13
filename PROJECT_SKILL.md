@@ -27,6 +27,10 @@ build.bat C:\path\to\supercli-web.exe
 
 - `build.bat` — rebuilds `NestCafe.exe` (launcher + embedded UI + modules).
 - `build.bat PATH` — swaps only `runtime/NestCafe.exe` and rebrands it.
+- `dist.bat` — clean portable package in `dist\NestCafe-portable-<VERSION>\` + zip.
+- `runtime/NestCafe.exe` is a build output and is **not tracked**. `-BuildEngine` builds it from SuperCli sources
+  (`-EngineRoot`, default `..\SuperCli`); CI checks out the SuperCli tag pinned in `SUPERCLI_REF`.
+- UI unit tests (dev-only Node, not part of the product): `node --test native-ui/tests/`
 - Bridge: `powershell -ExecutionPolicy Bypass -File scripts\test-supercli-bridge.ps1 -Launcher .\NestCafe.exe`
 - Smoke: `powershell -ExecutionPolicy Bypass -File scripts\smoke-test.ps1`
 
@@ -43,8 +47,9 @@ build.bat C:\path\to\supercli-web.exe
 ## Thunderbird AI Bridge
 
 - First-class NestCafe status UI: **Settings → Integrations**.
-- Bundled add-on: `integrations/Thunderbird-AI-Bridge.xpi` (current bundled manifest version 0.9.32).
-- Local builds refresh that XPI from the sibling `../Thunderbird-AI-Bridge` checkout when Python is available; CI/release builds use the vendored XPI.
+- Bundled add-on: `integrations/Thunderbird-AI-Bridge.xpi` (vendored bridge 0.9.34, SHA-256 pinned in `integrations/Thunderbird-AI-Bridge.xpi.sha256`; the build fails on a mismatch).
+- `build-native.ps1 -RefreshBridge` copies `../Thunderbird-AI-Bridge/dist/thunderbird-ai-bridge.xpi` and re-pins the hash; otherwise builds use the vendored XPI.
+- Bridge 0.9.33+ protocol (CORS + long-poll host, `include_attachments`, Message-ID dedupe fields, `verify_move`, `repair_folder`, ambiguous-account errors) needs SuperCli >= 1.0.20.
 - Host endpoint: `127.0.0.1:47831`; the SuperCli `thunderbird_mail` tool owns the local bridge protocol.
 - NestCafe APIs: `/api/integrations/thunderbird` and `/api/integrations/thunderbird/xpi`.
 - Extension source: `https://github.com/snakex21/Thunderbird-AI-Bridge`.
