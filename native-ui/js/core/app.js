@@ -21,6 +21,8 @@ let liveTurnAppend = false;
 let questionPending = false;
 let abortController = null;
 let pendingImmediateTask = null;
+let runSequence = 0;
+let navigationSequence = 0;
 let followConversation = true;
 let conversationScrollFrame = null;
 let conversationScrollForced = false;
@@ -295,10 +297,14 @@ function handleEvent(event, current) {
   return current;
 }
 
-async function sendPrompt(text, attachments = [], draft = null) {
+async function sendPrompt(text, attachments = [], draft = null, onAccepted = null) {
   const prompt = String(text || "").trim();
   const sentAttachments = [...(attachments || [])];
-  if (running || (!prompt && !sentAttachments.length)) return;
+  if (running || (!prompt && !sentAttachments.length)) return false;
+  const sequence = ++runSequence;
+  // A prompt keeps the currently displayed conversation. Older navigation
+  // responses must never replace its live transcript, even after it finishes.
+  navigationSequence++;
 
   // A question belongs to the run that created it. Never let a stale panel
   // survive into a newer run and keep the composer locked.
@@ -318,6 +324,7 @@ async function sendPrompt(text, attachments = [], draft = null) {
   abortController = new AbortController();
   let current = null;
   let draftAccepted = false;
+  let outcome = "incomplete";
   try {
     const response = await fetch("/api/chat", {
       method: "POST",
@@ -333,10 +340,17 @@ async function sendPrompt(text, attachments = [], draft = null) {
     draftAccepted = true;
     if (draft) composerDraftStore.clear(draft.scope, draft.text);
     window.NestCafe?.attachments?.clear?.();
+    if (onAccepted) await onAccepted(abortController.signal);
     await superCliUI.readSSE(response.body, (event) => {
+      if (event.type === "done") outcome = "done";
+      else if (event.type === "error") outcome = "error";
       current = handleEvent(event, current);
     });
+    if (outcome === "incomplete") {
+      addActivity("Połączenie", "Połączenie zakończyło się bez potwierdzenia wyniku. Kolejka została wstrzymana.").classList.add("error");
+    }
   } catch (error) {
+    outcome = error.name === "AbortError" ? "interrupted" : "error";
     if (error.name !== "AbortError") {
       addActivity("Połączenie", error.message).classList.add("error");
       showToast(error.message);
@@ -350,7 +364,10 @@ async function sendPrompt(text, attachments = [], draft = null) {
     // stuck on an answer endpoint that already returned HTTP 410.
     clearPendingQuestion();
     chat().finalizeMessage?.(current);
+    chat().finishPendingActivities?.(toolRows.values(), outcome);
+    if (outcome !== "done" && !pendingImmediateTask) window.NestCafe?.plan?.pause?.();
     setRunning(false);
+    if (outcome !== "done") runState.textContent = outcome === "interrupted" ? "Przerwano" : "Błąd";
     liveTurnAppend = false;
     resetLiveConversationObserver();
     conversation.querySelectorAll(".live-turn").forEach((node) => node.classList.remove("live-turn"));
@@ -376,15 +393,25 @@ async function sendPrompt(text, attachments = [], draft = null) {
     } catch {
       // Non-fatal: the live turn already rendered.
     }
-    const immediate = pendingImmediateTask;
-    pendingImmediateTask = null;
-    if (immediate) {
-      setTimeout(() => window.NestCafe?.plan?.runScheduled?.(immediate, immediate.prompt), 0);
-    } else {
-      window.NestCafe?.plan?.onRunFinished?.();
+    // A newer prompt may start while the finished run refreshes its transcript.
+    // Its queue and explicit replacement choice belong to that newer run.
+    if (sequence === runSequence) {
+      const immediate = pendingImmediateTask;
+      pendingImmediateTask = null;
+      if (immediate) {
+        setTimeout(() => window.NestCafe?.plan?.runScheduled?.(immediate, immediate.prompt), 0);
+      } else {
+        window.NestCafe?.plan?.onRunFinished?.(outcome);
+      }
+      promptInput.focus();
     }
-    promptInput.focus();
   }
+  return draftAccepted;
+}
+
+// Older engines return the whole transcript as a bare array (no paging fields).
+function transcriptPageMessages(page) {
+  return Array.isArray(page) ? page : page?.messages || [];
 }
 
 async function findLatestUserSeq(sessionID) {
@@ -392,13 +419,13 @@ async function findLatestUserSeq(sessionID) {
   for (;;) {
     const suffix = before ? `&before=${before}` : "";
     const page = await json(`/api/transcript?id=${encodeURIComponent(sessionID)}&limit=${transcriptPageSize}${suffix}`);
-    const messages = page.messages || [];
+    const messages = transcriptPageMessages(page);
     for (let i = messages.length - 1; i >= 0; i -= 1) {
       const message = messages[i];
       if (message.role === "user" && Number(message.seq) > 0) return Number(message.seq);
     }
-    if (!page.has_more || !page.before_seq) return 0;
-    before = Number(page.before_seq);
+    if (!page?.has_more || !page?.before_seq) return 0;
+    before = Number(page?.before_seq);
   }
 }
 
@@ -618,9 +645,9 @@ async function loadOlderTranscript() {
       { signal: controller.signal },
     );
     if (sessionID !== transcriptSessionID || controller !== transcriptAbortController) return;
-    loadedTranscriptMessages = [...(page.messages || []), ...loadedTranscriptMessages];
-    transcriptHasMore = Boolean(page.has_more);
-    transcriptBeforeSeq = Number(page.before_seq || 0);
+    loadedTranscriptMessages = [...transcriptPageMessages(page), ...loadedTranscriptMessages];
+    transcriptHasMore = Boolean(page?.has_more);
+    transcriptBeforeSeq = Number(page?.before_seq || 0);
     renderLoadedTranscript(true);
   } catch (error) {
     if (error.name !== "AbortError") {
@@ -635,8 +662,9 @@ async function loadOlderTranscript() {
   }
 }
 
-async function openSession(session, skipSessionReload = false) {
-  if (running) return;
+async function openSession(session, skipSessionReload = false, navigation = null) {
+  if (running) return false;
+  const sequence = navigation ?? ++navigationSequence;
   transcriptAbortController?.abort();
   const controller = new AbortController();
   transcriptAbortController = controller;
@@ -645,20 +673,22 @@ async function openSession(session, skipSessionReload = false) {
       `/api/transcript?id=${encodeURIComponent(session.id)}&limit=${transcriptPageSize}`,
       { signal: controller.signal },
     );
-    if (controller !== transcriptAbortController) return;
+    if (controller !== transcriptAbortController || sequence !== navigationSequence || running) return false;
     activeSession = session.id;
     transcriptSessionID = session.id;
-    loadedTranscriptMessages = page.messages || [];
-    transcriptHasMore = Boolean(page.has_more);
-    transcriptBeforeSeq = Number(page.before_seq || 0);
+    loadedTranscriptMessages = transcriptPageMessages(page);
+    transcriptHasMore = Boolean(page?.has_more);
+    transcriptBeforeSeq = Number(page?.before_seq || 0);
     composerDraftStore.restore(`session:${session.id}`);
     followConversation = true;
     document.body.classList.remove("empty-state");
     title.textContent = sessionDisplayTitle(session);
     renderLoadedTranscript(false);
     if (!skipSessionReload) await loadSessions();
+    return sequence === navigationSequence && !running;
   } catch (error) {
-    if (error.name !== "AbortError") showToast(error.message);
+    if (error.name !== "AbortError" && sequence === navigationSequence && !running) showToast(error.message);
+    return false;
   } finally {
     if (controller === transcriptAbortController) transcriptAbortController = null;
   }
@@ -770,14 +800,25 @@ async function rewindMessage(seq, text, trigger, messageAttachments = []) {
 }
 
 async function resumeSessionByID(id) {
-  const sessions = await json("/api/sessions?limit=100");
-  const session = sessions.find((item) => item.id === id);
-  if (!session) throw new Error("Nie znaleziono rozmowy powiązanej z zadaniem.");
-  await openSession(session);
+  if (running) return false;
+  // Claim navigation before either request, so a slow catalog lookup cannot
+  // resurrect a selection that New chat or a newer selection has superseded.
+  const sequence = ++navigationSequence;
+  try {
+    const sessions = await json("/api/sessions?limit=100");
+    if (sequence !== navigationSequence || running) return false;
+    const session = sessions.find((item) => item.id === id);
+    if (!session) throw new Error("Nie znaleziono rozmowy powiązanej z zadaniem.");
+    return await openSession(session, false, sequence);
+  } catch (error) {
+    if (sequence !== navigationSequence || running) return false;
+    throw error;
+  }
 }
 
 function newConversation() {
   if (running) return;
+  navigationSequence++;
   activeSession = "";
   toolRows.clear();
   conversation.innerHTML = welcomeHTML;
@@ -829,7 +870,12 @@ promptInput.addEventListener("input", () => {
   promptInput.style.height = `${Math.min(promptInput.scrollHeight, 180)}px`;
 });
 
-stopButton.addEventListener("click", () => abortController?.abort());
+stopButton.addEventListener("click", () => {
+  // Stop pauses the queue; the separate explicit "Teraz" action replaces a run.
+  window.NestCafe?.plan?.pause?.();
+  pendingImmediateTask = null;
+  abortController?.abort();
+});
 $("#new-chat").addEventListener("click", newConversation);
 $("#execution-back").addEventListener("click", newConversation);
 $("#refresh-sessions").addEventListener("click", loadSessions);

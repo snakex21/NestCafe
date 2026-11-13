@@ -9,6 +9,8 @@ const modelButtonLabel = document.querySelector("#model-button-label");
 let modelCatalog = [];
 let activeModel = "";
 let activeProvider = "";
+let modelSelectionPending = false;
+let modelLoadSeq = 0;
 
 function compactModelName(model) {
   const original = String(model || "").trim();
@@ -62,6 +64,7 @@ function renderModels() {
   for (const model of visible) {
     const row = document.createElement("button");
     row.type = "button";
+    row.disabled = modelSelectionPending;
     row.className = `model-row${model.id === activeModel && model.provider === activeProvider ? " active" : ""}`;
     const identity = document.createElement("span");
     const name = document.createElement("strong");
@@ -79,27 +82,47 @@ function renderModels() {
 }
 
 async function loadModels() {
+  if (modelSelectionPending) return false;
+  const sequence = ++modelLoadSeq;
   modelList.innerHTML = `<div class="model-empty">Ładowanie modeli…</div>`;
-  const response = await modelJson("/api/models");
+  let response;
+  try {
+    response = await modelJson("/api/models");
+  } catch (error) {
+    if (sequence !== modelLoadSeq || modelSelectionPending) return false;
+    throw error;
+  }
+  if (sequence !== modelLoadSeq || modelSelectionPending) return false;
   modelCatalog = response.models || [];
   activeModel = response.active || "";
   activeProvider = response.provider || "";
   setModelButton(activeModel, activeProvider);
   renderModels();
   window.dispatchEvent(new CustomEvent("nestcafe:model-changed", { detail: getActiveModel() }));
+  return true;
+}
+
+function setModelBusy(busy) {
+  modelSelectionPending = busy;
+  modelButton.disabled = busy;
+  modelSearch.disabled = busy;
+  modelList.querySelectorAll(".model-row").forEach((row) => { row.disabled = busy; });
 }
 
 async function selectModel(model) {
+  if (modelSelectionPending) return;
+  // Ignore catalogs requested before this mutation and prevent overlapping saves.
+  modelLoadSeq += 1;
+  setModelBusy(true);
   try {
-    modelButton.disabled = true;
-    await modelJson("/api/model", {
+    const result = await modelJson("/api/model", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ model: model.id, provider: model.provider || "" }),
     });
-    activeModel = model.id;
+    activeModel = result?.model || model.id;
     activeProvider = model.provider || "";
-    setModelButton(model.id, activeProvider);
+    setModelButton(activeModel, activeProvider);
     modelDialog.close();
     window.dispatchEvent(new CustomEvent("nestcafe:model-changed", { detail: getActiveModel() }));
     await window.NestCafe?.refreshHealth?.();
@@ -108,7 +131,7 @@ async function selectModel(model) {
     toast.textContent = error.message;
     toast.hidden = false;
   } finally {
-    modelButton.disabled = false;
+    setModelBusy(false);
   }
 }
 
@@ -165,8 +188,7 @@ modelButton.addEventListener("click", async () => {
   modelDialog.showModal();
   modelSearch.value = "";
   try {
-    await loadModels();
-    modelSearch.focus();
+    if (await loadModels() && modelDialog.open) modelSearch.focus();
   } catch (error) {
     const empty = document.createElement("div");
     empty.className = "model-empty";
