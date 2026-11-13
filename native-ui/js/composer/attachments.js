@@ -1,7 +1,9 @@
+(() => {
 "use strict";
 
 const attachmentList = document.querySelector("#attachment-list");
 const attachButton = document.querySelector("#attach-button");
+const attachmentFileInput = document.querySelector("#attachment-file-input");
 const documentLibraryButton = document.querySelector("#document-library-button");
 const composer = document.querySelector("#composer");
 const promptField = document.querySelector("#prompt");
@@ -9,6 +11,7 @@ const promptField = document.querySelector("#prompt");
 let attachments = [];
 
 const imageExtensions = new Set(["png", "jpg", "jpeg", "gif", "webp"]);
+const textPreviewExtensions = new Set(["docx", "md", "markdown", "txt", "csv", "json", "yaml", "yml", "xml", "html", "css", "js", "ts", "tsx", "go", "py"]);
 
 async function attachmentJson(path, options) {
   const response = await fetch(path, options);
@@ -78,6 +81,14 @@ function isPDF(path) {
   return fileExtension(path) === "pdf";
 }
 
+function isTextDocument(path) {
+  return textPreviewExtensions.has(fileExtension(path));
+}
+
+function isPreviewable(path) {
+  return isImage(path) || isPDF(path) || isTextDocument(path);
+}
+
 function previewURL(path) {
   return `/api/attachment/preview?path=${encodeURIComponent(path)}`;
 }
@@ -85,7 +96,9 @@ function previewURL(path) {
 const previewState = {
   paths: [],
   index: 0,
+  zoom: 100,
   keyHandler: null,
+  renderToken: 0,
 };
 
 function ensurePreviewDialog() {
@@ -101,7 +114,12 @@ function ensurePreviewDialog() {
         <strong class="attachment-preview-title"></strong>
         <small class="attachment-preview-count" hidden></small>
       </div>
-      <button type="button" class="attachment-preview-close" aria-label="Zamknij podgląd">×</button>
+      <div class="attachment-preview-toolbar">
+        <button type="button" class="attachment-preview-zoom-out" title="Pomniejsz" aria-label="Pomniejsz">−</button>
+        <button type="button" class="attachment-preview-zoom-reset" title="Resetuj powiększenie">100%</button>
+        <button type="button" class="attachment-preview-zoom-in" title="Powiększ" aria-label="Powiększ">+</button>
+        <button type="button" class="attachment-preview-close" aria-label="Zamknij podgląd">×</button>
+      </div>
     </header>
     <div class="attachment-preview-body">
       <button type="button" class="attachment-preview-nav prev" aria-label="Poprzednie zdjęcie">‹</button>
@@ -110,6 +128,18 @@ function ensurePreviewDialog() {
     </div>
     <footer class="attachment-preview-thumbs" hidden></footer>`;
   dialog.querySelector(".attachment-preview-close").addEventListener("click", () => dialog.close());
+  dialog.querySelector(".attachment-preview-zoom-out").addEventListener("click", (event) => {
+    event.stopPropagation();
+    setPreviewZoom(previewState.zoom - 25);
+  });
+  dialog.querySelector(".attachment-preview-zoom-reset").addEventListener("click", (event) => {
+    event.stopPropagation();
+    setPreviewZoom(100);
+  });
+  dialog.querySelector(".attachment-preview-zoom-in").addEventListener("click", (event) => {
+    event.stopPropagation();
+    setPreviewZoom(previewState.zoom + 25);
+  });
   dialog.querySelector(".attachment-preview-nav.prev").addEventListener("click", (event) => {
     event.stopPropagation();
     stepPreview(-1);
@@ -130,6 +160,8 @@ function ensurePreviewDialog() {
     }
     previewState.paths = [];
     previewState.index = 0;
+    previewState.zoom = 100;
+    previewState.renderToken += 1;
   });
   document.body.append(dialog);
   return dialog;
@@ -139,10 +171,86 @@ function stepPreview(delta) {
   if (previewState.paths.length < 2) return;
   const next =
     (previewState.index + delta + previewState.paths.length) % previewState.paths.length;
+  previewState.zoom = 100;
   showPreviewAt(next);
 }
 
-function showPreviewAt(index) {
+function previewTypeLabel(path) {
+  if (isImage(path)) return "IMG";
+  if (isPDF(path)) return "PDF";
+  if (fileExtension(path) === "docx") return "WORD";
+  return "TEKST";
+}
+
+function documentPreviewURL(path) {
+  return `/api/attachment/document-preview?path=${encodeURIComponent(path)}`;
+}
+
+function applyPreviewZoom() {
+  const dialog = document.querySelector("#attachment-preview-dialog");
+  if (!dialog) return;
+  const zoom = Math.max(50, Math.min(300, previewState.zoom));
+  previewState.zoom = zoom;
+  const reset = dialog.querySelector(".attachment-preview-zoom-reset");
+  if (reset) reset.textContent = `${zoom}%`;
+  const stage = dialog.querySelector(".attachment-preview-stage");
+  const image = stage?.querySelector("img.attachment-preview-image");
+  if (image) {
+    image.style.width = `${zoom}%`;
+    image.style.height = `${zoom}%`;
+    image.style.minWidth = `${zoom}%`;
+    image.style.minHeight = `${zoom}%`;
+    image.style.maxWidth = "none";
+    image.style.maxHeight = "none";
+  }
+  const documentPage = stage?.querySelector(".attachment-document-preview");
+  if (documentPage) documentPage.style.fontSize = `${zoom}%`;
+  const frame = stage?.querySelector("iframe.attachment-preview-pdf");
+  if (frame?.dataset.baseSrc) {
+    const wanted = `${frame.dataset.baseSrc}#zoom=${zoom}`;
+    if (frame.src !== wanted) frame.src = wanted;
+  }
+}
+
+function setPreviewZoom(value) {
+  previewState.zoom = Math.max(50, Math.min(300, Number(value) || 100));
+  applyPreviewZoom();
+}
+
+function renderPreviewStrip(thumbs, paths, activeIndex) {
+  const multi = paths.length > 1;
+  thumbs.hidden = !multi;
+  thumbs.replaceChildren();
+  if (!multi) return;
+  paths.forEach((itemPath, itemIndex) => {
+    const thumb = document.createElement("button");
+    thumb.type = "button";
+    thumb.className = `attachment-preview-thumb${itemIndex === activeIndex ? " active" : ""}`;
+    thumb.title = fileName(itemPath);
+    thumb.setAttribute("aria-label", `Pokaż ${fileName(itemPath)}`);
+    if (isImage(itemPath)) {
+      const img = document.createElement("img");
+      img.src = previewURL(itemPath);
+      img.alt = "";
+      img.loading = "lazy";
+      thumb.append(img);
+    } else {
+      const badge = document.createElement("span");
+      badge.textContent = previewTypeLabel(itemPath);
+      const label = document.createElement("small");
+      label.textContent = fileName(itemPath);
+      thumb.append(badge, label);
+    }
+    thumb.addEventListener("click", (event) => {
+      event.stopPropagation();
+      previewState.zoom = 100;
+      showPreviewAt(itemIndex);
+    });
+    thumbs.append(thumb);
+  });
+}
+
+async function showPreviewAt(index) {
   const dialog = ensurePreviewDialog();
   const paths = previewState.paths;
   if (!paths.length) return;
@@ -155,6 +263,7 @@ function showPreviewAt(index) {
   const prev = dialog.querySelector(".attachment-preview-nav.prev");
   const next = dialog.querySelector(".attachment-preview-nav.next");
   const thumbs = dialog.querySelector(".attachment-preview-thumbs");
+  const token = ++previewState.renderToken;
 
   title.textContent = fileName(path);
   if (paths.length > 1) {
@@ -169,59 +278,61 @@ function showPreviewAt(index) {
   next.hidden = !multi;
   prev.disabled = !multi;
   next.disabled = !multi;
+  renderPreviewStrip(thumbs, paths, safeIndex);
 
   stage.replaceChildren();
   if (isImage(path)) {
     const image = document.createElement("img");
+    image.className = "attachment-preview-image";
     image.src = previewURL(path);
     image.alt = fileName(path);
     image.addEventListener(
       "error",
       () => {
-        stage.textContent = "Nie udało się otworzyć obrazu.";
+        if (token === previewState.renderToken) stage.textContent = "Nie udało się otworzyć obrazu.";
       },
       { once: true },
     );
     stage.append(image);
-  } else if (isPDF(path)) {
+    applyPreviewZoom();
+    return;
+  }
+  if (isPDF(path)) {
     const frame = document.createElement("iframe");
-    frame.src = previewURL(path);
+    frame.className = "attachment-preview-pdf";
+    frame.dataset.baseSrc = previewURL(path);
     frame.title = `Podgląd ${fileName(path)}`;
     stage.append(frame);
-  } else {
-    stage.textContent = "Podgląd niedostępny dla tego typu pliku.";
+    applyPreviewZoom();
+    return;
   }
-
-  if (multi && paths.every(isImage)) {
-    thumbs.hidden = false;
-    thumbs.replaceChildren();
-    paths.forEach((itemPath, itemIndex) => {
-      const thumb = document.createElement("button");
-      thumb.type = "button";
-      thumb.className = `attachment-preview-thumb${itemIndex === safeIndex ? " active" : ""}`;
-      thumb.title = fileName(itemPath);
-      thumb.setAttribute("aria-label", `Pokaż ${fileName(itemPath)}`);
-      const img = document.createElement("img");
-      img.src = previewURL(itemPath);
-      img.alt = "";
-      img.loading = "lazy";
-      thumb.append(img);
-      thumb.addEventListener("click", (event) => {
-        event.stopPropagation();
-        showPreviewAt(itemIndex);
-      });
-      thumbs.append(thumb);
-    });
-  } else {
-    thumbs.hidden = true;
-    thumbs.replaceChildren();
+  if (isTextDocument(path)) {
+    const loading = document.createElement("div");
+    loading.className = "attachment-preview-loading";
+    loading.textContent = "Wczytywanie dokumentu…";
+    stage.append(loading);
+    try {
+      const result = await attachmentJson(documentPreviewURL(path));
+      if (token !== previewState.renderToken) return;
+      const page = document.createElement("article");
+      page.className = `attachment-document-preview${fileExtension(path) === "docx" ? " word" : ""}`;
+      const pre = document.createElement("pre");
+      pre.textContent = result.text || "";
+      page.append(pre);
+      stage.replaceChildren(page);
+      applyPreviewZoom();
+    } catch (error) {
+      if (token === previewState.renderToken) stage.textContent = `Nie udało się otworzyć dokumentu: ${error.message}`;
+    }
+    return;
   }
+  stage.textContent = "Podgląd niedostępny dla tego typu pliku.";
 }
 
 function openAttachmentPreview(path, paths = null) {
   const list = Array.isArray(paths) && paths.length
-    ? paths.filter((item) => isImage(item) || isPDF(item))
-    : isImage(path) || isPDF(path)
+    ? paths.filter(isPreviewable)
+    : isPreviewable(path)
       ? [path]
       : [];
   if (!list.length) return;
@@ -229,6 +340,7 @@ function openAttachmentPreview(path, paths = null) {
   if (index < 0) index = 0;
   previewState.paths = list;
   previewState.index = index;
+  previewState.zoom = 100;
 
   const dialog = ensurePreviewDialog();
   if (previewState.keyHandler) {
@@ -242,6 +354,15 @@ function openAttachmentPreview(path, paths = null) {
     } else if (event.key === "ArrowRight") {
       event.preventDefault();
       stepPreview(1);
+    } else if (event.key === "+" || event.key === "=") {
+      event.preventDefault();
+      setPreviewZoom(previewState.zoom + 25);
+    } else if (event.key === "-" || event.key === "_") {
+      event.preventDefault();
+      setPreviewZoom(previewState.zoom - 25);
+    } else if (event.key === "0") {
+      event.preventDefault();
+      setPreviewZoom(100);
     } else if (event.key === "Escape") {
       dialog.close();
     }
@@ -350,12 +471,12 @@ function renderSentAttachments(messageContent, paths) {
       button.append(image);
     } else {
       const icon = document.createElement("span");
-      icon.textContent = isPDF(path) ? "PDF" : "PLIK";
+      icon.textContent = previewTypeLabel(path);
       const name = document.createElement("strong");
       name.textContent = fileName(path);
       button.append(icon, name);
     }
-    button.disabled = !isImage(path) && !isPDF(path);
+    button.disabled = !isPreviewable(path);
     button.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -369,8 +490,10 @@ function renderSentAttachments(messageContent, paths) {
 }
 
 function attachmentStatus(path) {
-  if (!isImage(path)) return "";
-  return "Obraz gotowy";
+  if (isImage(path)) return "Obraz gotowy";
+  if (isPDF(path)) return "PDF gotowy";
+  if (isTextDocument(path)) return "Podgląd gotowy";
+  return "";
 }
 
 function renderAttachments() {
@@ -384,7 +507,7 @@ function renderAttachments() {
     const preview = document.createElement("button");
     preview.type = "button";
     preview.className = "attachment-preview-trigger";
-    preview.disabled = !isImage(path) && !isPDF(path);
+    preview.disabled = !isPreviewable(path);
     preview.setAttribute("aria-label", `Podgląd ${fileName(path)}`);
     if (isImage(path)) {
       const thumb = document.createElement("img");
@@ -394,7 +517,7 @@ function renderAttachments() {
       preview.append(thumb);
     } else {
       const icon = document.createElement("i");
-      icon.textContent = isPDF(path) ? "PDF" : "PLIK";
+      icon.textContent = previewTypeLabel(path);
       preview.append(icon);
     }
     const copy = document.createElement("span");
@@ -446,25 +569,41 @@ async function uploadFiles(files) {
   addAttachmentPaths(result.paths || []);
 }
 
-async function chooseAttachments() {
-  attachButton.disabled = true;
-  try {
-    const result = await attachmentJson("/api/file-picker");
-    addAttachmentPaths(result.paths || []);
-  } catch (error) {
-    window.NestCafe?.toast?.(error.message);
-  } finally {
-    attachButton.disabled = false;
+attachButton?.addEventListener("click", () => {
+  if (composer?.classList.contains("question-pending")) {
+    window.NestCafe?.toast?.("Najpierw odpowiedz na pytanie agenta powyżej.");
+    return;
   }
-}
+  attachmentFileInput?.click();
+});
 
-attachButton.addEventListener("click", chooseAttachments);
-documentLibraryButton.addEventListener("click", () => {
+attachmentFileInput?.addEventListener("change", async () => {
+  const files = [...(attachmentFileInput.files || [])];
+  if (!files.length) return;
+  if (composer?.classList.contains("question-pending")) {
+    attachmentFileInput.value = "";
+    window.NestCafe?.toast?.("Najpierw odpowiedz na pytanie agenta powyżej.");
+    return;
+  }
+  if (attachButton) attachButton.disabled = true;
+  composer?.classList.add("attachment-uploading");
+  try {
+    await uploadFiles(files);
+  } catch (error) {
+    window.NestCafe?.toast?.(`Nie udało się dodać pliku: ${error.message}`);
+  } finally {
+    attachmentFileInput.value = "";
+    if (attachButton) attachButton.disabled = false;
+    composer?.classList.remove("attachment-uploading");
+  }
+});
+
+documentLibraryButton?.addEventListener("click", () => {
   window.NestCafe?.settings?.openPage?.("folders");
 });
 window.addEventListener("nestcafe:model-changed", renderAttachments);
 
-promptField.addEventListener("paste", async (event) => {
+promptField?.addEventListener("paste", async (event) => {
   const files = [...(event.clipboardData?.items || [])]
     .filter((item) => item.kind === "file")
     .map((item) => item.getAsFile())
@@ -478,27 +617,45 @@ promptField.addEventListener("paste", async (event) => {
   }
 });
 
-composer.addEventListener("dragover", (event) => {
-  if (composer.classList.contains("question-pending")) return;
+let attachmentDragDepth = 0;
+
+document.addEventListener("dragenter", (event) => {
   if (!event.dataTransfer?.types?.includes("Files")) return;
   event.preventDefault();
-  composer.classList.add("attachment-drop-active");
-});
-composer.addEventListener("dragleave", () => composer.classList.remove("attachment-drop-active"));
-composer.addEventListener("drop", async (event) => {
-  composer.classList.remove("attachment-drop-active");
-  if (!event.dataTransfer?.files?.length) return;
+  attachmentDragDepth += 1;
+  composer?.classList.add("attachment-drop-active");
+}, true);
+
+document.addEventListener("dragover", (event) => {
+  if (!event.dataTransfer?.types?.includes("Files")) return;
   event.preventDefault();
-  if (composer.classList.contains("question-pending")) {
+  if (event.dataTransfer) event.dataTransfer.dropEffect = "copy";
+  composer?.classList.add("attachment-drop-active");
+}, true);
+
+document.addEventListener("dragleave", (event) => {
+  if (!event.dataTransfer?.types?.includes("Files")) return;
+  attachmentDragDepth = Math.max(0, attachmentDragDepth - 1);
+  if (attachmentDragDepth === 0) composer?.classList.remove("attachment-drop-active");
+}, true);
+
+document.addEventListener("drop", async (event) => {
+  const files = [...(event.dataTransfer?.files || [])];
+  if (!files.length) return;
+  event.preventDefault();
+  event.stopPropagation();
+  attachmentDragDepth = 0;
+  composer?.classList.remove("attachment-drop-active");
+  if (composer?.classList.contains("question-pending")) {
     window.NestCafe?.toast?.("Najpierw odpowiedz na pytanie agenta powyżej.");
     return;
   }
   try {
-    await uploadFiles(event.dataTransfer.files);
+    await uploadFiles(files);
   } catch (error) {
     window.NestCafe?.toast?.(error.message);
   }
-});
+}, true);
 
 const attachmentsApi = {
   list: () => [...attachments],
@@ -521,3 +678,4 @@ const attachmentsApi = {
 };
 
 window.NestCafe.export("attachments", attachmentsApi);
+})();
