@@ -1,0 +1,71 @@
+/* Settings components added after the historical cascade was frozen. */
+.about-update-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px 18px;
+  align-items: center;
+  margin: 18px 0;
+  padding: 16px 18px;
+  border: 1px solid var(--nc-line);
+  border-radius: 12px;
+  background: var(--nc-panel-soft);
+}
+
+.about-update-panel > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.about-update-panel strong {
+  color: var(--nc-text-strong);
+}
+
+.about-update-panel span,
+.about-update-panel small {
+  color: var(--nc-muted);
+  line-height: 1.45;
+}
+
+.about-update-panel small {
+  grid-column: 1 / -1;
+}
+
+.about-update-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.about-update-actions button,
+.about-update-actions a {
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 1px solid var(--nc-line-strong);
+  border-radius: 8px;
+  background: var(--nc-panel);
+  color: var(--nc-text-strong);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.about-update-actions a {
+  border-color: var(--nc-accent);
+  background: var(--nc-accent);
+  color: #fff;
+}
+
+.about-update-actions button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+@media (max-width: 720px) {
+  .about-update-panel {
+    grid-template-columns: 1fr;
+  }
+  .about-update-actions {
+    justify-content: flex-start;
+  }
+}
