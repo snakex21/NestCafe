@@ -267,7 +267,7 @@ function resetProviderForm() {
   providerForm.reset();
   providerTemplate.value = "";
   providerName.disabled = false;
-  providerType.value = "openai";
+  providerType.value = "auto";
   providerOptions.hidden = true;
   providerModels.hidden = true;
   providerModelSearch.value = "";
@@ -278,7 +278,7 @@ function resetProviderForm() {
   document.querySelector("#provider-title").textContent = "Dodaj dostawcę";
   providerHeaderIcon.src = providerLogoSource("custom");
   document.querySelector("#provider-key-hint").textContent = "pozostaw pusty, jeśli serwer go nie wymaga";
-  showProviderMessage("Po zapisaniu NestCafe sprawdzi endpoint modeli bez uruchamiania inferencji.");
+  showProviderMessage("Po zapisaniu NestCafe wykryje OpenAI/Anthropic przez endpoint modeli, bez uruchamiania inferencji. Responses API wybierz ręcznie.");
   renderProviderList();
 }
 
@@ -378,7 +378,7 @@ providerForm.addEventListener("submit", async (event) => {
     } else {
       payload.api_key = providerKey.value;
     }
-    await providerJson("/api/providers", {
+    const saved = await providerJson("/api/providers", {
       method: selectedProvider ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -386,7 +386,8 @@ providerForm.addEventListener("submit", async (event) => {
     await loadProviders(payload.name);
     await window.NestCafe?.models?.refresh?.();
     await window.NestCafe?.refreshHealth?.();
-    window.NestCafe?.toast?.("Konfiguracja dostawcy została zapisana.");
+    const detected = saved?.type ? ` · typ: ${saved.type}` : "";
+    window.NestCafe?.toast?.(`Konfiguracja dostawcy została zapisana${detected}.`);
   } catch (error) {
     showProviderMessage(error.message, "offline");
     window.NestCafe?.toast?.(error.message);
@@ -403,7 +404,13 @@ providerModelSearch.addEventListener("keydown", (event) => {
 providerModelsEnable.addEventListener("click", () => setProviderModelsHidden(false));
 providerModelsDisable.addEventListener("click", () => setProviderModelsHidden(true));
 deleteProvider.addEventListener("click", async () => {
-  if (!selectedProvider || !confirm(`Usunąć dostawcę „${selectedProvider.name}”?`)) return;
+  if (!selectedProvider) return;
+  const approved = await window.NestCafe?.dialogs?.confirm?.({
+    title: "Usunąć dostawcę?",
+    message: `Połączenie „${selectedProvider.name}” oraz jego lokalna konfiguracja zostaną usunięte.`,
+    confirmLabel: "Usuń dostawcę",
+  });
+  if (!approved) return;
   setProviderBusy(true);
   try {
     await providerJson(`/api/providers?name=${encodeURIComponent(selectedProvider.name)}`, { method: "DELETE" });
