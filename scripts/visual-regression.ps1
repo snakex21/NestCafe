@@ -39,6 +39,11 @@ $outFile = Join-Path $env:TEMP ("nestcafe-visual-out-" + [guid]::NewGuid().ToStr
 $errFile = Join-Path $env:TEMP ("nestcafe-visual-err-" + [guid]::NewGuid().ToString('N') + '.txt')
 New-Item -ItemType Directory -Path $profile -Force | Out-Null
 try {
+    # Headless --dump-dom occasionally serialises the page before the fixture's
+    # double requestAnimationFrame runs; retry a fresh run before failing.
+    $text = ''
+    for ($attempt = 1; $attempt -le 3 -and -not $text.Contains('data-ready="1"'); $attempt++) {
+    Remove-Item -LiteralPath $outFile, $errFile -Force -ErrorAction SilentlyContinue
     $process = Start-Process -FilePath $browser -ArgumentList @(
         '--headless', '--disable-gpu', '--no-first-run', '--allow-file-access-from-files',
         "--user-data-dir=$profile", '--virtual-time-budget=3000', '--window-size=1440,900',
@@ -48,13 +53,13 @@ try {
         $browserError = if (Test-Path -LiteralPath $errFile) { Get-Content -LiteralPath $errFile -Raw } else { '' }
         throw "Headless browser failed with exit $($process.ExitCode): $browserError"
     }
-    $text = ''
     for ($i = 0; $i -lt 25; $i++) {
         if (Test-Path -LiteralPath $outFile) {
             $text = Get-Content -LiteralPath $outFile -Raw -Encoding UTF8
             if ($text.Contains('data-ready="1"')) { break }
         }
         Start-Sleep -Milliseconds 100
+    }
     }
     $checks = @{
         'long Word page grows with content' = 'data-word-height="ok"'
