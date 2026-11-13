@@ -63,7 +63,12 @@ function integrationServerRow(server, openEditor, refresh) {
   edit.addEventListener("click", () => openEditor(server.name));
   const remove = settingsIntegrationsUI.button("Usuń", "settings-danger-button");
   remove.addEventListener("click", async () => {
-    if (!confirm(`Usunąć integrację „${server.name}”?`)) return;
+    const approved = await window.NestCafe?.dialogs?.confirm?.({
+      title: "Usunąć integrację?",
+      message: `Serwer „${server.name}” zostanie usunięty z lokalnej konfiguracji MCP.`,
+      confirmLabel: "Usuń integrację",
+    });
+    if (!approved) return;
     await settingsIntegrationsUI.json("/api/mcp/remove", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -79,6 +84,72 @@ function integrationServerRow(server, openEditor, refresh) {
 
 window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (root) => {
   let configDocument = { servers: {} };
+
+  const thunderbirdCard = document.createElement("section");
+  thunderbirdCard.className = "integration-feature-card";
+  const thunderbirdCopy = document.createElement("div");
+  thunderbirdCopy.className = "integration-feature-copy";
+  const thunderbirdTitle = document.createElement("div");
+  thunderbirdTitle.className = "integration-feature-title";
+  const thunderbirdName = document.createElement("strong");
+  thunderbirdName.textContent = "Thunderbird AI Bridge";
+  const thunderbirdStatus = integrationStatus("Sprawdzanie…");
+  const thunderbirdDescription = document.createElement("p");
+  thunderbirdDescription.textContent = "Lokalny most do poczty Thunderbird: wyszukiwanie, odczyt, załączniki, foldery, kontakty i bezpieczne operacje na wiadomościach.";
+  const thunderbirdMeta = document.createElement("small");
+  thunderbirdMeta.textContent = "Host NestCafe: 127.0.0.1:47831 · Thunderbird musi mieć zainstalowane rozszerzenie Bridge.";
+  thunderbirdTitle.append(thunderbirdName, thunderbirdStatus);
+  thunderbirdCopy.append(thunderbirdTitle, thunderbirdDescription, thunderbirdMeta);
+  const thunderbirdActions = document.createElement("div");
+  thunderbirdActions.className = "integration-feature-actions";
+  const thunderbirdRefresh = settingsIntegrationsUI.button("Sprawdź połączenie");
+  const thunderbirdBundle = document.createElement("a");
+  thunderbirdBundle.className = "settings-primary-button integration-download";
+  thunderbirdBundle.href = "/api/integrations/thunderbird/xpi";
+  thunderbirdBundle.download = "Thunderbird-AI-Bridge.xpi";
+  thunderbirdBundle.textContent = "Zapisz wbudowane XPI";
+  thunderbirdBundle.hidden = true;
+  const thunderbirdRepo = document.createElement("a");
+  thunderbirdRepo.href = "https://github.com/snakex21/Thunderbird-AI-Bridge";
+  thunderbirdRepo.target = "_blank";
+  thunderbirdRepo.rel = "noopener";
+  thunderbirdRepo.textContent = "GitHub";
+  thunderbirdActions.append(thunderbirdRefresh, thunderbirdBundle, thunderbirdRepo);
+  thunderbirdCard.append(thunderbirdCopy, thunderbirdActions);
+
+  const refreshThunderbird = async () => {
+    thunderbirdRefresh.disabled = true;
+    thunderbirdStatus.className = "settings-status-badge";
+    thunderbirdStatus.textContent = "Sprawdzanie…";
+    try {
+      const data = await settingsIntegrationsUI.json("/api/integrations/thunderbird");
+      thunderbirdBundle.hidden = !data.bundled_available;
+      if (data.connected) {
+        thunderbirdStatus.className = "settings-status-badge online";
+        thunderbirdStatus.textContent = "Połączony";
+        const details = data.status && typeof data.status === "object"
+          ? (data.status.account || data.status.accountName || data.status.message || "Thunderbird odpowiada")
+          : "Thunderbird odpowiada";
+        thunderbirdMeta.textContent = data.bundled_available
+          ? `127.0.0.1:47831 · ${details} · pakiet XPI jest dołączony do NestCafe`
+          : `127.0.0.1:47831 · ${details}`;
+      } else {
+        thunderbirdStatus.className = "settings-status-badge error";
+        thunderbirdStatus.textContent = "Niepołączony";
+        thunderbirdMeta.textContent = data.bundled_available
+          ? "Wbudowane XPI jest gotowe. Zapisz je, a w Thunderbirdzie wybierz Dodatki i motywy → Rozszerzenia → Zainstaluj dodatek z pliku."
+          : (data.error || "Uruchom Thunderbird i włącz rozszerzenie Thunderbird AI Bridge.");
+      }
+      if (data.repo_url) thunderbirdRepo.href = data.repo_url;
+    } catch (error) {
+      thunderbirdStatus.className = "settings-status-badge error";
+      thunderbirdStatus.textContent = "Błąd";
+      thunderbirdMeta.textContent = error.message;
+    } finally {
+      thunderbirdRefresh.disabled = false;
+    }
+  };
+  thunderbirdRefresh.addEventListener("click", refreshThunderbird);
 
   const openFolder = settingsIntegrationsUI.button("Otwórz folder MCP");
   openFolder.addEventListener("click", async () => {
@@ -235,13 +306,14 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
   headerActions.append(openFolder, editJSON);
   root.replaceChildren(
     settingsIntegrationsUI.sectionHeader(
-      "Serwery MCP",
-      "Jedno miejsce do przeglądania pakietów i edycji pełnej konfiguracji.",
+      "Integracje",
+      "Połączenia lokalne NestCafe oraz serwery MCP używane przez agenta.",
       headerActions,
     ),
+    thunderbirdCard,
     overview,
     packageSection,
     serverSection,
   );
-  await refresh();
+  await Promise.all([refreshThunderbird(), refresh()]);
 });

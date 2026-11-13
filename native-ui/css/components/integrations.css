@@ -1,0 +1,86 @@
+/* First-class local integrations (Thunderbird etc.). */
+.integration-feature-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px 20px;
+  align-items: center;
+  padding: 18px;
+  border: 1px solid var(--nc-line);
+  border-radius: 12px;
+  background: var(--nc-panel-soft);
+}
+
+.integration-feature-copy {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.integration-feature-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.integration-feature-title strong {
+  color: var(--nc-text-strong);
+  font-size: 15px;
+}
+
+.integration-feature-copy p,
+.integration-feature-copy small {
+  margin: 0;
+  color: var(--nc-muted);
+  line-height: 1.5;
+}
+
+.integration-feature-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.integration-feature-actions a,
+.integration-feature-actions button {
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 1px solid var(--nc-line-strong);
+  border-radius: 8px;
+  background: var(--nc-panel);
+  color: var(--nc-text-strong);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.integration-feature-actions .integration-download {
+  border-color: var(--nc-accent);
+  background: var(--nc-accent);
+  color: #fff;
+}
+
+.integration-feature-actions .integration-download:hover {
+  border-color: color-mix(in srgb, var(--nc-accent) 82%, #fff);
+  background: color-mix(in srgb, var(--nc-accent) 90%, #fff 10%);
+}
+
+.integration-feature-actions a:hover,
+.integration-feature-actions button:hover {
+  border-color: color-mix(in srgb, var(--nc-accent) 60%, var(--nc-line));
+}
+
+.integration-feature-actions button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+@media (max-width: 760px) {
+  .integration-feature-card {
+    grid-template-columns: 1fr;
+  }
+  .integration-feature-actions {
+    justify-content: flex-start;
+  }
+}
