@@ -1,0 +1,56 @@
+/* Failures must read as failures; missing setup must not look "online". */
+.activity.event-line.error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--nc-danger, #d0584f) 55%, var(--nc-line));
+  border-left-width: 3px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--nc-danger, #d0584f) 10%, var(--nc-panel));
+}
+
+.activity.event-line.error > strong {
+  color: var(--nc-danger, #e0675d);
+}
+
+.activity.event-line.error > span {
+  color: var(--nc-text-strong);
+}
+
+.activity.event-line.error .event-error-detail {
+  flex-basis: 100%;
+  color: var(--nc-muted);
+  font-size: 11px;
+}
+
+.activity.event-line.error .event-error-action {
+  min-height: 30px;
+  padding: 5px 11px;
+  border: 1px solid var(--nc-accent);
+  border-radius: 7px;
+  background: var(--nc-accent);
+  color: #fff;
+  font: 600 12px/1.2 var(--nc-body-font, inherit);
+  cursor: pointer;
+}
+
+.status-dot.warning {
+  background: var(--nc-warning, #d9a53f);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--nc-warning, #d9a53f) 14%, transparent);
+}
+
+.status-dot.offline {
+  background: var(--nc-danger, #d0584f);
+}
+
+.clear-sessions[hidden] {
+  display: none !important;
+}
+
+.session-list-empty {
+  margin: 4px 12px 8px;
+  color: var(--nc-muted);
+  font-size: 12px;
+}

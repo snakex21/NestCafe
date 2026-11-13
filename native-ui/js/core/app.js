@@ -291,7 +291,9 @@ function handleEvent(event, current) {
     chat().finalizeMessage?.(current);
     clearPendingQuestion();
     addFileChanges(event.file_changes);
-    addActivity("Błąd", event.err || "Nieznany błąd").classList.add("error");
+    const errorRow = addActivity("Błąd", event.err || "Nieznany błąd");
+    if (window.NestCafe?.errors?.decorate) window.NestCafe.errors.decorate(errorRow, event.err);
+    else errorRow.classList.add("error");
   }
   scrollConversation();
   return current;
@@ -440,12 +442,18 @@ async function loadHealth() {
   try {
     const health = await json("/api/health");
     activeWorkspace = health.home || "";
-    $("#status-dot").classList.add("online");
-    $("#engine-label").textContent = "SuperCli połączone";
-    $("#model-label").textContent = health.model || "Brak wybranego modelu";
+    const model = String(health.model || "").trim();
+    const hasModel = Boolean(model) && model !== "no model";
+    $("#status-dot").classList.remove("offline");
+    $("#status-dot").classList.toggle("online", hasModel);
+    $("#status-dot").classList.toggle("warning", !hasModel);
+    $("#engine-label").textContent = hasModel ? "SuperCli połączone" : "Dodaj dostawcę w Ustawieniach";
+    $("#model-label").textContent = hasModel ? model : "Brak modelu AI";
     window.NestCafe?.attachments?.setWorkspace?.(health.home || "");
   } catch (error) {
-    $("#engine-label").textContent = "Brak połączenia";
+    $("#status-dot").classList.remove("online", "warning");
+    $("#status-dot").classList.add("offline");
+    $("#engine-label").textContent = "Brak połączenia z silnikiem";
     $("#model-label").textContent = error.message;
   }
 }
@@ -545,8 +553,14 @@ function deleteSessionDialog(session) {
 async function loadSessions() {
   try {
     const sessions = await json("/api/sessions?limit=30");
-    $("#clear-sessions").hidden = false;
+    $("#clear-sessions").hidden = !sessions.length;
     sessionList.replaceChildren();
+    if (!sessions.length) {
+      const empty = document.createElement("p");
+      empty.className = "session-list-empty";
+      empty.textContent = "Brak rozmów. Nowe rozmowy pojawią się tutaj.";
+      sessionList.appendChild(empty);
+    }
     for (const session of sessions) {
       const button = document.createElement("button");
       button.type = "button";
@@ -558,7 +572,8 @@ async function loadSessions() {
       if (!name.textContent) name.textContent = sessionTitle;
       const meta = document.createElement("span");
       meta.className = "session-meta";
-      meta.textContent = `${session.message_count || 0} wiadomości · ${session.model || "model"}`;
+      const count = Number(session.message_count) || 0;
+      meta.textContent = `${count} ${count === 1 ? "wiadomość" : "wiadomości"}${session.model ? ` · ${session.model}` : ""}`;
       button.append(dot, name, meta);
       window.NestCafe?.favorites?.decorateSession?.(button, session);
       button.append(

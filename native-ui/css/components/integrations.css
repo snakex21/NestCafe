@@ -32,7 +32,12 @@
 .integration-feature-copy small {
   margin: 0;
   color: var(--nc-muted);
+  font-size: 13px;
   line-height: 1.5;
+}
+
+.integration-feature-copy small {
+  font-size: 12px;
 }
 
 .integration-feature-actions {
@@ -50,7 +55,7 @@
   border-radius: 8px;
   background: var(--nc-panel);
   color: var(--nc-text-strong);
-  font: inherit;
+  font: 500 13px/1.2 var(--nc-body-font, inherit);
   text-decoration: none;
   cursor: pointer;
 }

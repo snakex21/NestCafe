@@ -14,7 +14,8 @@ const reasoningLabels = {
   low: "Niski",
   medium: "Średni",
   high: "Wysoki",
-  xhigh: "Maksymalny",
+  xhigh: "Bardzo wysoki",
+  max: "Maksymalny",
 };
 
 const reasoningShortLabels = {
@@ -24,7 +25,8 @@ const reasoningShortLabels = {
   low: "niski",
   medium: "średni",
   high: "wysoki",
-  xhigh: "maks.",
+  xhigh: "b. wysoki",
+  max: "maks.",
 };
 
 let reasoningSaving = false;
