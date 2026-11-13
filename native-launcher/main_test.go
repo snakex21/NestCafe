@@ -183,3 +183,11 @@ func TestRemoveInsideRejectsOutsidePath(t *testing.T) {
 		t.Fatalf("removeInside error = %v", err)
 	}
 }
+
+func TestEngineArgumentsDropLauncherOnlyFlags(t *testing.T) {
+	got := engineArguments([]string{"--no-update", "--addr", "127.0.0.1:0", "--no-update=true", "--no-window"})
+	want := []string{"--addr", "127.0.0.1:0", "--no-window"}
+	if strings.Join(got, " ") != strings.Join(want, " ") {
+		t.Fatalf("engineArguments = %q, want %q", got, want)
+	}
+}

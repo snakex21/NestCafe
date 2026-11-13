@@ -49,6 +49,19 @@ func booleanArgument(arguments []string, name string) bool {
 	return false
 }
 
+// engineArguments drops flags that only the launcher understands; the engine
+// rejects unknown flags and the launcher would report it as an incompatible engine.
+func engineArguments(arguments []string) []string {
+	forwarded := make([]string, 0, len(arguments))
+	for _, argument := range arguments {
+		if argument == "--no-update" || strings.HasPrefix(argument, "--no-update=") {
+			continue
+		}
+		forwarded = append(forwarded, argument)
+	}
+	return forwarded
+}
+
 func run() error {
 	executable, err := os.Executable()
 	if err != nil {
@@ -89,7 +102,7 @@ func run() error {
 	// Arguments are useful for diagnostics and the headless bridge test. Normal
 	// desktop launches pass none, so the portable identity above remains the
 	// default. Compatibility and parent lifetime are always launcher-owned.
-	args = append(args, os.Args[1:]...)
+	args = append(args, engineArguments(os.Args[1:])...)
 	args = append(args,
 		"--require-ui-contract", fmt.Sprint(uiContractVersion),
 		"--parent-pid", fmt.Sprint(os.Getpid()),
