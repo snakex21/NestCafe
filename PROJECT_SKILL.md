@@ -30,12 +30,24 @@ build.bat C:\path\to\supercli-web.exe
 - Bridge: `powershell -ExecutionPolicy Bypass -File scripts\test-supercli-bridge.ps1 -Launcher .\NestCafe.exe`
 - Smoke: `powershell -ExecutionPolicy Bypass -File scripts\smoke-test.ps1`
 
-## OCR module
+## OCR / document module
 
 - Source: `modules/ocr-viewer/`
 - Default export dir (fallback): `supercli-data/exports/ocr`
 - Optional `outputFolder` + `maxPdfPages` + `autoOpenFolderAfterSave` in module settings
-- Engine APIs: `/api/document/export`, `/api/document/export/save`, `/api/path/open`, `/api/folder/open`
+- PDF OCR renders one full-resolution page at a time; only compact preview thumbnails stay in memory.
+- DOCX / MD / TXT can be imported and converted locally without a model call.
+- OCR history sources live under `supercli-data/module-sources` and are removed when no history entry references them.
+- Engine APIs: `/api/document/import`, `/api/document/export`, `/api/document/export/save`, `/api/attachment/preview`, `/api/path/open`, `/api/folder/open`
+
+## Thunderbird AI Bridge
+
+- First-class NestCafe status UI: **Settings → Integrations**.
+- Bundled add-on: `integrations/Thunderbird-AI-Bridge.xpi` (current bundled manifest version 0.9.32).
+- Local builds refresh that XPI from the sibling `../Thunderbird-AI-Bridge` checkout when Python is available; CI/release builds use the vendored XPI.
+- Host endpoint: `127.0.0.1:47831`; the SuperCli `thunderbird_mail` tool owns the local bridge protocol.
+- NestCafe APIs: `/api/integrations/thunderbird` and `/api/integrations/thunderbird/xpi`.
+- Extension source: `https://github.com/snakex21/Thunderbird-AI-Bridge`.
 
 Do not reintroduce Electron, Node monorepo layers, or the old `-tags nestcafe` combined binary.
 
@@ -46,7 +58,9 @@ native-ui/
   index.html
   css/
     fonts.css
-    app.css              # merged product styles
+    app.css              # small import entrypoint
+    legacy.css           # frozen historical cascade
+    components/          # focused new component styles
   assets/
     nestcafe-icon.png
     fonts/

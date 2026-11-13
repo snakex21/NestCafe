@@ -25,9 +25,9 @@ Przy pierwszym uruchomieniu NestCafe odczytuje język systemu Windows i konfigur
 
 ---
 
-## Obsługiwane języki (20)
+## Preferencje językowe i dokumentacja (20 języków)
 
-Interfejs jest w pełni przetłumaczony. Język systemu jest wykrywany automatycznie.
+NestCafe wykrywa język systemu przy pierwszym uruchomieniu i zapisuje jedną z 20 obsługiwanych preferencji językowych. Obecny interfejs aplikacji jest przede wszystkim po polsku; część komunikatów silnika korzysta z wybranego języka, a pełne tłumaczenie wszystkich ekranów jest nadal rozwijane.
 
 | Kod | Język | Kod | Język |
 |-----|-------|-----|-------|

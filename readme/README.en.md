@@ -25,9 +25,9 @@ On first launch NestCafe reads your Windows system language and configures the U
 
 ---
 
-## Supported languages (20)
+## Language preferences and documentation (20 languages)
 
-Full UI translation. System language auto-detected on first launch.
+NestCafe detects the system language on first launch and stores one of 20 supported language preferences. The current desktop UI is Polish-first; some runtime text follows the selected language, while full translation coverage of every screen is still being expanded.
 
 | Code | Language | Code | Language |
 |------|----------|------|----------|

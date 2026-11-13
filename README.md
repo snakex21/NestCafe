@@ -17,7 +17,7 @@ The first time you launch NestCafe, it reads your Windows system language and co
 
 | Where | How |
 |---|---|
-| File on disk | Root `VERSION` file (e.g. `2.0.1`) |
+| File on disk | Root `VERSION` file (e.g. `2.1.0`) |
 | In the app | **Settings → About** — shows product version, engine version, UI language, and loaded modules |
 | Build artifact | `native-ui/version.json` — synced from `VERSION` by `build.bat` |
 
@@ -36,9 +36,9 @@ The migration installer removes the old application files from the install direc
 
 ---
 
-## Supported languages (20)
+## Language preferences and documentation (20 languages)
 
-The UI is fully translated. System language is auto-detected on first launch.
+NestCafe detects the Windows language on first launch and stores one of 20 supported language preferences. The current desktop interface is Polish-first; some shared/runtime text follows the selected language, while full translation coverage of every NestCafe screen is still being expanded. The documentation below is available in 20 languages.
 
 | Code | Language | Code | Language |
 |------|----------|------|----------|
@@ -108,12 +108,17 @@ Type a message, press Enter. Supports text and image attachments. Images are pre
 ### Providers and models
 Add OpenAI-compatible providers in **Settings → Providers**. Each provider needs a name, base URL, optional API key, and a default model. Toggle individual models on/off. NestCafe fetches the model list from the provider's `/v1/models` endpoint automatically.
 
+### Thunderbird AI Bridge
+**Settings → Integrations** has first-class support for [Thunderbird AI Bridge](https://github.com/snakex21/Thunderbird-AI-Bridge). The matching XPI is bundled with NestCafe, so users can save the included add-on directly from the Integrations page instead of downloading it separately. NestCafe hosts the local bridge on `127.0.0.1:47831`, shows whether Thunderbird is connected, and exposes the `thunderbird_mail` agent tool for mailbox search, message reading, attachments, folders, contacts and explicitly confirmed mailbox changes. Thunderbird keeps ownership of the real IMAP/OAuth account; NestCafe does not need the mailbox password. Thunderbird still requires the normal one-time **Add-ons and Themes → Extensions → Install Add-on From File…** confirmation for an XPI.
+
 ### OCR Viewer
 The **OCR Viewer** module (`modules/ocr-viewer/`) processes images and PDFs:
 - Word-like preview panel with formatted output
 - Instant DOCX / Markdown / TXT export from one OCR result — changing the export format does not call the model again
-- Configurable page limit for PDFs (1–100)
+- Configurable page limit for PDFs (1–100); large PDFs are rendered page-by-page for OCR instead of keeping every full-resolution page in RAM
+- Existing DOCX / Markdown / TXT files can be opened and converted locally without calling AI again
 - Save results to `supercli-data\exports\ocr\` or a custom folder
+- OCR history automatically removes unused local source copies when entries are deleted or fall out of history
 - Auto-open folder option in **Settings → OCR**
 
 ### Settings
