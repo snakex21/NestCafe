@@ -52,6 +52,12 @@ $backup = Join-Path $runtimeRoot 'NestCafe.old.exe'
 Copy-Item -LiteralPath $source -Destination $staged -Force
 try {
     & (Join-Path $PSScriptRoot 'brand-windows-exe.ps1') -Source $brandingSource -Target $staged
+} catch {
+    Remove-Item -LiteralPath $staged -Force -ErrorAction SilentlyContinue
+    throw "Nie udalo sie przygotowac silnika NestCafe. $($_.Exception.Message)"
+}
+
+try {
     if (Test-Path -LiteralPath $destination) {
         [System.IO.File]::Replace($staged, $destination, $backup, $true)
         Remove-Item -LiteralPath $backup -Force -ErrorAction SilentlyContinue
@@ -59,8 +65,18 @@ try {
         Move-Item -LiteralPath $staged -Destination $destination
     }
 } catch {
-    Remove-Item -LiteralPath $staged -Force -ErrorAction SilentlyContinue
-    throw "Nie udalo sie podmienic silnika. Zamknij NestCafe i sprobuj ponownie. $($_.Exception.Message)"
+    # Windows may lock the running engine executable. Leave the already tested
+    # and branded .new file in place; the launcher promotes it before starting
+    # the engine on the next normal application restart. If File.Replace moved
+    # the old engine before failing, restore that backup first.
+    if (-not (Test-Path -LiteralPath $destination) -and (Test-Path -LiteralPath $backup)) {
+        Move-Item -LiteralPath $backup -Destination $destination -Force
+    }
+    if (Test-Path -LiteralPath $staged) {
+        Write-Host "Silnik jest uruchomiony. Aktualizacja zostala przygotowana na nastepny restart: $staged" -ForegroundColor Yellow
+        exit 0
+    }
+    throw "Nie udalo sie podmienic silnika i nie pozostala bezpieczna aktualizacja oczekujaca. $($_.Exception.Message)"
 }
 
 Refresh-WindowsIcon $destination

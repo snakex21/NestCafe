@@ -19,6 +19,9 @@ $iconSource = Join-Path $project 'build\windows\nestcafe.ico'
 $output = Join-Path $project 'NestCafe.exe'
 $builtinSkillsSource = Join-Path $engineRoot 'supercli-data\skills\builtin-skills.zip'
 $builtinSkillsTarget = Join-Path $project 'supercli-data\skills\builtin-skills.zip'
+$bridgeRoot = Join-Path $project '..\Thunderbird-AI-Bridge'
+$integrationsRoot = Join-Path $project 'integrations'
+$bridgeXpiTarget = Join-Path $integrationsRoot 'Thunderbird-AI-Bridge.xpi'
 $version = (Get-Content -LiteralPath (Join-Path $project 'VERSION') -Raw).Trim()
 $uiVersionJson = Join-Path $uiRoot 'version.json'
 $placeholder = 'This directory is populated temporarily by scripts/build-native.ps1.'
@@ -89,15 +92,36 @@ function Sync-BuiltinSkills {
     }
 }
 
-function Refresh-WindowsIcon([string]$Path) {
-    $source = @'
-using System;
-using System.Runtime.InteropServices;
-public static class NestCafeShellRefresh {
-    [DllImport("shell32.dll", CharSet=CharSet.Unicode)]
-    public static extern void SHChangeNotify(uint eventId, uint flags, string item1, IntPtr item2);
+function Sync-ThunderbirdBridge {
+    $buildScript = Join-Path $bridgeRoot 'scripts\build_xpi.py'
+    $builtXpi = Join-Path $bridgeRoot 'dist\thunderbird-ai-bridge.xpi'
+    if (Test-Path -LiteralPath $buildScript) {
+        $python = Get-Command python -ErrorAction SilentlyContinue
+        if ($python) {
+            & $python.Source $buildScript
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning 'Nie udalo sie zbudowac Thunderbird AI Bridge; uzywam ostatniego wbudowanego XPI, jesli istnieje.'
+            }
+        }
+    }
+    if (Test-Path -LiteralPath $builtXpi) {
+        New-Item -ItemType Directory -Path $integrationsRoot -Force | Out-Null
+        Copy-Item -LiteralPath $builtXpi -Destination $bridgeXpiTarget -Force
+    }
+    if (-not (Test-Path -LiteralPath $bridgeXpiTarget)) {
+        Write-Warning 'Brak wbudowanego Thunderbird AI Bridge XPI. NestCafe nadal zadziala, ale uzytkownik bedzie musial pobrac rozszerzenie osobno.'
+    }
 }
-'@
+
+function Refresh-WindowsIcon([string]$Path) {
+    $source = [string]::Join("`n", @(
+        'using System;',
+        'using System.Runtime.InteropServices;',
+        'public static class NestCafeShellRefresh {',
+        '    [DllImport("shell32.dll", CharSet=CharSet.Unicode)]',
+        '    public static extern void SHChangeNotify(uint eventId, uint flags, string item1, IntPtr item2);',
+        '}'
+    ))
     if (-not ('NestCafeShellRefresh' -as [type])) {
         Add-Type $source
     }
@@ -128,6 +152,7 @@ if ($BuildEngine -and $Engine) {
 }
 
 Sync-BuiltinSkills
+Sync-ThunderbirdBridge
 
 New-Item -ItemType Directory -Path $runtimeRoot -Force | Out-Null
 if ($BuildEngine) {

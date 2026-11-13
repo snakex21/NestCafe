@@ -39,6 +39,10 @@ jobs:
           go test ./...
           Pop-Location
 
+      - name: Visual regression check
+        shell: pwsh
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/visual-regression.ps1 -Required
+
       - name: Build native launcher
         shell: pwsh
         run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-native.ps1 -SkipTests
@@ -53,6 +57,9 @@ jobs:
           Copy-Item README.md (Join-Path $payload 'README.md')
           New-Item -ItemType Directory -Force (Join-Path $payload 'runtime') | Out-Null
           Copy-Item runtime\NestCafe.exe (Join-Path $payload 'runtime\NestCafe.exe')
+          if (Test-Path integrations) {
+            Copy-Item integrations (Join-Path $payload 'integrations') -Recurse
+          }
           if (Test-Path supercli-data\skills\builtin-skills.zip) {
             New-Item -ItemType Directory -Force (Join-Path $payload 'supercli-data\skills') | Out-Null
             Copy-Item supercli-data\skills\builtin-skills.zip (Join-Path $payload 'supercli-data\skills\builtin-skills.zip')
@@ -78,6 +85,9 @@ jobs:
           Copy-Item LICENSE $stage
           Copy-Item README.md $stage
           Copy-Item runtime $stage -Recurse
+          if (Test-Path integrations) {
+            Copy-Item integrations $stage -Recurse
+          }
           if (Test-Path supercli-data\skills\builtin-skills.zip) {
             New-Item -ItemType Directory -Force (Join-Path $stage 'supercli-data\skills') | Out-Null
             Copy-Item supercli-data\skills\builtin-skills.zip (Join-Path $stage 'supercli-data\skills\builtin-skills.zip')
