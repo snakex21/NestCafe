@@ -70,7 +70,10 @@ if (Test-Path -LiteralPath $integrationSource -PathType Leaf) {
 
 $nestCafeCommit = (& git -C $project rev-parse --short HEAD 2>$null)
 $engineRoot = if ($EngineRoot) { $EngineRoot } else { Join-Path $project '..\SuperCli' }
-$engineCommit = (& git -C $engineRoot describe --tags --always --dirty 2>$null)
+$engineCommit = $null
+if (Test-Path -LiteralPath (Join-Path $engineRoot '.git')) {
+    try { $engineCommit = (& git -C $engineRoot describe --tags --always --dirty 2>$null) } catch { $engineCommit = $null }
+}
 if (-not $engineCommit) { $engineCommit = (Get-Content -LiteralPath (Join-Path $project 'SUPERCLI_REF') -Raw).Trim() }
 $builtAt = (Get-Date).ToUniversalTime().ToString('yyyy-MM-dd HH:mm:ss UTC')
 $startText = @"

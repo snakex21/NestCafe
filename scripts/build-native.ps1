@@ -178,7 +178,10 @@ if ($BuildEngine) {
                 throw 'Testy silnika SuperCli nie przeszly.'
             }
         }
-        $engineVersion = (& git -C $engineRoot describe --tags --always --dirty 2>$null)
+        $engineVersion = $null
+        if (Test-Path -LiteralPath (Join-Path $engineRoot '.git')) {
+            try { $engineVersion = (& git -C $engineRoot describe --tags --always --dirty 2>$null) } catch { $engineVersion = $null }
+        }
         if (-not $engineVersion) {
             $engineVersion = (Get-Content -LiteralPath (Join-Path $project 'SUPERCLI_REF') -Raw).Trim()
         }
