@@ -1,0 +1,61 @@
+/* Narrow windows (<= 860 CSS px, e.g. a half-screen window at 150 % scaling)
+   hide the sidebar. Without a way back the user could not reach history,
+   settings or modules, so the sidebar becomes a drawer behind a menu button. */
+.sidebar-toggle {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .sidebar-toggle {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 60;
+    display: inline-grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--nc-line-strong);
+    border-radius: 9px;
+    background: var(--nc-panel);
+    color: var(--nc-text-strong);
+    font: 600 17px/1 var(--nc-body-font, inherit);
+    cursor: pointer;
+  }
+
+  .sidebar-toggle:hover,
+  .sidebar-toggle:focus-visible {
+    border-color: var(--nc-accent);
+    outline: 0;
+  }
+
+  .workspace > .topbar {
+    padding-left: 62px;
+  }
+
+  body.module-open .module-workspace-head {
+    padding-left: 62px;
+  }
+
+  body.sidebar-open .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 55;
+    display: flex;
+    width: min(320px, 86vw);
+    padding-top: 62px;
+    overflow-y: auto;
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.45), 12px 0 32px rgba(0, 0, 0, 0.35);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (max-width: 860px) {
+  body.sidebar-open .sidebar {
+    animation: nc-drawer-in 160ms ease-out both;
+  }
+}
+
+@keyframes nc-drawer-in {
+  from { transform: translateX(-16px); opacity: 0.6; }
+  to { transform: none; opacity: 1; }
+}

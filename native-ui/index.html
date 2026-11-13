@@ -10,7 +10,7 @@
   </head>
   <body class="empty-state">
     <div class="app-shell">
-      <aside class="sidebar">
+      <aside class="sidebar" id="app-sidebar">
         <div class="sidebar-brand">
           <img class="brand-logo" src="assets/nestcafe-icon.png" alt="" />
           <div><strong>NestCafe</strong><span>Pulpit roboczy</span></div>
@@ -36,7 +36,7 @@
         <section class="sidebar-section module-section">
           <div class="module-heading">
             <span>Moduły</span>
-            <button id="module-add" type="button" title="Przeglądaj umiejętności">+</button>
+            <button id="module-add" type="button" title="Przeglądaj umiejętności" aria-label="Przeglądaj umiejętności">+</button>
           </div>
           <div class="module-list" id="module-list"></div>
           <p class="module-empty" id="module-empty">Brak aktywnych modułów.</p>
@@ -52,7 +52,7 @@
         <section class="sidebar-section history-section">
           <div class="sidebar-heading">
             <span>Historia</span>
-            <button id="refresh-sessions" type="button" title="Odśwież">↻</button>
+            <button id="refresh-sessions" type="button" title="Odśwież historię" aria-label="Odśwież historię">↻</button>
           </div>
           <nav class="session-list" id="session-list" aria-label="Historia rozmów"></nav>
           <button class="clear-sessions" id="clear-sessions" type="button">Wyczyść historię</button>
@@ -69,6 +69,7 @@
       </aside>
 
       <main class="workspace">
+        <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-controls="app-sidebar" aria-expanded="false" aria-label="Pokaż menu" title="Pokaż menu">☰</button>
         <header class="topbar">
           <button class="execution-back" id="execution-back" type="button" aria-label="Wróć do pustej rozmowy">←</button>
           <div class="topbar-title"><span>ROZMOWA</span><h1 id="conversation-title">Nowa rozmowa</h1></div>
@@ -352,7 +353,9 @@
     <script src="js/chat/results.js" defer></script>
     <script src="js/sidebar/marquee.js" defer></script>
     <script src="js/sidebar/favorites.js" defer></script>
+    <script src="js/chat/errors.js" defer></script>
     <script src="js/core/app.js" defer></script>
+    <script src="js/core/sidebar-toggle.js" defer></script>
     <script src="js/models/models.js" defer></script>
     <script src="js/models/reasoning.js" defer></script>
     <script src="js/models/providers.js" defer></script>
