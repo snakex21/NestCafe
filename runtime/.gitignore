@@ -1,3 +1,4 @@
+# runtime/NestCafe.exe is a build output (scripts/build-native.ps1 -BuildEngine
+# builds it from the SuperCli ref pinned in SUPERCLI_REF). Never commit it.
 *
 !.gitignore
-!NestCafe.exe

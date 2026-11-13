@@ -17,10 +17,27 @@ jobs:
         with:
           fetch-depth: 0
 
+      # runtime/NestCafe.exe is not committed: build it from the SuperCli
+      # release pinned in SUPERCLI_REF.
+      - name: Read pinned SuperCli ref
+        id: engine
+        shell: pwsh
+        run: |
+          $ref = (Get-Content SUPERCLI_REF -Raw).Trim()
+          if (-not $ref) { throw 'SUPERCLI_REF is empty' }
+          "ref=$ref" >> $env:GITHUB_OUTPUT
+
+      - name: Checkout SuperCli engine
+        uses: actions/checkout@v4
+        with:
+          repository: snakex21/SuperCli
+          ref: ${{ steps.engine.outputs.ref }}
+          path: supercli-src
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23.x'
+          go-version-file: supercli-src/go.mod
 
       - name: Verify tag matches VERSION
         shell: pwsh
@@ -39,13 +56,17 @@ jobs:
           go test ./...
           Pop-Location
 
+      - name: UI unit tests
+        shell: pwsh
+        run: node --test native-ui/tests/
+
       - name: Visual regression check
         shell: pwsh
         run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/visual-regression.ps1 -Required
 
-      - name: Build native launcher
+      - name: Build SuperCli engine and native launcher
         shell: pwsh
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-native.ps1 -SkipTests
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-native.ps1 -SkipTests -BuildEngine -EngineRoot supercli-src
 
       - name: Stage installer payload
         shell: pwsh

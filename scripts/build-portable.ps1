@@ -1,5 +1,7 @@
 param(
-    [switch]$SkipTests
+    [switch]$SkipTests,
+    # SuperCli sources for the engine; defaults to the sibling ..\SuperCli checkout.
+    [string]$EngineRoot
 )
 
 $ErrorActionPreference = 'Stop'
@@ -34,11 +36,10 @@ function Copy-RequiredFile([string]$Source, [string]$Destination) {
 }
 
 Write-Host 'Buduje aktualny silnik SuperCli i launcher NestCafe...' -ForegroundColor Cyan
-if ($SkipTests) {
-    & $buildScript -BuildEngine -SkipTests
-} else {
-    & $buildScript -BuildEngine
-}
+$buildArgs = @{ BuildEngine = $true }
+if ($SkipTests) { $buildArgs.SkipTests = $true }
+if ($EngineRoot) { $buildArgs.EngineRoot = $EngineRoot }
+& $buildScript @buildArgs
 if ($LASTEXITCODE -ne 0) {
     throw 'Budowanie NestCafe nie powiodlo sie.'
 }
@@ -68,8 +69,9 @@ if (Test-Path -LiteralPath $integrationSource -PathType Leaf) {
 }
 
 $nestCafeCommit = (& git -C $project rev-parse --short HEAD 2>$null)
-$engineRoot = Join-Path $project '..\SuperCli'
-$engineCommit = (& git -C $engineRoot rev-parse --short HEAD 2>$null)
+$engineRoot = if ($EngineRoot) { $EngineRoot } else { Join-Path $project '..\SuperCli' }
+$engineCommit = (& git -C $engineRoot describe --tags --always --dirty 2>$null)
+if (-not $engineCommit) { $engineCommit = (Get-Content -LiteralPath (Join-Path $project 'SUPERCLI_REF') -Raw).Trim() }
 $builtAt = (Get-Date).ToUniversalTime().ToString('yyyy-MM-dd HH:mm:ss UTC')
 $startText = @"
 NestCafe Portable $version
@@ -82,7 +84,8 @@ historii, logow ani danych przegladarki z komputera, na ktorym go zbudowano.
 
 Build: $builtAt
 NestCafe commit: $nestCafeCommit
-SuperCli commit: $engineCommit
+SuperCli: $engineCommit
+Thunderbird AI Bridge: 0.9.34 (integrations\Thunderbird-AI-Bridge.xpi)
 "@
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText((Join-Path $packageRoot 'START-HERE.txt'), $startText.Trim() + "`r`n", $utf8NoBom)

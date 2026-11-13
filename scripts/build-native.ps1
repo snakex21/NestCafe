@@ -1,12 +1,18 @@
 param(
     [switch]$SkipTests,
     [switch]$BuildEngine,
-    [string]$Engine
+    [string]$Engine,
+    # SuperCli source checkout used by -BuildEngine (CI checks out the ref
+    # pinned in SUPERCLI_REF; local builds default to the sibling ..\SuperCli).
+    [string]$EngineRoot,
+    # Copy a freshly built XPI from ..\Thunderbird-AI-Bridge\dist and re-pin its
+    # SHA-256. Without it the vendored, pinned XPI is verified and used as-is.
+    [switch]$RefreshBridge
 )
 
 $ErrorActionPreference = 'Stop'
 $project = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$engineRoot = Join-Path $project '..\SuperCli'
+$engineRoot = if ($EngineRoot) { (Resolve-Path -LiteralPath $EngineRoot).Path } else { Join-Path $project '..\SuperCli' }
 $uiRoot = Join-Path $project 'native-ui'
 $modulesRoot = Join-Path $project 'modules'
 $launcherRoot = Join-Path $project 'native-launcher'
@@ -22,6 +28,7 @@ $builtinSkillsTarget = Join-Path $project 'supercli-data\skills\builtin-skills.z
 $bridgeRoot = Join-Path $project '..\Thunderbird-AI-Bridge'
 $integrationsRoot = Join-Path $project 'integrations'
 $bridgeXpiTarget = Join-Path $integrationsRoot 'Thunderbird-AI-Bridge.xpi'
+$bridgeXpiPin = Join-Path $integrationsRoot 'Thunderbird-AI-Bridge.xpi.sha256'
 $version = (Get-Content -LiteralPath (Join-Path $project 'VERSION') -Raw).Trim()
 $uiVersionJson = Join-Path $uiRoot 'version.json'
 $placeholder = 'This directory is populated temporarily by scripts/build-native.ps1.'
@@ -93,23 +100,27 @@ function Sync-BuiltinSkills {
 }
 
 function Sync-ThunderbirdBridge {
-    $buildScript = Join-Path $bridgeRoot 'scripts\build_xpi.py'
-    $builtXpi = Join-Path $bridgeRoot 'dist\thunderbird-ai-bridge.xpi'
-    if (Test-Path -LiteralPath $buildScript) {
-        $python = Get-Command python -ErrorAction SilentlyContinue
-        if ($python) {
-            & $python.Source $buildScript
-            if ($LASTEXITCODE -ne 0) {
-                Write-Warning 'Nie udalo sie zbudowac Thunderbird AI Bridge; uzywam ostatniego wbudowanego XPI, jesli istnieje.'
-            }
+    if ($RefreshBridge) {
+        $builtXpi = Join-Path $bridgeRoot 'dist	hunderbird-ai-bridge.xpi'
+        if (-not (Test-Path -LiteralPath $builtXpi)) {
+            throw "Brak zbudowanego Thunderbird AI Bridge: $builtXpi"
         }
-    }
-    if (Test-Path -LiteralPath $builtXpi) {
         New-Item -ItemType Directory -Path $integrationsRoot -Force | Out-Null
         Copy-Item -LiteralPath $builtXpi -Destination $bridgeXpiTarget -Force
+        $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $bridgeXpiTarget).Hash.ToLowerInvariant()
+        [System.IO.File]::WriteAllText($bridgeXpiPin, "$hash  Thunderbird-AI-Bridge.xpi`n", (New-Object System.Text.UTF8Encoding($false)))
+        Write-Host "Thunderbird AI Bridge odswiezony, nowy SHA-256: $hash" -ForegroundColor Yellow
     }
     if (-not (Test-Path -LiteralPath $bridgeXpiTarget)) {
         Write-Warning 'Brak wbudowanego Thunderbird AI Bridge XPI. NestCafe nadal zadziala, ale uzytkownik bedzie musial pobrac rozszerzenie osobno.'
+        return
+    }
+    if (Test-Path -LiteralPath $bridgeXpiPin) {
+        $expected = ((Get-Content -LiteralPath $bridgeXpiPin -Raw).Trim() -split '\s+')[0].ToLowerInvariant()
+        $actual = (Get-FileHash -Algorithm SHA256 -LiteralPath $bridgeXpiTarget).Hash.ToLowerInvariant()
+        if ($expected -ne $actual) {
+            throw "Thunderbird-AI-Bridge.xpi ma inny SHA-256 niz przypiety ($actual != $expected)."
+        }
     }
 }
 
@@ -167,7 +178,13 @@ if ($BuildEngine) {
                 throw 'Testy silnika SuperCli nie przeszly.'
             }
         }
-        & go build -trimpath -ldflags="-H=windowsgui" -o $runtimeEngine ./cmd/supercli-web
+        $engineVersion = (& git -C $engineRoot describe --tags --always --dirty 2>$null)
+        if (-not $engineVersion) {
+            $engineVersion = (Get-Content -LiteralPath (Join-Path $project 'SUPERCLI_REF') -Raw).Trim()
+        }
+        $engineVersion = ([string]$engineVersion).Trim().TrimStart('v')
+        $engineLdflags = "-H=windowsgui -X supercli/internal/buildinfo.Version=$engineVersion"
+        & go build -trimpath -buildvcs=false "-ldflags=$engineLdflags" -o $runtimeEngine ./cmd/supercli-web
         if ($LASTEXITCODE -ne 0) {
             throw 'Budowanie wymiennego silnika SuperCli nie powiodlo sie.'
         }
