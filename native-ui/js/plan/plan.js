@@ -183,7 +183,16 @@ async function patchQueuedTask(task, patch) {
 }
 
 async function chooseQueuedTaskPosition(task, index) {
-  const value = window.prompt(`Pozycja w kolejce (1-${queuedTasks.length})`, String(index + 1));
+  const value = await window.NestCafe?.dialogs?.prompt?.({
+    title: "Zmień pozycję w kolejce",
+    message: `Wybierz pozycję od 1 do ${queuedTasks.length}.`,
+    value: String(index + 1),
+    type: "number",
+    min: 1,
+    max: queuedTasks.length,
+    step: 1,
+    confirmLabel: "Przenieś",
+  });
   if (value == null) return;
   const position = Number(value) - 1;
   if (!Number.isInteger(position) || position < 0 || position >= queuedTasks.length) {
@@ -305,7 +314,8 @@ async function loadMemory() {
         copy.appendChild(tags);
       }
       const scope = document.createElement("small");
-      scope.textContent = item.scope || "pamięć";
+      const target = item.target === "global" ? "wspólna" : "przestrzeń";
+      scope.textContent = `${item.scope || "pamięć"} · ${target}`;
       row.append(copy, scope);
       memoryList.appendChild(row);
     }
@@ -352,8 +362,13 @@ document.querySelector("#verify-goal").addEventListener("click", () => mutateGoa
   text: document.querySelector("#goal-evidence").value || "Potwierdzone przez użytkownika w NestCafe.",
 }));
 document.querySelector("#finish-goal").addEventListener("click", () => mutateGoal({ action: "set_status", status: "done" }));
-document.querySelector("#abandon-goal").addEventListener("click", () => {
-  if (confirm("Porzucić aktywny cel?")) mutateGoal({ action: "set_status", status: "abandoned" });
+document.querySelector("#abandon-goal").addEventListener("click", async () => {
+  const approved = await window.NestCafe?.dialogs?.confirm?.({
+    title: "Porzucić aktywny cel?",
+    message: "Cel pozostanie w historii, ale nie będzie już aktywny.",
+    confirmLabel: "Porzuć cel",
+  });
+  if (approved) mutateGoal({ action: "set_status", status: "abandoned" });
 });
 
 document.querySelector("#queue-add").addEventListener("submit", async (event) => {

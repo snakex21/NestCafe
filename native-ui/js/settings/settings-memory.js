@@ -13,6 +13,7 @@ function memoryScopeLabel(scope) {
 
 window.NestCafe?.settings?.registerPage?.("memory", "Pamięć", async (root) => {
   const refreshButton = memorySettingsUI.button("Odśwież");
+  const dedupButton = memorySettingsUI.button("Usuń duplikaty");
   const addButton = memorySettingsUI.button("+ Dodaj fakt");
   const list = document.createElement("div");
   list.className = "memory-settings-list";
@@ -42,7 +43,7 @@ window.NestCafe?.settings?.registerPage?.("memory", "Pamięć", async (root) => 
   const load = async () => {
     const items = await memorySettingsUI.json("/api/memory?limit=150");
     list.replaceChildren();
-    const preferences = (items || []).filter((item) => item.scope === "preference").length;
+    const preferences = (items || []).filter((item) => item.scope === "preference" && item.target === "global").length;
     const indexed = (items || []).filter((item) => item.tags?.includes("folder-index")).length;
     summary.innerHTML = `
       <div><strong>${(items || []).length}</strong><span>Wpisy pamięci</span></div>
@@ -63,12 +64,19 @@ window.NestCafe?.settings?.registerPage?.("memory", "Pamięć", async (root) => 
       const content = document.createElement("p");
       content.textContent = item.content;
       const meta = document.createElement("span");
-      meta.textContent = [item.source, ...(item.tags || [])].filter(Boolean).join(" · ");
+      const targetLabel = item.target === "global" ? "pamięć wspólna" : "bieżąca przestrzeń";
+      meta.textContent = [targetLabel, item.source, ...(item.tags || [])].filter(Boolean).join(" · ");
       copy.append(top, content, meta);
       const remove = memorySettingsUI.button("Usuń", "settings-danger-button");
       remove.addEventListener("click", async () => {
-        if (!confirm("Usunąć ten wpis z pamięci?")) return;
-        await memorySettingsUI.json(`/api/memory?id=${encodeURIComponent(item.id)}`, { method: "DELETE" });
+        const approved = await window.NestCafe?.dialogs?.confirm?.({
+          title: "Usunąć wpis z pamięci?",
+          message: "Ten fakt przestanie być dostępny w kolejnych rozmowach.",
+          confirmLabel: "Usuń wpis",
+        });
+        if (!approved) return;
+        const target = item.target ? `&target=${encodeURIComponent(item.target)}` : "";
+        await memorySettingsUI.json(`/api/memory?id=${encodeURIComponent(item.id)}${target}`, { method: "DELETE" });
         load();
       });
       row.append(copy, remove);
@@ -123,10 +131,24 @@ window.NestCafe?.settings?.registerPage?.("memory", "Pamięć", async (root) => 
     load();
   });
   refreshButton.addEventListener("click", load);
+  dedupButton.addEventListener("click", async () => {
+    dedupButton.disabled = true;
+    try {
+      const result = await memorySettingsUI.json("/api/memory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "dedup" }),
+      });
+      window.NestCafe?.toast?.(`Pamięć uporządkowana. Usunięto duplikaty: ${result.removed || 0}.`);
+      await load();
+    } finally {
+      dedupButton.disabled = false;
+    }
+  });
 
   const headerActions = document.createElement("div");
   headerActions.className = "settings-header-actions";
-  headerActions.append(refreshButton, addButton);
+  headerActions.append(refreshButton, dedupButton, addButton);
   root.replaceChildren(
     memorySettingsUI.sectionHeader(
       "Pamięć NestCafe",

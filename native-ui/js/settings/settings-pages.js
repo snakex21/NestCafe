@@ -170,7 +170,12 @@ function projectRow(project, refresh) {
   const remove = settingsButton("Usuń", "settings-danger-button");
   remove.disabled = project.active;
   remove.addEventListener("click", async () => {
-    if (!confirm(`Usunąć przestrzeń „${project.name}” z listy?`)) return;
+    const approved = await window.NestCafe?.dialogs?.confirm?.({
+      title: "Usunąć przestrzeń z listy?",
+      message: `„${project.name}” zniknie z listy NestCafe. Pliki w folderze nie zostaną usunięte.`,
+      confirmLabel: "Usuń z listy",
+    });
+    if (!approved) return;
     await settingsPageJson("/api/projects", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -1,0 +1,39 @@
+/* Native NestCafe confirmation/prompt dialogs. */
+.nestcafe-system-dialog {
+  color: var(--nc-text);
+}
+
+.nestcafe-system-dialog h3 {
+  color: var(--nc-text-strong);
+}
+
+.nestcafe-system-dialog p {
+  margin: 8px 0 0;
+  color: var(--nc-muted);
+}
+
+.nestcafe-system-dialog .confirm-save {
+  border-color: var(--nc-accent) !important;
+  background: var(--nc-accent) !important;
+  color: #fff !important;
+}
+
+.nestcafe-prompt-dialog input {
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  margin-top: 16px;
+  padding: 10px 14px;
+  box-sizing: border-box;
+  border: 1px solid var(--nc-line-strong);
+  border-radius: 9px;
+  background: var(--nc-bg-soft);
+  color: var(--nc-text-strong);
+  font: inherit;
+}
+
+.nestcafe-prompt-dialog input:focus {
+  outline: 0;
+  border-color: color-mix(in srgb, var(--nc-accent) 70%, var(--nc-line));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--nc-accent) 13%, transparent);
+}
