@@ -67,6 +67,14 @@
         if (!response.ok) throw new Error((await response.text()).trim() || `HTTP ${response.status}`);
         return response.blob();
       },
+      async deleteSource(path) {
+        return request(`/api/attachment/preview?scope=profile&path=${encodeURIComponent(path)}`, { method: "DELETE" });
+      },
+      async importDocument(file) {
+        const body = new FormData();
+        body.append("file", file, file.name || "document");
+        return request("/api/document/import", { method: "POST", body });
+      },
       async exportDocument(payload) {
         const response = await fetch("/api/document/export", {
           method: "POST",

@@ -205,8 +205,8 @@
         <section class="ocr-main">
           <div class="ocr-toolbar">
             <label class="ocr-file-button">
-              <input class="ocr-file-input" type="file" accept="image/*,.pdf" />
-              <span>＋ Wybierz obraz lub PDF</span>
+              <input class="ocr-file-input" type="file" accept="image/*,.pdf,.docx,.md,.txt" />
+              <span>＋ Wybierz dokument</span>
             </label>
             <label class="ocr-control ocr-model-control">
               <span>Model z wizją</span>
@@ -257,8 +257,8 @@
               <header><strong>Oryginał</strong><span class="ocr-document-name">Brak dokumentu</span></header>
               <div class="ocr-drop-zone">
                 <div class="ocr-empty-preview">
-                  <b>Upuść tutaj obraz lub PDF</b>
-                  <span>PNG, JPG, WEBP albo wielostronicowy PDF</span>
+                  <b>Upuść tutaj dokument</b>
+                  <span>PNG, JPG, WEBP, PDF, DOCX, MD albo TXT</span>
                 </div>
                 <div class="ocr-pages"></div>
               </div>
@@ -344,6 +344,8 @@
     const correctionInput = $(".ocr-correction-input");
     let currentFile = null;
     let currentImages = [];
+    let currentPDF = null;
+    let currentPageCount = 0;
     let currentSourcePath = "";
     let currentSourceType = "";
     let outputFolder = ""; // empty → server fallback supercli-data/exports/ocr
@@ -355,6 +357,17 @@
     let outputEditing = false;
     let history = [];
     let pendingHistoryDelete = null;
+
+    function activePageCount() {
+      return currentPageCount || currentImages.length;
+    }
+
+    function releaseCurrentPDF() {
+      const pdf = currentPDF;
+      currentPDF = null;
+      currentPageCount = 0;
+      if (pdf?.destroy) void pdf.destroy().catch(() => {});
+    }
 
     function selectedModel() {
       const option = modelSelect.selectedOptions[0];
@@ -368,11 +381,11 @@
       busy = value;
       fileInput.disabled = value;
       modelSelect.disabled = value;
-      modeSelect.disabled = value || currentImages.length === 0;
+      modeSelect.disabled = value || activePageCount() === 0;
       languageSelect.disabled = value || modeSelect.value !== "translate";
       languageControl.classList.toggle("disabled", modeSelect.value !== "translate");
       formatSelect.disabled = value;
-      runButton.disabled = value || currentImages.length === 0 || !modeSelect.value;
+      runButton.disabled = value || activePageCount() === 0 || !modeSelect.value;
       downloadButton.disabled = value || !output.value.trim();
       if (saveFolderButton) saveFolderButton.disabled = value || !output.value.trim();
       if (openFolderButton) openFolderButton.disabled = value || !lastSavedDir;
@@ -651,9 +664,14 @@
       return cleanText;
     }
 
-    function showImages(images) {
+    function showImages(images, emptyTitle = "Upuść tutaj dokument", emptyDescription = "PNG, JPG, WEBP, PDF, DOCX, MD albo TXT") {
       pages.replaceChildren();
-      $(".ocr-empty-preview").hidden = images.length > 0;
+      const empty = $(".ocr-empty-preview");
+      empty.hidden = images.length > 0;
+      if (!images.length) {
+        empty.querySelector("b").textContent = emptyTitle;
+        empty.querySelector("span").textContent = emptyDescription;
+      }
       images.forEach((src, index) => {
         const figure = document.createElement("figure");
         figure.className = "ocr-page";
@@ -674,6 +692,16 @@
       return currentSourcePath;
     }
 
+    async function cleanupRemovedHistorySources(previous, next) {
+      const kept = new Set((next || []).map((item) => item.sourcePath).filter(Boolean));
+      const candidates = [...new Set((previous || []).map((item) => item.sourcePath).filter(Boolean))]
+        .filter((path) => !kept.has(path));
+      if (!candidates.length || typeof api.deleteSource !== "function") return;
+      const results = await Promise.allSettled(candidates.map((path) => api.deleteSource(path)));
+      const failed = results.filter((item) => item.status === "rejected").length;
+      if (failed) api.toast(`Historia została zapisana, ale nie udało się usunąć ${failed} nieużywanych plików źródłowych.`);
+    }
+
     async function saveHistory(name, text) {
       const cleanText = stripReasoning(text);
       try {
@@ -692,12 +720,15 @@
         sourceType: currentSourceType,
         date: new Date().toISOString(),
       };
+      const previousHistory = history;
       history = [entry, ...history.filter((item) => item.name !== name || item.text !== text)].slice(0, 12);
       renderHistory();
       await api.setSetting("history", JSON.stringify(history));
+      await cleanupRemovedHistorySources(previousHistory, history);
     }
 
     async function restoreHistoryItem(item) {
+      releaseCurrentPDF();
       currentFile = null;
       currentImages = [];
       currentSourcePath = item.sourcePath || "";
@@ -722,13 +753,23 @@
         currentSourceType = blob.type || currentSourceType;
         currentFile = new File([blob], item.name || "dokument", { type: currentSourceType });
         if (currentSourceType === "application/pdf" || /\.pdf$/i.test(item.name || "")) {
-          currentImages = await processPDF(blob);
+          const prepared = await processPDF(blob);
+          currentPDF = prepared.pdf;
+          currentPageCount = prepared.pageCount;
+          currentImages = prepared.images;
+          showImages(currentImages);
+        } else if (/\.(docx|md|txt)$/i.test(item.name || "")) {
+          currentImages = [];
+          currentPageCount = 0;
+          showImages([], "Dokument tekstowy z historii", "Treść jest zachowana i może być ponownie wyeksportowana bez używania AI.");
         } else {
           currentImages = [await readAsDataURL(blob)];
+          currentPageCount = 1;
+          showImages(currentImages);
         }
-        showImages(currentImages);
         setBusy(false, "Wczytano tekst i oryginalny dokument z historii.");
       } catch (error) {
+        releaseCurrentPDF();
         currentFile = null;
         currentImages = [];
         showImages([]);
@@ -746,8 +787,8 @@
       pendingHistoryDelete = item ? { id: item.id } : { all: true };
       confirmTitle.textContent = item ? "Usunąć z historii?" : "Wyczyścić historię OCR?";
       confirmText.textContent = item
-        ? `Dokument „${item.name || "Dokument"}” zostanie usunięty tylko z historii OCR.`
-        : `Usunięte zostaną wszystkie wpisy historii OCR (${history.length}). Pliki źródłowe pozostaną bez zmian.`;
+        ? `Dokument „${item.name || "Dokument"}” zostanie usunięty z historii. Jego lokalna kopia źródłowa też zostanie posprzątana, jeśli nie używa jej inny wpis.`
+        : `Usunięte zostaną wszystkie wpisy historii OCR (${history.length}) oraz nieużywane lokalne kopie ich plików źródłowych.`;
       confirmDialog.returnValue = "";
       confirmDialog.showModal();
     }
@@ -795,19 +836,41 @@
       });
     }
 
+    async function renderPDFPageForOCR(index) {
+      if (!currentPDF) return currentImages[index] || "";
+      const page = await currentPDF.getPage(index + 1);
+      const scale = activePageCount() > 8 ? 1.35 : 1.7;
+      const viewport = page.getViewport({ scale });
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.ceil(viewport.width);
+      canvas.height = Math.ceil(viewport.height);
+      const ctx = canvas.getContext("2d", { alpha: false });
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      const dataURL = canvas.toDataURL("image/png");
+      canvas.width = 1;
+      canvas.height = 1;
+      page.cleanup?.();
+      return dataURL;
+    }
+
     async function transcribeCurrent() {
-      if (busy || currentImages.length === 0 || !modeSelect.value) return;
-      setBusy(true, `Rozpoznawanie 1 z ${currentImages.length}…`);
+      const pageTotal = activePageCount();
+      if (busy || pageTotal === 0 || !modeSelect.value) return;
+      setBusy(true, `Rozpoznawanie 1 z ${pageTotal}…`);
       outputEditing = false;
       output.value = "";
       try {
         const chunks = [];
-        for (let index = 0; index < currentImages.length; index += 1) {
+        for (let index = 0; index < pageTotal; index += 1) {
           setActivePage(index);
-          setBusy(true, `Rozpoznawanie strony ${index + 1} z ${currentImages.length}…`);
-          const text = await recognizeImage(currentImages[index]);
+          setBusy(true, `Rozpoznawanie strony ${index + 1} z ${pageTotal}…`);
+          // PDF pages are rendered at OCR resolution only for this one call and
+          // released immediately afterwards. Long PDFs therefore no longer keep
+          // dozens of full-resolution PNG data URLs in memory at once.
+          const image = await renderPDFPageForOCR(index);
+          const text = await recognizeImage(image);
           const pageLabel = `## Strona ${index + 1}`;
-          chunks.push(currentImages.length > 1 ? `${pageLabel}\n\n${text}` : text);
+          chunks.push(pageTotal > 1 ? `${pageLabel}\n\n${text}` : text);
           output.value = chunks.join("\n\n");
           updateResultLabels();
         }
@@ -816,7 +879,7 @@
         await saveHistory(name, output.value);
         const language = modeSelect.value === "original" ? "język oryginału" : (languages[languageSelect.value] || languages.pl);
         const format = (outputFormats[formatSelect.value] || outputFormats.docx).label;
-        setBusy(false, `Gotowe · ${currentImages.length} ${currentImages.length === 1 ? "strona" : "stron"} · ${language} · ${format}`);
+        setBusy(false, `Gotowe · ${pageTotal} ${pageTotal === 1 ? "strona" : "stron"} · ${language} · ${format}`);
       } catch (error) {
         setActivePage(-1);
         setBusy(false, error.message || "Nie udało się rozpoznać tekstu.");
@@ -831,30 +894,42 @@
       let pageCount = pdf.numPages;
       const limit = maxPdfPages > 0 ? maxPdfPages : pageCount;
       if (pageCount > limit) {
-        const ok = confirm(
-          `PDF ma ${pageCount} stron. Według ustawienia OCR weźmie pierwsze ${limit}. Kontynuować?`,
-        );
-        if (!ok) throw new Error("Anulowano wczytywanie PDF.");
+        const ok = await window.NestCafe?.dialogs?.confirm?.({
+          title: "Duży dokument PDF",
+          message: `PDF ma ${pageCount} stron. Zgodnie z ustawieniem OCR zostanie użyte pierwsze ${limit}.`,
+          confirmLabel: `Użyj ${limit} stron`,
+          danger: false,
+          defaultConfirm: true,
+        });
+        if (!ok) {
+          await pdf.destroy().catch(() => {});
+          throw new Error("Anulowano wczytywanie PDF.");
+        }
         pageCount = limit;
       }
-      // Slightly lower scale on long PDFs to keep memory/time reasonable.
-      const scale = pageCount > 8 ? 1.35 : 1.7;
+
+      // Only small JPEG thumbnails are kept for the left-side preview. The
+      // full OCR render is created one page at a time in renderPDFPageForOCR().
       const images = [];
+      const thumbnailScale = pageCount > 20 ? 0.32 : pageCount > 8 ? 0.4 : 0.52;
       for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
-        setBusy(true, `Przygotowanie strony ${pageNumber} z ${pageCount}…`);
+        setBusy(true, `Tworzenie podglądu strony ${pageNumber} z ${pageCount}…`);
         const page = await pdf.getPage(pageNumber);
-        const viewport = page.getViewport({ scale });
+        const viewport = page.getViewport({ scale: thumbnailScale });
         const canvas = document.createElement("canvas");
-        canvas.width = Math.ceil(viewport.width);
-        canvas.height = Math.ceil(viewport.height);
+        canvas.width = Math.max(1, Math.ceil(viewport.width));
+        canvas.height = Math.max(1, Math.ceil(viewport.height));
         const ctx = canvas.getContext("2d", { alpha: false });
         await page.render({ canvasContext: ctx, viewport }).promise;
-        images.push(canvas.toDataURL("image/png"));
+        images.push(canvas.toDataURL("image/jpeg", 0.72));
+        canvas.width = 1;
+        canvas.height = 1;
+        page.cleanup?.();
       }
       if (pdf.numPages > pageCount) {
         api.toast(`Wzięto ${pageCount} z ${pdf.numPages} stron PDF (limit w toolbarze).`);
       }
-      return images;
+      return { pdf, pageCount, images };
     }
 
     function sendResultToChat() {
@@ -874,7 +949,9 @@
 
     async function processFile(file) {
       if (!file || busy) return;
+      releaseCurrentPDF();
       currentFile = file;
+      currentImages = [];
       currentSourcePath = "";
       currentSourceType = file.type || "";
       outputEditing = false;
@@ -884,17 +961,36 @@
       updateResultLabels();
       setBusy(true, "Wczytywanie dokumentu…");
       try {
+        if (/\.(docx|md|txt)$/i.test(file.name)) {
+          const imported = await api.importDocument(file);
+          currentPageCount = 0;
+          currentImages = [];
+          modeSelect.value = "original";
+          formatSelect.value = outputFormats[imported.source_format] ? imported.source_format : "docx";
+          output.value = stripReasoning(imported.text || "");
+          if (!output.value.trim()) throw new Error("Dokument nie zawiera tekstu do konwersji.");
+          showImages([], "Dokument tekstowy wczytany lokalnie", "Treść jest gotowa do eksportu jako DOCX, MD lub TXT bez używania AI.");
+          updateResultLabels();
+          await saveHistory(file.name || imported.name || "Dokument", output.value);
+          setBusy(false, `Wczytano ${String(imported.source_format || "dokument").toUpperCase()} lokalnie. Zmień format eksportu i zapisz — bez ponownego generowania.`);
+          return;
+        }
         if (file.type === "application/pdf" || /\.pdf$/i.test(file.name)) {
-          currentImages = await processPDF(file);
+          const prepared = await processPDF(file);
+          currentPDF = prepared.pdf;
+          currentPageCount = prepared.pageCount;
+          currentImages = prepared.images;
         } else if (file.type.startsWith("image/") || /\.(png|jpe?g|webp|gif)$/i.test(file.name)) {
           currentImages = [await readAsDataURL(file)];
+          currentPageCount = 1;
         } else {
-          throw new Error("Obsługiwane są obrazy PNG/JPG/WEBP oraz pliki PDF.");
+          throw new Error("Obsługiwane są obrazy PNG/JPG/WEBP, PDF, DOCX, MD oraz TXT.");
         }
         showImages(currentImages);
         setBusy(false, "Dokument gotowy. Wybierz „Oryginał” albo „Przetłumacz”, a potem uruchom rozpoznawanie.");
         modeSelect.focus();
       } catch (error) {
+        releaseCurrentPDF();
         currentImages = [];
         showImages([]);
         setBusy(false, error.message || "Nie można odczytać dokumentu.");
@@ -978,7 +1074,8 @@
         history = [];
         try {
           await persistHistory();
-          api.toast("Historia OCR została wyczyszczona.");
+          await cleanupRemovedHistorySources(previousHistory, history);
+          api.toast("Historia OCR została wyczyszczona razem z nieużywanymi kopiami źródeł.");
         } catch (error) {
           history = previousHistory;
           renderHistory();
@@ -991,6 +1088,7 @@
       if (history.length !== previousLength) {
         try {
           await persistHistory();
+          await cleanupRemovedHistorySources(previousHistory, history);
           api.toast("Usunięto wpis z historii OCR.");
         } catch (error) {
           history = previousHistory;
@@ -1000,6 +1098,7 @@
       }
     });
     $(".ocr-new").addEventListener("click", () => {
+      releaseCurrentPDF();
       currentFile = null;
       currentImages = [];
       currentSourcePath = "";
@@ -1163,6 +1262,7 @@
     setBusy(false, "Wybierz dokument, aby rozpocząć.");
 
     return () => {
+      releaseCurrentPDF();
       if (confirmDialog.open) confirmDialog.close("cancel");
       container.replaceChildren();
     };
