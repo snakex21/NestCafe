@@ -23,6 +23,7 @@
       </div>
     </div>
   </main>
+  <div class="sidebar-actions"><button class="new-chat" id="vr-new-chat" type="button"><span>+</span>Nowa rozmowa</button></div>
   <dialog id="test-dialog" class="confirm-dialog nestcafe-system-dialog">
     <h3>Potwierdzenie</h3><p>Test dialogu.</p>
     <div><button class="confirm-cancel">Anuluj</button><button class="confirm-delete">Usuń</button></div>
@@ -47,6 +48,8 @@
       document.body.dataset.wordBackground = pageStyle.backgroundColor === "rgb(255, 255, 255)" ? "ok" : "bad";
       document.body.dataset.wordHeading = headingIsDark ? "ok" : "bad";
       document.body.dataset.cssSplit = getComputedStyle(document.body).getPropertyValue("--nc-bg").trim() ? "ok" : "bad";
+      const newChat = getComputedStyle(document.querySelector("#vr-new-chat"));
+      document.body.dataset.newChatLabel = newChat.color !== newChat.backgroundColor ? "ok" : "bad";
       document.body.dataset.ready = "1";
     }));
   </script>

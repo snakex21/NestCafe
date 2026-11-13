@@ -1,0 +1,6 @@
+/* The final cascade turns "Nowa rozmowa" into a neutral panel button but the
+   older accent rule still set its text to #fff, which vanished on the light
+   theme. Keep the label readable in every theme. */
+.sidebar-actions .new-chat {
+  color: var(--nc-text-strong);
+}

@@ -66,6 +66,7 @@ try {
         'Word page stays white' = 'data-word-background="ok"'
         'Word heading stays dark' = 'data-word-heading="ok"'
         'split CSS imports load' = 'data-css-split="ok"'
+        'New chat label readable' = 'data-new-chat-label="ok"'
         'fixture completed' = 'data-ready="1"'
     }
     $failed = @()
