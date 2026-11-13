@@ -68,6 +68,14 @@ settingsAboutDialog.innerHTML = `
       <div class="about-fact"><span>Aktywny model</span><strong id="about-model">Sprawdzam…</strong></div>
       <div class="about-fact"><span>Katalog techniczny</span><strong id="about-workspace">Sprawdzam…</strong></div>
     </div>
+    <section class="about-update-panel">
+      <div><strong>Aktualizacje</strong><span id="about-update-status">Sprawdź, czy jest nowsza wersja NestCafe.</span></div>
+      <div class="about-update-actions">
+        <button id="about-check-update" type="button">Sprawdź aktualizacje</button>
+        <a id="about-download-update" href="#" target="_blank" rel="noopener" hidden>Pobierz instalator</a>
+      </div>
+      <small>Automatyczny updater nadal sprawdza nowe wydania przy uruchamianiu programu.</small>
+    </section>
     <p class="about-copy">Dane aplikacji są przechowywane przenośnie obok programu w folderze <code>supercli-data</code>.</p>
   </section>`;
 document.body.appendChild(settingsAboutDialog);
@@ -100,6 +108,38 @@ providerMobileBack.type = "button";
 providerMobileBack.textContent = "← Wróć do listy dostawców";
 settingsProviderForm.prepend(providerMobileBack);
 providerMobileBack.addEventListener("click", () => settingsDialog.classList.add("no-selection"));
+
+async function checkNestCafeUpdate() {
+  const status = settingsAboutDialog.querySelector("#about-update-status");
+  const button = settingsAboutDialog.querySelector("#about-check-update");
+  const download = settingsAboutDialog.querySelector("#about-download-update");
+  button.disabled = true;
+  status.textContent = "Sprawdzanie najnowszego wydania…";
+  download.hidden = true;
+  try {
+    const versionApi = window.NestCafe?.version;
+    const product = (await versionApi?.load?.()) || versionApi?.get?.() || { version: "" };
+    const current = product.version || "";
+    const response = await fetch(`/api/nestcafe/update?current=${encodeURIComponent(current)}`, { cache: "no-store" });
+    if (!response.ok) throw new Error((await response.text()).trim() || `HTTP ${response.status}`);
+    const data = await response.json();
+    if (data.update_available) {
+      status.textContent = `Dostępna jest wersja ${data.latest}. Obecnie masz ${data.current || current}.`;
+      if (data.installer_url) {
+        download.href = data.installer_url;
+        download.hidden = false;
+      }
+    } else {
+      status.textContent = data.latest
+        ? `Masz najnowszą wersję (${data.latest}).`
+        : "Nie znaleziono informacji o nowszym wydaniu.";
+    }
+  } catch (error) {
+    status.textContent = `Nie udało się sprawdzić aktualizacji: ${error.message}`;
+  } finally {
+    button.disabled = false;
+  }
+}
 
 async function loadAboutDetails() {
   const versionApi = window.NestCafe?.version;
@@ -222,6 +262,7 @@ for (const [navigation, dialog] of [
 }
 
 settingsAboutDialog.querySelector(".about-head button").addEventListener("click", () => settingsAboutDialog.close());
+settingsAboutDialog.querySelector("#about-check-update").addEventListener("click", checkNestCafeUpdate);
 
 const settingsApi = {
   createNavigation: createSettingsNavigation,
