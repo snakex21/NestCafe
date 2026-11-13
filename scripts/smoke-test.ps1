@@ -133,7 +133,8 @@ try {
         'ocr-open-folder', 'ocr-open-file', 'ocr-pages-limit', 'maxPdfPages',
         'saveToOutputFolder', 'openLastFile', 'clearOutputFolder', 'autoOpenFolderAfterSave',
         'ocr-word-page', 'ocr-auto-open-folder', 'markdownToPlainText', 'data-export-format',
-        'selectExportFormat', 'Zapisz jako'
+        'selectExportFormat', 'Zapisz jako', 'renderPDFPageForOCR', 'currentPDF',
+        'importDocument', 'cleanupRemovedHistorySources'
     )) {
         if ($js.Contains($token)) { Pass "ocr code $token" } else { Fail "ocr code missing $token" }
     }
@@ -142,6 +143,48 @@ try {
     $css = Get-Content -LiteralPath $ocrCss -Raw -Encoding UTF8
     foreach ($token in @('height: auto;', 'min-height: 920px;', '.ocr-markdown-preview.ocr-word-page h4')) {
         if ($css.Contains($token)) { Pass "ocr word preview $token" } else { Fail "ocr word preview missing $token" }
+    }
+
+    $dialogJs = Join-Path $Project 'native-ui\js\core\dialogs.js'
+    $dialogSource = Get-Content -LiteralPath $dialogJs -Raw -Encoding UTF8
+    foreach ($token in @('confirmDialog', 'promptDialog', 'NestCafe', 'confirm-save')) {
+        if ($dialogSource.Contains($token)) { Pass "native dialog $token" } else { Fail "native dialog missing $token" }
+    }
+
+    $chatExecutionJs = Join-Path $Project 'native-ui\js\chat\execution.js'
+    $chatExecutionSource = Get-Content -LiteralPath $chatExecutionJs -Raw -Encoding UTF8
+    foreach ($token in @('preferredThinkingOpen', 'saved == null ? true', 'thinking-block', 'function appendReasoning', '_reasoningOpen')) {
+        if ($chatExecutionSource.Contains($token)) { Pass "thinking UI $token" } else { Fail "thinking UI missing $token" }
+    }
+
+    $coreAppJs = Join-Path $Project 'native-ui\js\core\app.js'
+    $coreAppSource = Get-Content -LiteralPath $coreAppJs -Raw -Encoding UTF8
+    foreach ($token in @('event.type === "reasoning"', 'chat().appendReasoning')) {
+        if ($coreAppSource.Contains($token)) { Pass "reasoning stream $token" } else { Fail "reasoning stream missing $token" }
+    }
+
+    $reasoningJs = Join-Path $Project 'native-ui\js\models\reasoning.js'
+    $reasoningSource = Get-Content -LiteralPath $reasoningJs -Raw -Encoding UTF8
+    foreach ($token in @('/api/reasoning', 'reasoning-option', 'nestcafe:model-changed')) {
+        if ($reasoningSource.Contains($token)) { Pass "reasoning control $token" } else { Fail "reasoning control missing $token" }
+    }
+
+    $modelsJs = Join-Path $Project 'native-ui\js\models\models.js'
+    $modelsSource = Get-Content -LiteralPath $modelsJs -Raw -Encoding UTF8
+    foreach ($token in @('compactModelName', 'model-button-label', 'setModelButton')) {
+        if ($modelsSource.Contains($token)) { Pass "compact model picker $token" } else { Fail "compact model picker missing $token" }
+    }
+
+    $composerCss = Join-Path $Project 'native-ui\css\components\composer-refresh.css'
+    $composerSource = Get-Content -LiteralPath $composerCss -Raw -Encoding UTF8
+    foreach ($token in @('Segoe Fluent Icons', '.composer-footer', '.reasoning-button', '@media (max-width: 640px)')) {
+        if ($composerSource.Contains($token)) { Pass "composer refresh $token" } else { Fail "composer refresh missing $token" }
+    }
+
+    $integrationJs = Join-Path $Project 'native-ui\js\settings\settings-integrations.js'
+    $integrationSource = Get-Content -LiteralPath $integrationJs -Raw -Encoding UTF8
+    foreach ($token in @('Thunderbird AI Bridge', '/api/integrations/thunderbird', '127.0.0.1:47831')) {
+        if ($integrationSource.Contains($token)) { Pass "thunderbird UI $token" } else { Fail "thunderbird UI missing $token" }
     }
 
     $versionJson = Join-Path $Project 'native-ui\version.json'
@@ -214,6 +257,23 @@ try {
     Pass 'models'
     Invoke-RestMethod "$base/api/settings" | Out-Null
     Pass 'settings'
+
+    try {
+        $tb = Invoke-RestMethod "$base/api/integrations/thunderbird" -TimeoutSec 8
+        if ($tb.ok -and $tb.repo_url -match 'Thunderbird-AI-Bridge' -and $tb.bundled_available) {
+            Pass "thunderbird integration connected=$($tb.connected) bundled=true"
+        } else {
+            Fail "thunderbird integration $($tb | ConvertTo-Json -Compress)"
+        }
+        $tbXpi = Invoke-WebRequest -UseBasicParsing "$base/api/integrations/thunderbird/xpi" -TimeoutSec 8
+        if ($tbXpi.StatusCode -eq 200 -and $tbXpi.RawContentLength -gt 1000 -and $tbXpi.Headers['Content-Disposition'] -match 'Thunderbird-AI-Bridge.xpi') {
+            Pass "thunderbird bundled xpi $($tbXpi.RawContentLength) bytes"
+        } else {
+            Fail 'thunderbird bundled xpi'
+        }
+    } catch {
+        Fail "thunderbird integration $($_.Exception.Message)"
+    }
 
     if (Test-Path -LiteralPath $launcher) {
         & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'test-supercli-bridge.ps1') -Launcher $launcher

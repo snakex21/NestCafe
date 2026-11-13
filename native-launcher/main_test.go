@@ -31,6 +31,11 @@ func TestHardProtocolLongChatRenderingIsThrottled(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	legacyCSS, err := os.ReadFile(filepath.Join(root, "css", "legacy.css"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	css = append(css, legacyCSS...)
 	for _, required := range []string{
 		"function scheduleMessageRender(container)",
 		"length > 48000 ? 250",
@@ -57,6 +62,45 @@ func TestHardProtocolLongChatRenderingIsThrottled(t *testing.T) {
 	} {
 		if !strings.Contains(string(app), required) && !strings.Contains(string(css), required) {
 			t.Fatalf("long-chat layout guard missing %q", required)
+		}
+	}
+}
+
+func TestAttachmentComposerDoesNotCrashWithoutDocumentLibraryButton(t *testing.T) {
+	root := filepath.Join("..", "native-ui")
+	attachments, err := os.ReadFile(filepath.Join(root, "js", "composer", "attachments.js"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	source := string(attachments)
+	if !strings.HasPrefix(strings.TrimSpace(source), "(() => {") || !strings.HasSuffix(strings.TrimSpace(source), "})();") {
+		t.Fatal("attachments.js must stay isolated from classic-script global lexical collisions")
+	}
+	for _, required := range []string{
+		`attachmentFileInput?.addEventListener("change", async () => {`,
+		`document.addEventListener("drop", async (event) => {`,
+		`documentLibraryButton?.addEventListener("click", () => {`,
+	} {
+		if !strings.Contains(source, required) {
+			t.Fatalf("attachment composer null guard missing %q", required)
+		}
+	}
+}
+
+func TestReasoningAlwaysRendersBeforeAssistantText(t *testing.T) {
+	root := filepath.Join("..", "native-ui")
+	execution, err := os.ReadFile(filepath.Join(root, "js", "chat", "execution.js"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	source := string(execution)
+	for _, required := range []string{
+		"function reasoningFirstSegments(segments)",
+		"const segments = reasoningFirstSegments(splitReasoningSegments(raw));",
+		"container.dataset.formatted = \"false\";",
+	} {
+		if !strings.Contains(source, required) {
+			t.Fatalf("reasoning ordering guard missing %q", required)
 		}
 	}
 }
