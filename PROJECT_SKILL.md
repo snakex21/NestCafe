@@ -30,7 +30,7 @@ build.bat C:\path\to\supercli-web.exe
 - `dist.bat` — clean portable package in `dist\NestCafe-portable-<VERSION>\` + zip.
 - `runtime/NestCafe.exe` is a build output and is **not tracked**. `-BuildEngine` builds it from SuperCli sources
   (`-EngineRoot`, default `..\SuperCli`); CI checks out the SuperCli tag pinned in `SUPERCLI_REF`.
-- UI unit tests (dev-only Node, not part of the product): `node --test native-ui/tests/`
+- UI unit tests (dev-only Node, not part of the product): `node --test native-ui/tests/*.test.cjs`
 - Bridge: `powershell -ExecutionPolicy Bypass -File scripts\test-supercli-bridge.ps1 -Launcher .\NestCafe.exe`
 - Smoke: `powershell -ExecutionPolicy Bypass -File scripts\smoke-test.ps1`
 
@@ -53,6 +53,14 @@ build.bat C:\path\to\supercli-web.exe
 - Host endpoint: `127.0.0.1:47831`; the SuperCli `thunderbird_mail` tool owns the local bridge protocol.
 - NestCafe APIs: `/api/integrations/thunderbird` and `/api/integrations/thunderbird/xpi`.
 - Extension source: `https://github.com/snakex21/Thunderbird-AI-Bridge`.
+
+## Host approval prompts (SuperCli >= 1.0.23)
+
+- Risky tool operations reach the UI as `question` events with `confirmation: true` and an `approval` card.
+- `js/chat/execution.js` renders them with `showApprovalQuestion` (not the generic ask_user form); buttons send the
+  server's own `deny_label` / `approve_label` / `similar_label`. Styles: `css/components/approvals.css`.
+- Approval cards are tracked apart from ask_user forms and never replace or join an open batch. Tests: `native-ui/tests/approvals.test.cjs`.
+- allow-all (forced by the NestCafe profile) does not approve gated actions in the GUI; the user is always asked.
 
 Do not reintroduce Electron, Node monorepo layers, or the old `-tags nestcafe` combined binary.
 
