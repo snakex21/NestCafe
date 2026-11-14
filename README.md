@@ -17,7 +17,7 @@ The first time you launch NestCafe, it reads your Windows system language and co
 
 | Where | How |
 |---|---|
-| File on disk | Root `VERSION` file (e.g. `2.1.2`) |
+| File on disk | Root `VERSION` file (e.g. `2.2.0`) |
 | In the app | **Settings → About** — shows product version, engine version, UI language, and loaded modules |
 | Build artifact | `native-ui/version.json` — synced from `VERSION` by `build.bat` |
 
@@ -36,24 +36,26 @@ The migration installer removes the old application files from the install direc
 
 ---
 
-## Language preferences and documentation (20 languages)
+## Interface languages (27)
 
-NestCafe detects the Windows language on first launch and stores one of 20 supported language preferences. The current desktop interface is Polish-first; some shared/runtime text follows the selected language, while full translation coverage of every NestCafe screen is still being expanded. The documentation below is available in 20 languages.
+The whole NestCafe interface is available in 27 languages, the same set as the SuperCli engine:
 
-| Code | Language | Code | Language |
-|------|----------|------|----------|
-| `pl` | Polski | `cs` | Čeština |
-| `en` | English | `sk` | Slovenčina |
-| `de` | Deutsch | `uk` | Українська |
-| `fr` | Français | `ru` | Русский |
-| `es` | Español | `tr` | Türkçe |
-| `it` | Italiano | `ja` | 日本語 |
-| `pt` | Português | `ko` | 한국어 |
-| `nl` | Nederlands | `zh` | 中文 |
-| `sv` | Svenska | `fi` | Suomi |
-| `no` | Norsk | `da` | Dansk |
+| Code | Language | Code | Language | Code | Language |
+|------|----------|------|----------|------|----------|
+| `en` | English | `fr` | Français | `pl` | Polski |
+| `bg` | Български | `hr` | Hrvatski | `pt-BR` | Português (Brasil) |
+| `cs` | Čeština | `hu` | Magyar | `ro` | Română |
+| `da` | Dansk | `it` | Italiano | `ru` | Русский |
+| `de` | Deutsch | `lt` | Lietuvių | `sk` | Slovenčina |
+| `el` | Ελληνικά | `lv` | Latviešu | `sl` | Slovenščina |
+| `es` | Español | `nb` | Norsk bokmål | `sr-Latn` | Srpski (latinica) |
+| `et` | Eesti | `nl` | Nederlands | `sv` | Svenska |
+| `fi` | Suomi | | | `tr` | Türkçe |
+| | | | | `uk` | Українська |
 
-Full docs in each language: **[`readme/` folder](readme/)**
+On first launch NestCafe uses the Windows language when it is one of these, otherwise English. Change it any time in **Settings → General → Language**; the window reloads and the engine (agent prompts, approval cards) follows the same choice.
+
+Catalogs live in `native-ui/locales/<code>.json`. Polish is the source language and English the fallback for a missing key. Messages use named parameters (`{name}`) and CLDR plural forms (`one {# file} other {# files}`, chosen with `Intl.PluralRules`). `native-ui/tests/i18n.test.cjs` checks that every catalog has every key with matching placeholders and plural forms, and that no Polish text is hardcoded in the UI.
 
 ---
 
@@ -77,10 +79,11 @@ Full docs in each language: **[`readme/` folder](readme/)**
 NestCafe.exe                  launcher (Go + WebView2)
 runtime/NestCafe.exe          SuperCli engine
 native-ui/                    web UI
-  css/app.css                 single stylesheet (historical + redesign-v2)
+  css/app.css                 stylesheet entrypoint (legacy.css + components/*.css)
+  locales/                    UI catalogs, 27 languages (pl source, en fallback)
   js/
     core/namespace.js         window.NestCafe bus
-    core/i18n.js              20-language system + detection
+    core/i18n.js              translations: t()/tn(), plurals, language detection
     core/version.js           version.json reader
     chat/                     chat panel, images, attachments
     models/                   providers, model list, switching
@@ -95,7 +98,7 @@ scripts/
   update-engine.ps1           replace only the SuperCli runtime
   smoke-test.ps1              quick health/version/OCR/bridge test
 supercli-data/                portable data (sessions, config, exports)
-readme/                       multi-language READMEs (20 languages)
+readme/                       READMEs in 20 languages
 ```
 
 ---
@@ -109,7 +112,7 @@ Type a message, press Enter. Supports text and image attachments. Images are pre
 Add OpenAI-compatible providers in **Settings → Providers**. Each provider needs a name, base URL, optional API key, and a default model. Toggle individual models on/off. NestCafe fetches the model list from the provider's `/v1/models` endpoint automatically.
 
 ### Thunderbird AI Bridge
-**Settings → Integrations** has first-class support for [Thunderbird AI Bridge](https://github.com/snakex21/Thunderbird-AI-Bridge). The matching XPI is bundled with NestCafe, so users can save the included add-on directly from the Integrations page instead of downloading it separately. NestCafe hosts the local bridge on `127.0.0.1:47831`, shows whether Thunderbird is connected, and exposes the `thunderbird_mail` agent tool for mailbox search, message reading, attachments, folders, contacts and explicitly confirmed mailbox changes. Thunderbird keeps ownership of the real IMAP/OAuth account; NestCafe does not need the mailbox password. Thunderbird still requires the normal one-time **Add-ons and Themes → Extensions → Install Add-on From File…** confirmation for an XPI.
+**Settings → Integrations** has first-class support for [Thunderbird AI Bridge](https://github.com/snakex21/Thunderbird-AI-Bridge). The matching XPI is bundled with NestCafe, so users can save the included add-on directly from the Integrations page instead of downloading it separately. NestCafe pairs with the extension once with a one-time code (ECDH, then HMAC-signed messages), hosts the local bridge on `127.0.0.1:47831` only when paired, shows whether Thunderbird is connected, and exposes the `thunderbird_mail` agent tool for mailbox search, message reading, attachments, folders, contacts and explicitly confirmed mailbox changes. Thunderbird keeps ownership of the real IMAP/OAuth account; NestCafe does not need the mailbox password. Thunderbird still requires the normal one-time **Add-ons and Themes → Extensions → Install Add-on From File…** confirmation for an XPI.
 
 ### OCR Viewer
 The **OCR Viewer** module (`modules/ocr-viewer/`) processes images and PDFs:
@@ -128,7 +131,7 @@ The **OCR Viewer** module (`modules/ocr-viewer/`) processes images and PDFs:
 - **About** — version info, engine version, system details
 
 ### DevTools
-Only visible when **Settings → General → Szczegóły diagnostyczne** (Diagnostic details) is enabled. Then right-click → "Zbadaj element" (Inspect element) opens WebView2 DevTools.
+Only visible when **Settings → General → Diagnostic details** is enabled. Then right-click → Inspect element opens WebView2 DevTools.
 
 ---
 

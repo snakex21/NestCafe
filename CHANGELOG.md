@@ -1,5 +1,61 @@
 # Changelog
 
+## 2.2.0
+
+**Requires and bundles SuperCli 1.0.26** (`SUPERCLI_REF` = `v1.0.26`). The bundled
+Thunderbird AI Bridge stays 0.10.0 (same pinned XPI SHA-256
+`1821574b39a2fec111bcf1f13da29dcb102edbb9f08e1dc56433ec09423512c2`).
+
+### NestCafe in 27 languages
+
+The whole interface is translated: chat, composer, approval and question cards, model
+picker, providers, plan, every settings page, the Thunderbird pairing card and the OCR
+module. Languages (the same set as SuperCli): English, Български, Čeština, Dansk,
+Deutsch, Ελληνικά, Español, Eesti, Suomi, Français, Hrvatski, Magyar, Italiano,
+Lietuvių, Latviešu, Norsk bokmål, Nederlands, Polski, Português (Brasil), Română,
+Русский, Slovenčina, Slovenščina, Srpski (latinica), Svenska, Türkçe, Українська.
+
+- Language order: your saved choice, then the Windows/browser language, then English.
+  Change it in **Settings → General → Language**; the window reloads in the new language
+  and the engine (agent system prompts, approval cards) follows the same setting.
+- Catalogs in `native-ui/locales/<code>.json`: Polish is the source, English the fallback,
+  messages use named parameters and CLDR plural forms (`Intl.PluralRules`), so "1 plik /
+  2 pliki / 5 plików" and "1 file / 2 files" are both right.
+- Tests check that every catalog has every key, the same placeholders and the plural
+  forms its language needs, that every key used in the code exists, and that no Polish
+  text is left hardcoded in the UI.
+
+### Refreshed interface
+
+- Contrast meets WCAG AA (4.5:1) for text in the light, dark, OLED and warm themes; a
+  headless audit of the main screens finds no text below 4.5:1 and none below 12 px.
+- One type scale (12/13/14/16/20/28 px), primary buttons with a proper accent fill and
+  readable text on it, status badges tinted for both themes.
+- First run without a model: the start screen offers **Połącz model / Connect a model**.
+- Model picker opens immediately with a loading state; the empty state has an
+  **Add provider** button; the model button no longer truncates to "Wybierz m…".
+- Providers: correct names (OpenAI, DeepSeek, OpenRouter, xAI…), translated descriptions,
+  an empty state with the most common choices.
+- Approval card: an expired request stays in the conversation as "expired, nothing was
+  done" instead of disappearing; reversibility badges are no longer in the button colour;
+  Esc = deny; larger text. An interrupted multi-question answer marks the unsent answers.
+- Settings: labelled controls for screen readers, "Saved" shown next to the changed
+  control, the same close button on every page.
+- Thunderbird card: numbered install and pairing steps, GitHub as a link, buttons the same
+  size as the rest of the settings; readable empty states for MCP servers.
+- The toast no longer covers the composer.
+
+### From SuperCli 1.0.26
+
+- One runtime for the desktop window, the terminal and batch runs.
+- Contrast and design tokens in the shared UI, localized approval cards and notices.
+- Local models: the context size is read from llama-server / Ollama, silent context
+  truncation is detected, and the prompt cache stays valid on local backends.
+- A turn that exceeds the context window tells you how to continue.
+
+Security is unchanged: Thunderbird pairing and signed bridge messages, the approval
+gate for risky actions, DPAPI-protected secrets, CSP and Host/Origin checks.
+
 ## 2.1.2
 
 **Security release. Requires and bundles SuperCli 1.0.25** (`SUPERCLI_REF` = `v1.0.25`)
