@@ -17,7 +17,7 @@ The first time you launch NestCafe, it reads your Windows system language and co
 
 | Where | How |
 |---|---|
-| File on disk | Root `VERSION` file (e.g. `2.1.0`) |
+| File on disk | Root `VERSION` file (e.g. `2.1.1`) |
 | In the app | **Settings → About** — shows product version, engine version, UI language, and loaded modules |
 | Build artifact | `native-ui/version.json` — synced from `VERSION` by `build.bat` |
 

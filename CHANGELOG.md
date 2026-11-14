@@ -1,5 +1,34 @@
 # Changelog
 
+## 2.1.1
+
+**Requires and bundles SuperCli 1.0.24** (`SUPERCLI_REF` = `v1.0.24`). The bundled
+Thunderbird AI Bridge stays 0.9.34.
+
+### From SuperCli 1.0.24
+
+- Cheaper agent runs on hosted models: requests stay append-only so the provider's
+  prompt cache covers almost the whole conversation (eval suite on gpt-6-luna: cost
+  -63%, model steps -22%, cached input 46% -> 85%, 26/26 tasks passing). The first
+  turn already knows the project layout, and long tool outputs page in fewer turns.
+  `context_tail_pinning = false` in the engine's `config.toml` restores the old behaviour.
+- Approval card: for `thunderbird_mail` calls with exact message ids the card lists up
+  to three of those messages (subject, sender, date) and warns when an id is not in the
+  folder the request names; account display names are used in the description instead
+  of ids such as `account2`; the "outside the workspace" summary is translated.
+- When you press **Odrzuć**, the agent is now told plainly that you declined the action
+  in NestCafe/SuperCli and nothing was done, instead of reporting that Thunderbird refused it.
+- GPT-6 prices (gpt-6-luna, gpt-6-sol, gpt-6.1-sol, gpt-6-astra) in the cost estimates.
+- The first message of a resumed session after updating re-reads the conversation once
+  (one prompt-cache miss), because the engine's system prompt no longer carries the date.
+
+### Fixes
+
+- `ask_user` with several questions: the "Odpowiedziano" confirmation no longer
+  disappears when the agent's answer arrives before the last answer was acknowledged.
+- `scripts/build-native.ps1 -RefreshBridge` looked for the XPI under a path containing a
+  literal tab; it now uses `..\Thunderbird-AI-Bridge\dist\thunderbird-ai-bridge.xpi`.
+
 ## 2.1.0
 
 **Requires and bundles SuperCli 1.0.23** (`SUPERCLI_REF` = `v1.0.23`). The installer
