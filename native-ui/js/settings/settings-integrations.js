@@ -97,12 +97,20 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
   const thunderbirdDescription = document.createElement("p");
   thunderbirdDescription.textContent = "Lokalny most do poczty Thunderbird: wyszukiwanie, odczyt, załączniki, foldery, kontakty i bezpieczne operacje na wiadomościach.";
   const thunderbirdMeta = document.createElement("small");
-  thunderbirdMeta.textContent = "Host NestCafe: 127.0.0.1:47831 · Thunderbird musi mieć zainstalowane rozszerzenie Bridge.";
+  thunderbirdMeta.textContent = "Host NestCafe: 127.0.0.1:47831 · Thunderbird musi mieć rozszerzenie Thunderbird AI Bridge 0.10.0 lub nowsze, sparowane z NestCafe.";
+  // One-time pairing code (shown only here, never stored by the page).
+  const thunderbirdCode = document.createElement("div");
+  thunderbirdCode.className = "integration-pairing-code";
+  thunderbirdCode.hidden = true;
   thunderbirdTitle.append(thunderbirdName, thunderbirdStatus);
-  thunderbirdCopy.append(thunderbirdTitle, thunderbirdDescription, thunderbirdMeta);
+  thunderbirdCopy.append(thunderbirdTitle, thunderbirdDescription, thunderbirdMeta, thunderbirdCode);
   const thunderbirdActions = document.createElement("div");
   thunderbirdActions.className = "integration-feature-actions";
   const thunderbirdRefresh = settingsIntegrationsUI.button("Sprawdź połączenie");
+  const thunderbirdPair = settingsIntegrationsUI.button("Paruj z Thunderbirdem", "settings-primary-button");
+  const thunderbirdUnpair = settingsIntegrationsUI.button("Rozparuj", "settings-danger-button");
+  thunderbirdUnpair.hidden = true;
+  let thunderbirdPairTimer = null;
   const thunderbirdBundle = document.createElement("a");
   thunderbirdBundle.className = "settings-primary-button integration-download";
   thunderbirdBundle.href = "/api/integrations/thunderbird/xpi";
@@ -114,7 +122,7 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
   thunderbirdRepo.target = "_blank";
   thunderbirdRepo.rel = "noopener";
   thunderbirdRepo.textContent = "GitHub";
-  thunderbirdActions.append(thunderbirdRefresh, thunderbirdBundle, thunderbirdRepo);
+  thunderbirdActions.append(thunderbirdPair, thunderbirdUnpair, thunderbirdRefresh, thunderbirdBundle, thunderbirdRepo);
   thunderbirdCard.append(thunderbirdCopy, thunderbirdActions);
 
   const refreshThunderbird = async () => {
@@ -123,7 +131,22 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
     thunderbirdStatus.textContent = "Sprawdzanie…";
     try {
       const data = await settingsIntegrationsUI.json("/api/integrations/thunderbird");
+      const bridge = data.bridge || null;
       thunderbirdBundle.hidden = !data.bundled_available;
+      thunderbirdUnpair.hidden = !bridge?.paired;
+      thunderbirdPair.textContent = bridge?.paired ? "Paruj ponownie" : "Paruj z Thunderbirdem";
+      if (bridge && !bridge.pairing_active) thunderbirdCode.hidden = true;
+      if (bridge && !bridge.paired && !bridge.pairing_active) {
+        // A host from before pairing does not send "bridge"; then the old view stays.
+        thunderbirdStatus.className = "settings-status-badge error";
+        thunderbirdStatus.textContent = "Niesparowany";
+        thunderbirdMeta.textContent = bridge.state === "port_busy"
+          ? bridge.message
+          : "Kliknij „Paruj z Thunderbirdem”, a w Thunderbirdzie: Dodatki i motywy → Thunderbird AI Bridge → Opcje, wpisz pokazany kod i kliknij „Paruj”. Wymagane rozszerzenie 0.10.0 lub nowsze.";
+        if (bridge.legacy_extension) thunderbirdMeta.textContent += " Thunderbird ma stare rozszerzenie 0.9.x: najpierw je zaktualizuj (wbudowane XPI poniżej).";
+        if (data.repo_url) thunderbirdRepo.href = data.repo_url;
+        return;
+      }
       if (data.connected) {
         thunderbirdStatus.className = "settings-status-badge online";
         thunderbirdStatus.textContent = "Połączony";
@@ -135,10 +158,11 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
           : `127.0.0.1:47831 · ${details}`;
       } else {
         thunderbirdStatus.className = "settings-status-badge error";
-        thunderbirdStatus.textContent = "Niepołączony";
-        thunderbirdMeta.textContent = data.bundled_available
-          ? "Wbudowane XPI jest gotowe. Zapisz je, a w Thunderbirdzie wybierz Dodatki i motywy → Rozszerzenia → Zainstaluj dodatek z pliku."
-          : (data.error || "Uruchom Thunderbird i włącz rozszerzenie Thunderbird AI Bridge.");
+        thunderbirdStatus.textContent = bridge?.pairing_active ? "Czeka na kod" : "Niepołączony";
+        const reason = bridge?.message || data.error || "Uruchom Thunderbird i włącz rozszerzenie Thunderbird AI Bridge.";
+        thunderbirdMeta.textContent = bridge?.legacy_extension
+          ? "Thunderbird ma stare rozszerzenie 0.9.x, które nie umie się uwierzytelnić. Zapisz wbudowane XPI 0.10.0, zainstaluj je w Thunderbirdzie (Dodatki i motywy → Zainstaluj dodatek z pliku) i sparuj."
+          : (bridge?.paired ? `Sparowany, ale bez połączenia: ${reason}` : reason);
       }
       if (data.repo_url) thunderbirdRepo.href = data.repo_url;
     } catch (error) {
@@ -150,6 +174,59 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
     }
   };
   thunderbirdRefresh.addEventListener("click", refreshThunderbird);
+
+  thunderbirdPair.addEventListener("click", async () => {
+    thunderbirdPair.disabled = true;
+    clearTimeout(thunderbirdPairTimer);
+    try {
+      const got = await settingsIntegrationsUI.json("/api/integrations/thunderbird/pair", { method: "POST" });
+      if (!got?.ok) throw new Error(got?.error || "Nie udało się rozpocząć parowania.");
+      const until = new Date(got.expires_at);
+      thunderbirdCode.replaceChildren();
+      const code = document.createElement("strong");
+      code.textContent = got.code;
+      code.style.cssText = "font:600 20px ui-monospace,monospace;letter-spacing:.08em;user-select:all;display:block;margin-top:8px";
+      const help = document.createElement("small");
+      help.textContent = `W Thunderbirdzie: Dodatki i motywy → Thunderbird AI Bridge → Opcje, wpisz ten kod i kliknij „Paruj”. Kod jest ważny do ${until.toLocaleTimeString()}.`;
+      thunderbirdCode.append(code, help);
+      thunderbirdCode.hidden = false;
+      thunderbirdStatus.className = "settings-status-badge";
+      thunderbirdStatus.textContent = "Czeka na kod";
+      const poll = async () => {
+        if (!thunderbirdCard.isConnected || Date.now() > until.getTime()) {
+          thunderbirdCode.hidden = true;
+          return;
+        }
+        try {
+          const now = await settingsIntegrationsUI.json("/api/integrations/thunderbird");
+          if (now.bridge && !now.bridge.pairing_active) {
+            thunderbirdCode.hidden = true;
+            await refreshThunderbird();
+            if (now.bridge.paired) window.NestCafe?.toast?.("Thunderbird został sparowany z NestCafe.");
+            return;
+          }
+        } catch (_) {}
+        thunderbirdPairTimer = setTimeout(poll, 2000);
+      };
+      thunderbirdPairTimer = setTimeout(poll, 2000);
+    } catch (error) {
+      window.NestCafe?.toast?.(error.message);
+    } finally {
+      thunderbirdPair.disabled = false;
+    }
+  });
+
+  thunderbirdUnpair.addEventListener("click", async () => {
+    const approved = await window.NestCafe?.dialogs?.confirm?.({
+      title: "Rozparować Thunderbirda?",
+      message: "NestCafe zapomni sekret parowania. Thunderbird nie połączy się, dopóki nie sparujesz go ponownie.",
+      confirmLabel: "Rozparuj",
+    });
+    if (!approved) return;
+    await settingsIntegrationsUI.json("/api/integrations/thunderbird/unpair", { method: "POST" });
+    window.NestCafe?.toast?.("Thunderbird został rozparowany.");
+    refreshThunderbird();
+  });
 
   const openFolder = settingsIntegrationsUI.button("Otwórz folder MCP");
   openFolder.addEventListener("click", async () => {
