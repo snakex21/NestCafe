@@ -22,7 +22,7 @@
 .activity.event-line.error .event-error-detail {
   flex-basis: 100%;
   color: var(--nc-muted);
-  font-size: 11px;
+  font-size: var(--nc-fs-xs, 12px);
 }
 
 .activity.event-line.error .event-error-action {

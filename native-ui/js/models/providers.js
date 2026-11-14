@@ -74,7 +74,11 @@ function providerLabel(name) {
 }
 
 function templateLabel(template) {
-  return field(template, "displayName") || providerLabel(field(template, "name"));
+  const engineName = field(template, "displayName");
+  const known = providerLabel(field(template, "name"));
+  // Prefer our spelling when the engine only differs in letter case (e.g. "XAI" -> "xAI").
+  if (engineName && engineName.toLowerCase() !== known.toLowerCase()) return engineName;
+  return known || engineName;
 }
 
 // Template descriptions come from the engine in English; known ids get a

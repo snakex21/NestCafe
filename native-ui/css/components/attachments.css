@@ -39,7 +39,7 @@
 
 .attachment-preview-toolbar .attachment-preview-zoom-reset {
   min-width: 58px;
-  font-size: 10.5px;
+  font-size: var(--nc-fs-xs, 12px);
   font-variant-numeric: tabular-nums;
 }
 
@@ -140,7 +140,7 @@
   place-items: center;
   min-height: 34px;
   color: var(--nc-accent);
-  font-size: 9px;
+  font-size: var(--nc-fs-xs, 12px);
   font-weight: 700;
 }
 
