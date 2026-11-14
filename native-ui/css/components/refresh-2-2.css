@@ -1,0 +1,258 @@
+/* NestCafe 2.2 refresh: contrast tokens, type scale, empty/error states.
+   Loaded last. Values follow the SuperCli 1.0.26 approach (text tokens checked
+   for WCAG AA 4.5:1 on every surface they sit on, separate fill/on-fill pair
+   for primary buttons) while keeping NestCafe's copper accent and warm greys.
+   Ratios in comments were measured on the final surfaces of each theme. */
+
+:root {
+  /* Type scale: 12 / 13 / 14 / 16 / 20 / 28. 12px is the floor for text. */
+  --nc-fs-xs: 12px;
+  --nc-fs-sm: 13px;
+  --nc-fs-md: 14px;
+  --nc-fs-lg: 16px;
+  --nc-fs-xl: 20px;
+  --nc-fs-2xl: 28px;
+  --nc-lh-tight: 1.25;
+  --nc-lh: 1.5;
+  /* Primary button fill and the text on it. */
+  --nc-accent-fill: color-mix(in srgb, var(--nc-accent) 80%, #000);
+  --nc-accent-fill-hover: color-mix(in srgb, var(--nc-accent) 68%, #000);
+  --nc-on-accent: #ffffff;
+  --nc-success-text: #1f7a35;
+  --nc-warning-text: #8a5a00;
+  --nc-danger-text: #a8261b;
+}
+
+/* Light (default and "system" resolved to light). */
+:root[data-resolved-theme="light"],
+:root:not([data-resolved-theme]) {
+  --nc-text: #1f211e;
+  --nc-text-strong: #121411;
+  --nc-muted: #5c6059;      /* 5.4:1 on panel-soft #ecece8, 6.3:1 on white */
+  --nc-muted-soft: #63675f; /* 4.9:1 on panel-soft, 5.7:1 on white */
+  --nc-line-strong: #a9ada4;
+}
+:root[data-resolved-theme="light"][data-color-theme="default"],
+:root[data-resolved-theme="light"]:not([data-color-theme]) {
+  --nc-accent: #a55328;       /* links and accent text: 5.4:1 on white */
+  --nc-accent-strong: #8c4520;
+}
+
+/* Dark. */
+:root[data-resolved-theme="dark"] {
+  --nc-muted: #9a9d95;      /* 6.3:1 on panel-soft #1a1b19 */
+  --nc-muted-soft: #8f9289; /* 5.0:1 on #22231f, 5.5:1 on panel-soft */
+  --nc-line-strong: #4a4d46;
+  /* Dark accents are light: dark text on the fill (6.9:1 on #e28a52). */
+  --nc-accent-fill: var(--nc-accent);
+  --nc-accent-fill-hover: var(--nc-accent-strong);
+  --nc-on-accent: #141514;
+  --nc-success-text: #7fd18b;
+  --nc-warning-text: #e5c07b;
+  --nc-danger-text: #f08a80;
+}
+:root[data-theme="oled"] {
+  --nc-muted: #a3a39f;
+  --nc-muted-soft: #8e8e8a; /* 5.6:1 on #111111 */
+}
+:root[data-theme="warm"] {
+  --nc-muted: #ada398;
+  --nc-muted-soft: #998f84; /* 5.3:1 on #231e19 */
+}
+
+/* ---- Type scale floor ---------------------------------------------------- */
+.sidebar-brand span,
+.document-library-copy small,
+.module-heading,
+.sidebar-heading,
+.module-empty,
+.engine-copy span,
+.composer-keys,
+.reasoning-level,
+.clear-sessions,
+.settings-back,
+.settings-status-badge,
+.settings-row-icon,
+.topbar-title span,
+.run-state,
+.session-item small,
+.session-item span {
+  font-size: var(--nc-fs-xs) !important;
+}
+.sidebar-brand span,
+.document-library-copy small,
+.module-heading span,
+.sidebar-heading span,
+.topbar-title span {
+  letter-spacing: 0.04em;
+}
+.session-item strong,
+.settings-navigation nav button,
+.settings-back {
+  font-size: var(--nc-fs-sm) !important;
+}
+
+/* ---- Primary actions: one fill/on-fill pair ------------------------------ */
+.send-button,
+.settings-primary-button,
+.plan-primary,
+.question-submit,
+.save-provider,
+.nestcafe-system-dialog .confirm-save,
+.session-edit-dialog .confirm-save,
+.integration-feature-actions .integration-download,
+.about-update-actions a,
+.welcome-connect-button,
+.models-empty-action,
+.provider-empty-state .settings-primary-button {
+  background: var(--nc-accent-fill) !important;
+  border-color: var(--nc-accent-fill) !important;
+  color: var(--nc-on-accent) !important;
+}
+.send-button:hover:not(:disabled),
+.settings-primary-button:hover:not(:disabled),
+.plan-primary:hover:not(:disabled),
+.question-submit:hover:not(:disabled),
+.save-provider:hover:not(:disabled),
+.welcome-connect-button:hover {
+  background: var(--nc-accent-fill-hover) !important;
+  border-color: var(--nc-accent-fill-hover) !important;
+}
+.message.user .message-body {
+  background: var(--nc-accent-fill) !important;
+  border-color: var(--nc-accent-fill) !important;
+  color: var(--nc-on-accent) !important;
+}
+.message.user .message-body a { color: inherit; text-decoration: underline; }
+
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--nc-focus, var(--nc-accent));
+  outline-offset: 2px;
+}
+
+/* ---- Toast: one definition, above the composer --------------------------- */
+#toast.toast,
+.toast {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: calc(var(--nc-composer-h, 132px) + 24px) !important;
+  transform: translateX(-50%) !important;
+  max-width: min(560px, calc(100vw - 32px)) !important;
+  padding: 10px 14px !important;
+  border: 1px solid var(--nc-line-strong) !important;
+  border-radius: var(--nc-radius, 10px) !important;
+  background: var(--nc-panel-raised, var(--nc-panel)) !important;
+  color: var(--nc-text) !important;
+  font-size: var(--nc-fs-sm) !important;
+  line-height: var(--nc-lh) !important;
+  box-shadow: 0 10px 30px var(--nc-shadow) !important;
+  z-index: 1000;
+}
+
+/* ---- Empty and error states --------------------------------------------- */
+.settings-empty,
+.settings-empty-inline,
+.provider-empty-state,
+.models-empty,
+.session-list-empty,
+.module-empty {
+  color: var(--nc-muted) !important;
+}
+.settings-empty-inline {
+  display: grid;
+  gap: 2px;
+  padding: var(--nc-space-3, 12px) var(--nc-space-4, 16px);
+  border: 1px dashed var(--nc-line-strong);
+  border-radius: var(--nc-radius-sm, 6px);
+  background: color-mix(in srgb, var(--nc-panel-soft) 60%, transparent);
+  font-size: var(--nc-fs-sm);
+  line-height: var(--nc-lh);
+}
+.settings-empty-inline strong,
+.settings-empty-inline > :first-child {
+  color: var(--nc-text) !important;
+  font-size: var(--nc-fs-sm) !important;
+  font-weight: 600;
+  opacity: 1 !important;
+}
+.settings-empty-inline span,
+.settings-empty-inline p {
+  margin: 0;
+  color: var(--nc-muted) !important;
+  font-size: var(--nc-fs-xs) !important;
+  opacity: 1 !important;
+}
+
+.welcome-connect {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--nc-space-3, 12px);
+  margin-top: var(--nc-space-4, 16px);
+  color: var(--nc-muted);
+  font-size: var(--nc-fs-sm);
+}
+.welcome-connect[hidden] { display: none !important; }
+.welcome-connect-button {
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--nc-radius-sm, 6px);
+  font: inherit;
+  font-size: var(--nc-fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.provider-empty-state {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: var(--nc-space-2, 8px);
+  max-width: 460px;
+  margin: auto;
+  padding: var(--nc-space-6, 32px);
+  font-size: var(--nc-fs-sm);
+  line-height: var(--nc-lh);
+}
+.provider-empty-state h3,
+.provider-empty-state strong:first-child {
+  margin: 0;
+  color: var(--nc-text-strong);
+  font-size: var(--nc-fs-lg);
+  font-weight: 600;
+}
+
+/* Error card in the transcript keeps danger only on its edge and title. */
+.message.error .message-body,
+.error-card {
+  border-left: 3px solid var(--nc-danger) !important;
+}
+.error-card :is(h3, strong):first-child { color: var(--nc-danger-text) !important; }
+
+/* Status badges readable in both themes. */
+.settings-status-badge {
+  padding: 2px 8px !important;
+  border-radius: 999px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+}
+.settings-status-badge.error { color: var(--nc-danger-text) !important; }
+.settings-status-badge.ok,
+.settings-status-badge.success { color: var(--nc-success-text) !important; }
+.settings-status-badge.warning,
+.settings-status-badge.pending { color: var(--nc-warning-text) !important; }
+
+/* Sidebar: one separator under the actions (review U9). */
+.sidebar-actions + .sidebar-section,
+.sidebar-actions + * { border-top-color: var(--nc-line) !important; }
+.sidebar-actions { border-bottom: 0 !important; }
+
+/* Settings: consistent type in rows. */
+.settings-row-title,
+.settings-section-title { font-size: var(--nc-fs-md) !important; }
+.settings-row-copy span,
+.settings-row-copy p,
+.settings-section-description { font-size: var(--nc-fs-xs) !important; color: var(--nc-muted) !important; }

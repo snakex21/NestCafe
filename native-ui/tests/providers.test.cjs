@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { installI18n } = require('./helpers/ui-harness.cjs');
 
 function harness() {
   class Element {
@@ -28,6 +29,7 @@ function harness() {
     fetch: (url) => new Promise((resolve,reject)=>requests.push({url,resolve:data=>resolve({ok:true,json:async()=>data}),reject})),
     Event: class {}, confirm:()=>false,
   });
+  installI18n(context);
   const source = fs.readFileSync(path.join(__dirname,'../js/models/providers.js'),'utf8');
   vm.runInContext(source + '\nthis.api={editProvider,resetProviderForm,loadProviders};', context);
   const provider = (name, disabled=false) => ({name,disabled,type:'openai',baseUrl:'http://example.invalid',model:'test',hasKey:false});
@@ -78,7 +80,7 @@ test('reload with a removed final provider safely resets the form', async()=>{
 test('current diagnostics still show current provider result and refresh models', async()=>{
   const h=harness(); h.api.editProvider(h.provider('A'));
   h.requests[0].resolve({server:'A',status:'online',models:['model']}); await h.flush();
-  assert.match(h.element('#provider-diagnostic').textContent,/^A · 1 modeli/);
+  assert.match(h.element('#provider-diagnostic').textContent,/^A · 1 model(?!i)/);
   assert.equal(h.requests.length,2);
   h.requests[1].resolve({models:[{id:'model',provider:'A'}]}); await h.flush();
   assert.equal(h.element('#provider-models').hidden,false);

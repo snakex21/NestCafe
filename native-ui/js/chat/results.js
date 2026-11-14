@@ -36,7 +36,7 @@ function enhanceToolResult(row, event) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "activity-result-action";
-  button.textContent = "Otwórz folder";
+  button.textContent = t("common.openFolder");
   button.addEventListener("click", () => openResultFolder(args.path, button));
   row.appendChild(button);
 }

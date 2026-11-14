@@ -10,22 +10,22 @@ const settingsProviderList = document.querySelector("#provider-list");
 const settingsProviderSidebar = document.querySelector(".provider-sidebar");
 const settingsProviderForm = document.querySelector("#provider-form");
 
-document.querySelector(".provider-dialog-head h2").textContent = "Dostawcy";
-document.querySelector("#add-provider").textContent = "+ Dodaj";
+document.querySelector(".provider-dialog-head h2").textContent = t("settings.nav.providers");
+document.querySelector("#add-provider").textContent = t("settings.providers.add");
 
 const settingsNavigationItems = [
-  ["providers", "◇", "Dostawcy"],
-  ["models", "◫", "Modele i kontekst"],
-  ["skills", "ϟ", "Umiejętności"],
-  ["plan", "◎", "Plan pracy"],
-  ["integrations", "○", "Integracje"],
-  ["scheduler", "◷", "Harmonogram"],
-  ["memory", "▤", "Pamięć"],
-  ["instructions", "≡", "Instrukcje AI"],
-  ["folders", "⌕", "Pliki i foldery"],
-  ["workspaces", "⌂", "Przestrzenie"],
-  ["general", "⚙", "Ogólne"],
-  ["about", "ⓘ", "O programie"],
+  ["providers", "◇", t("settings.nav.providers")],
+  ["models", "◫", t("settings.nav.models")],
+  ["skills", "ϟ", t("settings.nav.skills")],
+  ["plan", "◎", t("settings.nav.plan")],
+  ["integrations", "○", t("settings.nav.integrations")],
+  ["scheduler", "◷", t("settings.nav.scheduler")],
+  ["memory", "▤", t("settings.nav.memory")],
+  ["instructions", "≡", t("settings.nav.instructions")],
+  ["folders", "⌕", t("settings.nav.folders")],
+  ["workspaces", "⌂", t("settings.nav.workspaces")],
+  ["general", "⚙", t("settings.nav.general")],
+  ["about", "ⓘ", t("settings.nav.about")],
 ];
 
 function createSettingsNavigation(active) {
@@ -33,8 +33,8 @@ function createSettingsNavigation(active) {
   navigation.className = "settings-navigation";
   navigation.innerHTML = `
     <div class="settings-brand"><img src="assets/nestcafe-icon.png" alt="" /><strong>NestCafe</strong></div>
-    <button class="settings-back" type="button" data-settings-action="back"><span aria-hidden="true">←</span> Wróć do czatu</button>
-    <nav>
+    <button class="settings-back" type="button" data-settings-action="back"><span aria-hidden="true">←</span> ${t("common.backToChat")}</button>
+    <nav aria-label="${t("settings.nav.label")}">
       ${settingsNavigationItems
         .map(
           ([action, icon, label]) =>
@@ -51,32 +51,32 @@ settingsAboutDialog.className = "about-dialog";
 settingsAboutDialog.id = "about-dialog";
 settingsAboutDialog.innerHTML = `
   <header class="about-head">
-    <h2>O programie</h2>
-    <button type="button" aria-label="Zamknij">×</button>
+    <h2>${t("settings.nav.about")}</h2>
+    <button type="button" aria-label="${t("common.close")}">×</button>
   </header>
   <section class="about-content">
     <div class="about-identity">
       <img src="assets/nestcafe-icon.png" alt="" />
-      <div><h3>NestCafe</h3><p>Spokojne miejsce do pracy z dokumentami i agentem AI.</p></div>
+      <div><h3>NestCafe</h3><p>${t("settings.about.tagline")}</p></div>
     </div>
-    <p class="about-copy">NestCafe korzysta z lekkiego silnika SuperCli. Interfejs, rozmowy, narzędzia, pamięć i dostawcy modeli działają lokalnie w jednej aplikacji.</p>
+    <p class="about-copy">${t("settings.about.engineCopy")}</p>
     <div class="about-facts">
-      <div class="about-fact"><span>Wersja</span><strong id="about-version">…</strong></div>
-      <div class="about-fact"><span>Silnik</span><strong id="about-engine">SuperCli</strong></div>
-      <div class="about-fact"><span>Tryb aplikacji</span><strong>Natywna aplikacja Windows</strong></div>
-      <div class="about-fact"><span>Język UI</span><strong id="about-language">…</strong></div>
-      <div class="about-fact"><span>Aktywny model</span><strong id="about-model">Sprawdzam…</strong></div>
-      <div class="about-fact"><span>Katalog techniczny</span><strong id="about-workspace">Sprawdzam…</strong></div>
+      <div class="about-fact"><span>${t("settings.about.version")}</span><strong id="about-version">…</strong></div>
+      <div class="about-fact"><span>${t("settings.about.engine")}</span><strong id="about-engine">SuperCli</strong></div>
+      <div class="about-fact"><span>${t("settings.about.appMode")}</span><strong>${t("settings.about.appModeNative")}</strong></div>
+      <div class="about-fact"><span>${t("settings.about.uiLanguage")}</span><strong id="about-language">…</strong></div>
+      <div class="about-fact"><span>${t("settings.about.activeModel")}</span><strong id="about-model">${t("settings.about.checking")}</strong></div>
+      <div class="about-fact"><span>${t("settings.about.workspaceDir")}</span><strong id="about-workspace">${t("settings.about.checking")}</strong></div>
     </div>
     <section class="about-update-panel">
-      <div><strong>Aktualizacje</strong><span id="about-update-status">Sprawdź, czy jest nowsza wersja NestCafe.</span></div>
+      <div><strong>${t("settings.about.updates")}</strong><span id="about-update-status">${t("settings.about.updateIntro")}</span></div>
       <div class="about-update-actions">
-        <button id="about-check-update" type="button">Sprawdź aktualizacje</button>
-        <a id="about-download-update" href="#" target="_blank" rel="noopener" hidden>Pobierz instalator</a>
+        <button id="about-check-update" type="button">${t("settings.about.checkUpdates")}</button>
+        <a id="about-download-update" href="#" target="_blank" rel="noopener" hidden>${t("settings.about.downloadInstaller")}</a>
       </div>
-      <small>Automatyczny updater nadal sprawdza nowe wydania przy uruchamianiu programu.</small>
+      <small>${t("settings.about.autoUpdaterNote")}</small>
     </section>
-    <p class="about-copy">Dane aplikacji są przechowywane przenośnie obok programu w folderze <code>supercli-data</code>.</p>
+    <p class="about-copy">${t("settings.about.dataLocal")}</p>
   </section>`;
 document.body.appendChild(settingsAboutDialog);
 
@@ -92,20 +92,20 @@ settingsAboutDialog.prepend(aboutSettingsNavigation);
 const providerBrowseHead = document.createElement("div");
 providerBrowseHead.className = "provider-browse-head";
 providerBrowseHead.innerHTML = `
-  <div class="provider-browse-title"><div><strong>Dostawcy</strong><span>Wybierz dostawcę do konfiguracji.</span></div></div>
-  <input type="search" placeholder="Szukaj dostawców…" aria-label="Szukaj dostawców" />`;
+  <div class="provider-browse-title"><div><strong>${t("settings.nav.providers")}</strong><span>${t("settings.providers.browseHint")}</span></div></div>
+  <input type="search" placeholder="${t("settings.providers.searchPlaceholder")}" aria-label="${t("settings.providers.searchLabel")}" />`;
 settingsProviderSidebar.prepend(providerBrowseHead);
 providerBrowseHead.querySelector(".provider-browse-title").append(document.querySelector("#add-provider"));
 
 const providerEmptyState = document.createElement("div");
 providerEmptyState.className = "provider-empty-state";
-providerEmptyState.innerHTML = `<strong>Wybierz dostawcę</strong><span>Wybierz połączenie z listy, aby zmienić jego ustawienia.</span>`;
+providerEmptyState.innerHTML = `<strong>${t("settings.providers.emptyTitle")}</strong><span>${t("settings.providers.emptyHint")}</span>`;
 document.querySelector(".provider-layout").appendChild(providerEmptyState);
 
 const providerMobileBack = document.createElement("button");
 providerMobileBack.className = "provider-mobile-back";
 providerMobileBack.type = "button";
-providerMobileBack.textContent = "← Wróć do listy dostawców";
+providerMobileBack.textContent = `← ${t("settings.providers.backToList")}`;
 settingsProviderForm.prepend(providerMobileBack);
 providerMobileBack.addEventListener("click", () => settingsDialog.classList.add("no-selection"));
 
@@ -114,7 +114,7 @@ async function checkNestCafeUpdate() {
   const button = settingsAboutDialog.querySelector("#about-check-update");
   const download = settingsAboutDialog.querySelector("#about-download-update");
   button.disabled = true;
-  status.textContent = "Sprawdzanie najnowszego wydania…";
+  status.textContent = t("settings.about.checkingRelease");
   download.hidden = true;
   try {
     const versionApi = window.NestCafe?.version;
@@ -124,18 +124,18 @@ async function checkNestCafeUpdate() {
     if (!response.ok) throw new Error((await response.text()).trim() || `HTTP ${response.status}`);
     const data = await response.json();
     if (data.update_available) {
-      status.textContent = `Dostępna jest wersja ${data.latest}. Obecnie masz ${data.current || current}.`;
+      status.textContent = t("settings.about.updateAvailable", { latest: data.latest, current: data.current || current });
       if (data.installer_url) {
         download.href = data.installer_url;
         download.hidden = false;
       }
     } else {
       status.textContent = data.latest
-        ? `Masz najnowszą wersję (${data.latest}).`
-        : "Nie znaleziono informacji o nowszym wydaniu.";
+        ? t("settings.about.upToDate", { latest: data.latest })
+        : t("settings.about.noReleaseInfo");
     }
   } catch (error) {
-    status.textContent = `Nie udało się sprawdzić aktualizacji: ${error.message}`;
+    status.textContent = t("settings.about.updateCheckFailed", { detail: error.message });
   } finally {
     button.disabled = false;
   }
@@ -152,20 +152,9 @@ async function loadAboutDetails() {
     settingsAboutDialog.querySelector("#about-version").textContent = "dev";
   }
 
-  try {
-    const settingsResponse = await fetch("/api/settings", { cache: "no-store" });
-    const settingsPayload = settingsResponse.ok ? await settingsResponse.json() : {};
-    const langCode =
-      i18n?.normalize?.(settingsPayload.settings?.["ui.lang"]) ||
-      i18n?.detectSystem?.() ||
-      document.documentElement.lang ||
-      "en";
-    settingsAboutDialog.querySelector("#about-language").textContent =
-      i18n?.labelFor?.(langCode) || langCode;
-  } catch {
-    settingsAboutDialog.querySelector("#about-language").textContent =
-      document.documentElement.lang || "—";
-  }
+  const langCode = i18n?.lang || document.documentElement.lang || "";
+  settingsAboutDialog.querySelector("#about-language").textContent =
+    (langCode && i18n?.labelFor?.(langCode)) || langCode || "—";
 
   try {
     const [healthResponse, runtimeResponse] = await Promise.all([
@@ -175,9 +164,9 @@ async function loadAboutDetails() {
     if (healthResponse.ok) {
       const health = await healthResponse.json();
       settingsAboutDialog.querySelector("#about-model").textContent =
-        health.model || "Nie wybrano";
+        health.model || t("settings.about.notSelected");
       settingsAboutDialog.querySelector("#about-workspace").textContent =
-        health.home || "Nie wybrano";
+        health.home || t("settings.about.notSelected");
     } else {
       throw new Error(`HTTP ${healthResponse.status}`);
     }
@@ -188,8 +177,8 @@ async function loadAboutDetails() {
         `${runtime.engine || "SuperCli"}${engineVersion}`.trim();
     }
   } catch {
-    settingsAboutDialog.querySelector("#about-model").textContent = "Brak połączenia";
-    settingsAboutDialog.querySelector("#about-workspace").textContent = "Brak połączenia";
+    settingsAboutDialog.querySelector("#about-model").textContent = t("settings.about.noConnection");
+    settingsAboutDialog.querySelector("#about-workspace").textContent = t("settings.about.noConnection");
   }
 }
 
@@ -215,7 +204,7 @@ function handleSettingsNavigation(event, currentDialog) {
   }
 
   if (action === "providers" && currentDialog !== settingsDialog) {
-    // Otwórz następny widok zanim zamkniemy poprzedni, żeby czat nie mignął pod spodem.
+    // Open the next view before closing the previous one so the chat does not flash underneath.
     settingsProviderButton.click();
     if (currentDialog.open) currentDialog.close();
     return;
@@ -240,13 +229,13 @@ function handleSettingsNavigation(event, currentDialog) {
       action,
     )
   ) {
-    // Przejścia między zwykłymi stronami ustawień odbywają się w tym samym dialogu.
+    // Moving between regular settings pages happens inside the same dialog.
     if (currentDialog?.id === "settings-page-dialog") {
       window.NestCafe?.settings?.openPage?.(action);
       return;
     }
 
-    // openPage() wywołuje showModal() synchronicznie przed pierwszym await.
+    // openPage() calls showModal() synchronously before its first await.
     window.NestCafe?.settings?.openPage?.(action);
     if (currentDialog.open) currentDialog.close();
   }

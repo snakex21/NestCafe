@@ -5,21 +5,21 @@ searchDialog.className = "search-dialog";
 searchDialog.innerHTML = `
   <div class="search-head">
     <span aria-hidden="true">⌕</span>
-    <input type="search" placeholder="Szukaj zadań…" aria-label="Szukaj zadań" />
-    <button type="button" aria-label="Zamknij">×</button>
+    <input type="search" placeholder="${escapeSearch(t("sidebar.search.placeholder"))}" aria-label="${escapeSearch(t("sidebar.search.label"))}" />
+    <button type="button" aria-label="${escapeSearch(t("common.close"))}">×</button>
   </div>
-  <button class="search-new" type="button">＋&nbsp; Nowe zadanie</button>
-  <span class="search-period">Ostatnie rozmowy</span>
+  <button class="search-new" type="button">＋&nbsp; ${escapeSearch(t("sidebar.search.newTask"))}</button>
+  <span class="search-period">${escapeSearch(t("sidebar.search.recent"))}</span>
   <div class="search-results"></div>
-  <footer>↑↓ Nawiguj &nbsp; · &nbsp; Enter Wybierz &nbsp; · &nbsp; Esc Zamknij</footer>`;
+  <footer>↑↓ ${escapeSearch(t("sidebar.search.navigate"))} &nbsp; · &nbsp; Enter ${escapeSearch(t("sidebar.search.select"))} &nbsp; · &nbsp; Esc ${escapeSearch(t("common.close"))}</footer>`;
 document.body.appendChild(searchDialog);
 
 const confirmDialog = document.createElement("dialog");
 confirmDialog.className = "confirm-dialog";
 confirmDialog.innerHTML = `
-  <h3>Usunąć wszystkie rozmowy?</h3>
-  <p>Usunięta zostanie historia rozmów. Twoje dokumenty i pozostałe pliki nie zostaną zmienione.</p>
-  <div><button class="confirm-cancel" type="button">Anuluj</button><button class="confirm-delete" type="button">Usuń wszystkie</button></div>`;
+  <h3>${escapeSearch(t("sidebar.clearAll.title"))}</h3>
+  <p>${escapeSearch(t("sidebar.clearAll.body"))}</p>
+  <div><button class="confirm-cancel" type="button">${escapeSearch(t("common.cancel"))}</button><button class="confirm-delete" type="button">${escapeSearch(t("sidebar.clearAll.confirm"))}</button></div>`;
 document.body.appendChild(confirmDialog);
 
 const searchInput = searchDialog.querySelector("input");
@@ -49,11 +49,11 @@ function renderSearch() {
     const row = document.createElement("button");
     row.type = "button";
     row.className = index === selected ? "selected" : "";
-    row.innerHTML = `<i></i><span>${escapeSearch(window.NestCafe?.sessionTitle?.(session) || "Rozmowa")}</span><small>${session.message_count || 0}</small>`;
+    row.innerHTML = `<i></i><span>${escapeSearch(window.NestCafe?.sessionTitle?.(session) || t("app.session.untitled"))}</span><small>${session.message_count || 0}</small>`;
     row.addEventListener("click", () => openSearchSession(session));
     searchResults.appendChild(row);
   }
-  if (!visible.length) searchResults.innerHTML = `<p>Nie znaleziono rozmów.</p>`;
+  if (!visible.length) searchResults.innerHTML = `<p>${escapeSearch(t("sidebar.search.empty"))}</p>`;
 }
 
 async function openSearchSession(session) {
@@ -99,7 +99,7 @@ confirmDialog.querySelector(".confirm-cancel").addEventListener("click", () => c
 confirmDialog.querySelector(".confirm-delete").addEventListener("click", async (event) => {
   const button = event.currentTarget;
   button.disabled = true;
-  button.textContent = "Usuwam…";
+  button.textContent = t("sidebar.clearAll.deleting");
   try {
     const all = await searchJSON("/api/sessions?limit=0");
     for (const session of all) {
@@ -113,6 +113,6 @@ confirmDialog.querySelector(".confirm-delete").addEventListener("click", async (
     window.NestCafe?.toast?.(error.message);
   } finally {
     button.disabled = false;
-    button.textContent = "Usuń wszystkie";
+    button.textContent = t("sidebar.clearAll.confirm");
   }
 });

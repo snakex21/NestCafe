@@ -110,3 +110,38 @@ test('build scripts contain no tab characters in string literals', () => {
   const build = fs.readFileSync(path.join(scripts, 'build-native.ps1'), 'utf8');
   assert.match(build, /Join-Path \(Join-Path \$bridgeRoot 'dist'\) 'thunderbird-ai-bridge\.xpi'/);
 });
+
+test('answers not yet sent when the batch is interrupted are shown as not sent', async () => {
+  const app = batchApp();
+  app.chat.prepareQuestionBatch(JSON.stringify(questions));
+  app.chat.showQuestion({ id: 'q-1', question: 'Który język?', options: [{ label: 'Go' }, { label: 'Rust' }] });
+  const [overlay] = app.overlays();
+  const panel = overlay.children[0];
+  pick(panel, 'Go');
+  await app.button(panel, 'Dalej').emit('click');
+  pick(panel, 'E2E');
+  await app.button(panel, 'Odpowiedz').emit('click');
+  await app.flush();
+  app.posts[0].release();
+  await app.flush();
+  // Interrupted before the second server question arrived: only one answer was sent.
+  app.chat.clearQuestionBatch();
+  assert.equal(overlay.isConnected, true);
+  assert.match(app.text(overlay), /✓ Go/);
+  assert.doesNotMatch(app.text(overlay), /✓ E2E/);
+  assert.match(app.text(overlay), /E2E — niewysłane \(przerwano\)/);
+});
+
+test('an expired single question stays in place, marked expired', async () => {
+  const app = batchApp();
+  app.context.fetch = async () => ({ ok: false, status: 410, text: async () => '' });
+  app.chat.showQuestion({ id: 'q-x', question: 'Kontynuować?', options: [{ label: 'Tak' }] });
+  const [overlay] = app.overlays();
+  const panel = overlay.children[0];
+  pick(panel, 'Tak');
+  await panel.emit('submit');
+  await app.flush();
+  assert.equal(overlay.isConnected, true);
+  assert.ok(overlay.classList.contains('expired'));
+  assert.match(app.text(overlay), /Wygasło — bez odpowiedzi/);
+});

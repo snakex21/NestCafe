@@ -8,6 +8,7 @@ let questionBatchSeq = 0;
 // one can arrive while an ask_user form is open and must neither replace that
 // form nor be consumed as one of its batched questions.
 const pendingApprovalOverlays = new Set();
+let approvalCardSeq = 0;
 
 function notifyQuestionPending() {
   window.dispatchEvent(new CustomEvent("nestcafe:question-pending", {
@@ -27,37 +28,38 @@ function rememberThinkingOpen(open) {
   localStorage.setItem(THINKING_OPEN_KEY, open ? "1" : "0");
 }
 
+// Tool name -> catalog key (chat.tool.label.*), translated at render time.
 const toolLabels = {
-  read_lines: "Odczyt pliku",
-  read_many: "Odczyt plików",
-  list_dir: "Lista folderu",
-  search_code: "Wyszukiwanie w kodzie",
-  ctx_execute: "Polecenie",
-  write_file: "Zapis pliku",
-  edit_line: "Edycja pliku",
-  edit_lines: "Edycja pliku",
-  insert_after: "Edycja pliku",
-  delete_lines: "Edycja pliku",
-  apply_patch: "Edycja pliku",
-  patch: "Edycja pliku",
-  make_dir: "Utworzenie folderu",
-  move: "Przeniesienie pliku",
-  copy: "Skopiowanie pliku",
-  trash: "Usunięcie pliku",
-  edit_docx: "Edycja dokumentu Word",
-  edit_xlsx: "Edycja arkusza",
-  web_lookup: "Wyszukiwanie w sieci",
-  web_fetch: "Odczyt strony",
-  task: "Delegowane zadanie",
-  ask_user: "Pytanie",
-  bash: "Polecenie",
-  shell: "Polecenie",
-  run_command: "Polecenie",
-  read_file: "Odczyt pliku",
-  write: "Zapis pliku",
-  edit: "Edycja pliku",
-  glob: "Wyszukiwanie plików",
-  grep: "Wyszukiwanie w plikach",
+  read_lines: "chat.tool.label.readFile",
+  read_many: "chat.tool.label.readFiles",
+  list_dir: "chat.tool.label.listDir",
+  search_code: "chat.tool.label.searchCode",
+  ctx_execute: "chat.tool.label.command",
+  write_file: "chat.tool.label.writeFile",
+  edit_line: "chat.tool.label.editFile",
+  edit_lines: "chat.tool.label.editFile",
+  insert_after: "chat.tool.label.editFile",
+  delete_lines: "chat.tool.label.editFile",
+  apply_patch: "chat.tool.label.editFile",
+  patch: "chat.tool.label.editFile",
+  make_dir: "chat.tool.label.makeDir",
+  move: "chat.tool.label.moveFile",
+  copy: "chat.tool.label.copyFile",
+  trash: "chat.tool.label.trashFile",
+  edit_docx: "chat.tool.label.editDocx",
+  edit_xlsx: "chat.tool.label.editXlsx",
+  web_lookup: "chat.tool.label.webLookup",
+  web_fetch: "chat.tool.label.webFetch",
+  task: "chat.tool.label.task",
+  ask_user: "chat.tool.label.askUser",
+  bash: "chat.tool.label.command",
+  shell: "chat.tool.label.command",
+  run_command: "chat.tool.label.command",
+  read_file: "chat.tool.label.readFile",
+  write: "chat.tool.label.writeFile",
+  edit: "chat.tool.label.editFile",
+  glob: "chat.tool.label.glob",
+  grep: "chat.tool.label.grep",
 };
 
 function executionTime() {
@@ -306,7 +308,9 @@ function createMessageSegment(segment) {
   const thinking = document.createElement("details");
   thinking.className = "thinking-block";
   thinking.dataset.segmentKind = "thinking";
-  thinking.innerHTML = `<summary>Myślenie</summary><pre></pre>`;
+  const summary = document.createElement("summary");
+  summary.textContent = t("chat.reasoning.title");
+  thinking.append(summary, document.createElement("pre"));
   thinking.open = preferredThinkingOpen();
   thinking.addEventListener("toggle", () => rememberThinkingOpen(thinking.open));
   thinking.querySelector("pre").textContent = segment.text.trim();
@@ -424,8 +428,7 @@ function withReasoningFallback(text, reasoningTokens) {
   const raw = String(text || "");
   const tokens = Math.max(0, Number(reasoningTokens) || 0);
   if (!tokens || /<(?:thinking|think|reasoning|reflection)>/i.test(raw)) return raw;
-  const count = new Intl.NumberFormat("pl-PL").format(tokens);
-  const fallback = `<thinking>Model wykorzystał ${count} tokenów rozumowania, ale nie udostępnił tekstowego podsumowania.</thinking>`;
+  const fallback = `<thinking>${tn("chat.reasoning.hiddenSummary", tokens)}</thinking>`;
   return raw.trim() ? `${fallback}\n${raw}` : fallback;
 }
 
@@ -450,8 +453,8 @@ function ensureRewindControl(article, seq, text, messageAttachments = []) {
   const rewind = document.createElement("button");
   rewind.type = "button";
   rewind.className = "message-rewind";
-  rewind.textContent = "↶ Cofnij";
-  rewind.title = "Cofnij rozmowę do tej wiadomości";
+  rewind.textContent = t("chat.rewind.label");
+  rewind.title = t("chat.rewind.title");
   rewind.addEventListener("click", () => {
     window.NestCafe?.rewindMessage?.(
       seq,
@@ -495,7 +498,7 @@ function createMessage(role, text, conversation, seq = 0, persistedAttachments =
   article.className = `message ${role}`;
   const label = document.createElement("div");
   label.className = "message-label";
-  label.textContent = role === "user" ? "Ty" : "NestCafe";
+  label.textContent = role === "user" ? t("chat.message.you") : t("app.name");
   const body = document.createElement("div");
   body.className = "message-body";
   const content = document.createElement("div");
@@ -534,19 +537,21 @@ function createActivity(label, detail, id, conversation) {
     line.className = "activity event-line";
     line.innerHTML = `<strong></strong><span></span>`;
     line.querySelector("strong").textContent = label;
-    line.querySelector("span").textContent = detail || "";
+    line.querySelector("span").textContent = window.NestCafe?.errors?.translateEngineText?.(detail || "") ?? (detail || "");
     conversation.appendChild(line);
     return line;
   }
   const row = document.createElement("details");
   row.className = "activity tool-activity running";
   row._started = performance.now();
-  row.innerHTML = `<summary><span class="tool-icon">›</span><strong></strong><span class="tool-hint"></span><small>W toku</small></summary><div class="tool-body"><label>Dane wejściowe</label><pre></pre></div>`;
-  row.querySelector("strong").textContent = toolLabels[label] || label;
+  row.innerHTML = `<summary><span class="tool-icon">›</span><strong></strong><span class="tool-hint"></span><small></small></summary><div class="tool-body"><label></label><pre></pre></div>`;
+  row.querySelector("small").textContent = t("chat.tool.running");
+  row.querySelector(".tool-body label").textContent = t("chat.tool.input");
+  row.querySelector("strong").textContent = toolLabels[label] ? t(toolLabels[label]) : label;
   row.querySelector(".tool-hint").textContent = compactHint(detail);
   row.querySelector(".tool-body pre").textContent = detail || "";
   row._clock = setInterval(() => {
-    row.querySelector("small").textContent = `W toku · ${((performance.now() - row._started) / 1000).toFixed(1)}s`;
+    row.querySelector("small").textContent = t("chat.tool.runningElapsed", { elapsed: `${((performance.now() - row._started) / 1000).toFixed(1)}s` });
   }, 250);
   conversation.appendChild(row);
   return row;
@@ -556,29 +561,29 @@ function completeActivity(row, event) {
   clearInterval(row._clock);
   row.classList.remove("running");
   row.classList.add(event.err ? "error" : "done");
-  const elapsed = row._started ? `${((performance.now() - row._started) / 1000).toFixed(1)}s` : "gotowe";
+  const elapsed = row._started ? `${((performance.now() - row._started) / 1000).toFixed(1)}s` : t("chat.tool.doneLower");
   const stat = row.querySelector("small");
-  if (stat) stat.textContent = event.err ? `Błąd · ${elapsed}` : `Gotowe · ${elapsed}`;
+  if (stat) stat.textContent = t(event.err ? "chat.tool.errorElapsed" : "chat.tool.doneElapsed", { elapsed });
   const mutationKind = window.SuperCliUI?.mutationKind(row.dataset.toolName, event.output, Boolean(event.err));
-  const mutationLabel = {
-    created: "Utworzono plik",
-    modified: "Zmodyfikowano plik",
-    deleted: "Usunięto plik",
-    "folder-created": "Utworzono folder",
-    moved: "Przeniesiono plik",
-    copied: "Skopiowano plik",
+  const mutationKey = {
+    created: "chat.tool.mutation.created",
+    modified: "chat.tool.mutation.modified",
+    deleted: "chat.tool.mutation.deleted",
+    "folder-created": "chat.tool.mutation.folderCreated",
+    moved: "chat.tool.mutation.moved",
+    copied: "chat.tool.mutation.copied",
   }[mutationKind];
-  if (mutationLabel) {
-    row.querySelector("strong").textContent = mutationLabel;
+  if (mutationKey) {
+    row.querySelector("strong").textContent = t(mutationKey);
     row.classList.add("has-changes");
   }
   const body = row.querySelector(".tool-body");
   if (body) {
     const label = document.createElement("label");
-    label.textContent = event.err ? "Błąd" : "Wynik";
+    label.textContent = event.err ? t("common.error") : t("chat.tool.output");
     const output = document.createElement("pre");
     output.className = event.err ? "error" : "";
-    output.textContent = event.err || event.output || "Gotowe";
+    output.textContent = event.err || event.output || t("chat.tool.done");
     body.append(label, output);
   }
 }
@@ -591,8 +596,8 @@ function finishPendingActivities(rows, outcome) {
     row.classList.add("interrupted");
     const stat = row.querySelector("small");
     if (stat) stat.textContent = outcome === "interrupted"
-      ? "Przerwano · wynik niepotwierdzony"
-      : "Wynik niepotwierdzony";
+      ? t("chat.tool.interrupted")
+      : t("chat.tool.unconfirmed");
   }
 }
 
@@ -654,15 +659,16 @@ function prepareQuestionBatch(rawArgs) {
 // Called when the ask_user call ends (tool_result, done, error, interrupt).
 // The server can deliver the tool_result while the last answer's POST is
 // still awaiting its response, i.e. before flushQuestionBatch renders the
-// receipt. Removing the overlay then made the "Odpowiedziano" confirmation
+// receipt. Removing the overlay then made the "Answered" confirmation
 // disappear for multi-question asks. Once the user committed every answer
 // the receipt is rendered here instead; an uncommitted batch is removed.
+// Answers not yet sent (and not in flight) are shown as not sent.
 function clearQuestionBatch() {
   const batch = pendingQuestionBatch;
   pendingQuestionBatch = null;
   if (!batch?.overlay) return;
   if (batch.committing) {
-    renderQuestionReceipt(batch.overlay, batch.questions, batch.answers);
+    renderQuestionReceipt(batch.overlay, batch.questions, batch.answers, batch.sent + (batch.sending ? 1 : 0));
     return;
   }
   if (activeQuestionOverlay === batch.overlay) closeQuestion(batch.overlay);
@@ -684,12 +690,12 @@ function questionAnswerValid(answer) {
 }
 
 function questionAnswerText(answer) {
-  if (answer?.cancelled) return "Anulowano";
+  if (answer?.cancelled) return t("chat.question.cancelled");
   const picked = Array.isArray(answer?.selected) ? answer.selected.filter(Boolean) : [];
   const custom = String(answer?.custom || "").trim();
   if (picked.length && custom) return [...picked, custom].join(", ");
   if (picked.length) return picked.join(", ");
-  return custom || "Brak odpowiedzi";
+  return custom || t("chat.question.noAnswer");
 }
 
 function parseStoredQuestionAnswers(text, count) {
@@ -712,7 +718,9 @@ function finishQuestionNode(node) {
   }
 }
 
-function renderQuestionReceipt(node, questions, answers) {
+// Answers with index >= sentCount never reached the server (the call was
+// interrupted while the batch was being sent) and are shown as not sent.
+function renderQuestionReceipt(node, questions, answers, sentCount = questions.length) {
   if (!node) return;
   node.classList.add("answered");
   node.replaceChildren();
@@ -720,17 +728,20 @@ function renderQuestionReceipt(node, questions, answers) {
   panel.className = "question-panel question-receipt-panel";
   const kicker = document.createElement("div");
   kicker.className = "question-kicker";
-  kicker.textContent = "Odpowiedziano";
+  kicker.textContent = t("chat.question.answered");
   panel.appendChild(kicker);
   questions.forEach((spec, index) => {
     const item = document.createElement("div");
-    item.className = "question-receipt-item";
+    const sent = index < sentCount;
+    item.className = sent ? "question-receipt-item" : "question-receipt-item unsent";
     const question = document.createElement("div");
     question.className = "question-receipt-question";
-    question.textContent = spec.question || "Pytanie od agenta";
+    question.textContent = spec.question || t("chat.question.fromAgent");
     const answer = document.createElement("div");
     answer.className = "question-receipt-answer";
-    answer.textContent = `✓ ${questionAnswerText(answers[index])}`;
+    answer.textContent = sent
+      ? `✓ ${questionAnswerText(answers[index])}`
+      : t("chat.question.unsentAnswer", { answer: questionAnswerText(answers[index]) });
     item.append(question, answer);
     panel.appendChild(item);
   });
@@ -773,7 +784,7 @@ function appendQuestionChoices(panel, spec, answer) {
     const copy = document.createElement("span");
     copy.className = "question-option-copy";
     const label = document.createElement("strong");
-    label.textContent = option.label || "Opcja";
+    label.textContent = option.label || t("chat.question.option");
     copy.appendChild(label);
     if (option.description) {
       const description = document.createElement("span");
@@ -791,7 +802,7 @@ function appendQuestionChoices(panel, spec, answer) {
       const image = document.createElement("img");
       image.className = "question-option-image";
       image.src = option.image;
-      image.alt = option.label || "Podgląd";
+      image.alt = option.label || t("chat.question.preview");
       copy.appendChild(image);
     }
     choice.append(input, copy);
@@ -813,12 +824,12 @@ function appendQuestionChoices(panel, spec, answer) {
     const copy = document.createElement("span");
     copy.className = "question-option-copy";
     const label = document.createElement("strong");
-    label.textContent = "Własna odpowiedź";
+    label.textContent = t("chat.question.customAnswer");
     const custom = document.createElement("textarea");
     custom.className = "question-custom";
     custom.rows = 3;
     custom.value = answer.custom || "";
-    custom.placeholder = "Wpisz własną odpowiedź…";
+    custom.placeholder = t("chat.question.customPlaceholder");
 
     custom.addEventListener("input", () => {
       if (custom.value.trim()) customToggle.checked = true;
@@ -855,13 +866,13 @@ function renderQuestionBatchStep(batch, message = "") {
   head.className = "question-progress";
   const kicker = document.createElement("div");
   kicker.className = "question-kicker";
-  kicker.textContent = spec.header || "Pytanie od agenta";
+  kicker.textContent = spec.header || t("chat.question.fromAgent");
   const counter = document.createElement("span");
-  counter.textContent = `Pytanie ${index + 1} z ${batch.questions.length}`;
+  counter.textContent = t("chat.question.progress", { current: index + 1, total: batch.questions.length });
   head.append(kicker, counter);
   const heading = document.createElement("h2");
   heading.className = "question-text";
-  heading.textContent = spec.question || "Wybierz odpowiedź";
+  heading.textContent = spec.question || t("chat.question.choose");
   panel.append(head, heading);
 
   appendQuestionChoices(panel, spec, answer);
@@ -874,18 +885,18 @@ function renderQuestionBatchStep(batch, message = "") {
   const cancel = document.createElement("button");
   cancel.type = "button";
   cancel.className = "question-cancel";
-  cancel.textContent = "Anuluj";
+  cancel.textContent = t("common.cancel");
   const nav = document.createElement("div");
   nav.className = "question-nav";
   const back = document.createElement("button");
   back.type = "button";
   back.className = "question-cancel";
-  back.textContent = "Wstecz";
+  back.textContent = t("common.back");
   back.hidden = index === 0;
   const next = document.createElement("button");
   next.type = "button";
   next.className = "question-submit";
-  next.textContent = index === batch.questions.length - 1 ? "Odpowiedz" : "Dalej";
+  next.textContent = index === batch.questions.length - 1 ? t("chat.question.submit") : t("chat.question.next");
   nav.append(back, next);
   actions.append(cancel, nav);
   panel.append(error, actions);
@@ -903,7 +914,7 @@ function renderQuestionBatchStep(batch, message = "") {
   next.addEventListener("click", () => {
     const currentAnswer = saveCurrent();
     if (!questionAnswerValid(currentAnswer)) {
-      error.textContent = "Wybierz opcję albo wpisz własną odpowiedź.";
+      error.textContent = t("chat.question.pickOrType");
       return;
     }
     if (index < batch.questions.length - 1) {
@@ -914,7 +925,7 @@ function renderQuestionBatchStep(batch, message = "") {
     const missing = batch.answers.findIndex((item) => !questionAnswerValid(item));
     if (missing >= 0) {
       batch.current = missing;
-      renderQuestionBatchStep(batch, "To pytanie wymaga odpowiedzi.");
+      renderQuestionBatchStep(batch, t("chat.question.required"));
       return;
     }
     batch.committing = true;
@@ -951,16 +962,16 @@ function renderQuestionBatchSending(batch, message = "") {
   progress.className = "question-progress";
   const kicker = document.createElement("div");
   kicker.className = "question-kicker";
-  kicker.textContent = "Odpowiedzi gotowe";
+  kicker.textContent = t("chat.question.ready");
   const counter = document.createElement("span");
-  counter.textContent = `${Math.min(batch.sent + 1, batch.questions.length)} z ${batch.questions.length}`;
+  counter.textContent = t("chat.question.sendProgress", { current: Math.min(batch.sent + 1, batch.questions.length), total: batch.questions.length });
   progress.append(kicker, counter);
   const heading = document.createElement("h2");
   heading.className = "question-text";
-  heading.textContent = message || "Przekazuję odpowiedzi agentowi…";
+  heading.textContent = message || t("chat.question.sending");
   const note = document.createElement("p");
   note.className = "question-sending-note";
-  note.textContent = "NestCafe wysyła zebrane odpowiedzi po kolei. Nie musisz już nic klikać.";
+  note.textContent = t("chat.question.sendingNote");
   panel.append(progress, heading, note);
 }
 
@@ -977,10 +988,25 @@ async function postQuestionAnswer(id, answer) {
   }
 }
 
-function expireQuestion(node, batch = null) {
+// An expired question stays in the transcript, marked as expired and without
+// its actions, so the user can still see what was asked.
+function markQuestionExpired(node, panel) {
+  if (!node) return;
+  node.classList.add("expired");
+  for (const actions of node.querySelectorAll(".question-actions")) actions.remove();
+  for (const control of node.querySelectorAll("input, textarea, button")) control.disabled = true;
+  const status = document.createElement("div");
+  status.className = "question-expired-status";
+  status.setAttribute("role", "status");
+  status.textContent = t("chat.question.expired");
+  (panel || node).appendChild(status);
+}
+
+function expireQuestion(node, batch = null, panel = null) {
   if (batch && pendingQuestionBatch === batch) pendingQuestionBatch = null;
-  closeQuestion(node);
-  window.NestCafe?.toast?.("To pytanie już wygasło. Możesz normalnie pisać dalej.");
+  markQuestionExpired(node, batch?.panel || panel);
+  finishQuestionNode(node);
+  window.NestCafe?.toast?.(t("chat.question.expiredToast"));
 }
 
 async function flushQuestionBatch(batch) {
@@ -1002,7 +1028,7 @@ async function flushQuestionBatch(batch) {
     // The ask_user call already ended (clearQuestionBatch rendered the
     // receipt): never switch that node back to the sending view.
     if (batch.sent >= batch.questions.length || pendingQuestionBatch !== batch) {
-      renderQuestionReceipt(batch.overlay, batch.questions, batch.answers);
+      renderQuestionReceipt(batch.overlay, batch.questions, batch.answers, batch.sent);
       if (pendingQuestionBatch === batch) pendingQuestionBatch = null;
       return;
     }
@@ -1010,14 +1036,19 @@ async function flushQuestionBatch(batch) {
     flushQuestionBatch(batch);
   } catch (err) {
     batch.sending = false;
-    if (pendingQuestionBatch !== batch) return; // the call ended; keep its receipt
+    if (pendingQuestionBatch !== batch) {
+      // The call ended while this answer was in flight; its receipt counted it
+      // as sent. It was not, so show it (and later ones) as not sent.
+      renderQuestionReceipt(batch.overlay, batch.questions, batch.answers, batch.sent);
+      return;
+    }
     if (err?.status === 410) {
       expireQuestion(batch.overlay, batch);
       return;
     }
     batch.committing = false;
     batch.current = Math.min(batch.sent, batch.questions.length - 1);
-    renderQuestionBatchStep(batch, err.message || "Nie udało się wysłać odpowiedzi. Spróbuj ponownie.");
+    renderQuestionBatchStep(batch, err.message || t("chat.question.sendFailedRetry"));
   }
 }
 
@@ -1031,7 +1062,7 @@ function mountQuestionSurface(surface) {
   conversation.appendChild(surface);
   // ask_user blocks the normal composer until the user answers. Always bring
   // the inline question into view, even if the user had scrolled up to inspect
-  // older output; otherwise the UI says "Odpowiedz wyżej" while the actual
+  // older output; otherwise the UI says "answer above" while the actual
   // question can sit unseen below the viewport.
   requestAnimationFrame(() => surface.scrollIntoView({ block: "nearest", behavior: "smooth" }));
 }
@@ -1079,8 +1110,8 @@ function approvalLabels(question) {
   const approval = question.approval || {};
   const options = Array.isArray(question.options) ? question.options.map((option) => String(option?.label || "")) : [];
   return {
-    deny: String(approval.deny_label || options[0] || "Odrzuć"),
-    approve: String(approval.approve_label || options[1] || "Zatwierdź"),
+    deny: String(approval.deny_label || options[0] || t("chat.approval.deny")),
+    approve: String(approval.approve_label || options[1] || t("chat.approval.approve")),
     similar: String(approval.similar_label || ""),
   };
 }
@@ -1096,14 +1127,16 @@ function approvalTexts(question) {
   }
   const split = full.indexOf("\n\n");
   if (split > 0) return { heading: full.slice(0, split).trim(), details: full.slice(split).trim() };
-  return { heading: full || summary || "Agent prosi o zgodę na operację.", details: "" };
+  return { heading: full || summary || t("chat.approval.fallbackHeading"), details: "" };
 }
 
 function approvalReceiptText(kind, labels, approval) {
-  if (kind === "deny") return `✕ ${labels.deny} — operacja nie została wykonana.`;
+  if (kind === "deny") return t("chat.approval.deniedReceipt", { label: labels.deny });
   if (kind === "similar") {
-    const minutes = Number(approval?.grant_minutes) > 0 ? ` (${Number(approval.grant_minutes)} min)` : "";
-    return `✓ ${labels.similar}${minutes}`;
+    const minutes = Number(approval?.grant_minutes);
+    return minutes > 0
+      ? t("chat.approval.similarReceipt", { label: labels.similar, minutes })
+      : `✓ ${labels.similar}`;
   }
   return `✓ ${labels.approve}`;
 }
@@ -1129,20 +1162,26 @@ function showApprovalQuestion(question) {
   const panel = document.createElement("section");
   panel.className = `question-panel approval-panel${approval.reversible ? "" : " irreversible"}`;
   panel.setAttribute("role", "alertdialog");
+  panel.tabIndex = -1;
+  const cardId = `approval-card-${++approvalCardSeq}`;
 
   const kicker = document.createElement("div");
   kicker.className = "question-kicker";
-  kicker.textContent = question.header || "Wymagana zgoda";
+  kicker.textContent = question.header || t("chat.approval.header");
   const heading = document.createElement("h2");
   heading.className = "question-text approval-heading";
   heading.textContent = texts.heading;
+  heading.id = `${cardId}-title`;
+  panel.setAttribute("aria-labelledby", heading.id);
   panel.append(kicker, heading);
 
   const badges = document.createElement("div");
   badges.className = "approval-badges";
+  badges.id = `${cardId}-badges`;
+  let describedBy = badges.id;
   const reversible = document.createElement("span");
   reversible.className = `approval-badge ${approval.reversible ? "reversible" : "irreversible"}`;
-  reversible.textContent = approval.reversible ? "Można cofnąć" : "Nie da się cofnąć";
+  reversible.textContent = approval.reversible ? t("chat.approval.reversible") : t("chat.approval.irreversible");
   badges.appendChild(reversible);
   if (approval.tool) {
     const tool = document.createElement("span");
@@ -1156,8 +1195,11 @@ function showApprovalQuestion(question) {
     const details = document.createElement("pre");
     details.className = "approval-details";
     details.textContent = texts.details;
+    details.id = `${cardId}-details`;
+    describedBy = `${badges.id} ${details.id}`;
     panel.appendChild(details);
   }
+  panel.setAttribute("aria-describedby", describedBy);
 
   const error = document.createElement("div");
   error.className = "question-error";
@@ -1210,18 +1252,35 @@ function showApprovalQuestion(question) {
       finishApprovalOverlay(overlay);
     } catch (err) {
       if (err?.status === 410) {
-        overlay.remove();
+        // Keep the expired card in the transcript, without its actions.
+        actions.remove();
+        error.remove();
+        overlay.classList.add("expired");
+        panel.classList.add("expired");
+        panel.removeAttribute("role");
+        const status = document.createElement("div");
+        status.className = "approval-receipt approval-expired";
+        status.setAttribute("role", "status");
+        status.textContent = t("chat.approval.expired");
+        panel.appendChild(status);
         finishApprovalOverlay(overlay);
-        window.NestCafe?.toast?.("Ta prośba o zgodę już wygasła — operacja nie została wykonana.");
+        window.NestCafe?.toast?.(t("chat.approval.expiredToast"));
         return;
       }
-      error.textContent = err.message || "Nie udało się wysłać odpowiedzi.";
+      error.textContent = err.message || t("chat.question.sendFailed");
       buttons.forEach((button) => { button.disabled = false; });
     }
   }
 
   deny.addEventListener("click", () => answer("deny"));
   approve.addEventListener("click", () => answer("approve"));
+  // Escape on the card is the same as clicking deny.
+  panel.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || deny.disabled) return;
+    event.preventDefault();
+    event.stopPropagation();
+    answer("deny");
+  });
   // Focus the safe choice: Enter on a fresh card must not approve anything.
   setTimeout(() => deny.focus(), 0);
 }
@@ -1242,10 +1301,10 @@ function showQuestion(question) {
 
   const kicker = document.createElement("div");
   kicker.className = "question-kicker";
-  kicker.textContent = question.header || "Pytanie od agenta";
+  kicker.textContent = question.header || t("chat.question.fromAgent");
   const heading = document.createElement("h2");
   heading.className = "question-text";
-  heading.textContent = question.question || "Wybierz odpowiedź";
+  heading.textContent = question.question || t("chat.question.choose");
   panel.append(kicker, heading);
   appendQuestionChoices(panel, normalizeQuestionSpec(question), { selected: [], custom: "" });
 
@@ -1256,11 +1315,11 @@ function showQuestion(question) {
   const cancel = document.createElement("button");
   cancel.type = "button";
   cancel.className = "question-cancel";
-  cancel.textContent = "Anuluj";
+  cancel.textContent = t("common.cancel");
   const submit = document.createElement("button");
   submit.type = "submit";
   submit.className = "question-submit";
-  submit.textContent = "Odpowiedz";
+  submit.textContent = t("chat.question.submit");
   actions.append(cancel, submit);
   panel.append(error, actions);
   overlay.appendChild(panel);
@@ -1271,7 +1330,7 @@ function showQuestion(question) {
   async function answer(cancelled) {
     const answerData = questionAnswerFromPanel(panel);
     if (!cancelled && !questionAnswerValid(answerData)) {
-      error.textContent = "Wybierz opcję albo wpisz własną odpowiedź.";
+      error.textContent = t("chat.question.pickOrType");
       return;
     }
     submit.disabled = true;
@@ -1283,10 +1342,10 @@ function showQuestion(question) {
       renderQuestionReceipt(overlay, [normalizeQuestionSpec(question)], [completed]);
     } catch (err) {
       if (err?.status === 410) {
-        expireQuestion(overlay);
+        expireQuestion(overlay, null, panel);
         return;
       }
-      error.textContent = err.message || "Nie udało się wysłać odpowiedzi.";
+      error.textContent = err.message || t("chat.question.sendFailed");
       submit.disabled = false;
       cancel.disabled = false;
     }
@@ -1312,15 +1371,15 @@ function addFileChanges(changes, conversation) {
   mark.className = "file-change-mark";
   mark.textContent = "✓";
   const title = document.createElement("strong");
-  title.textContent = changes.length === 1 ? "1 zmiana w pliku" : `${changes.length} zmiany w plikach`;
+  title.textContent = tn("chat.files.count", changes.length);
   const hint = document.createElement("span");
   hint.className = "file-change-hint";
-  hint.textContent = "Szczegóły";
+  hint.textContent = t("common.details");
   heading.append(mark, title, hint);
 
   const list = document.createElement("div");
   list.className = "file-change-list";
-  const labels = { created: "Utworzono", modified: "Zmodyfikowano", deleted: "Usunięto" };
+  const labels = { created: t("chat.files.created"), modified: t("chat.files.modified"), deleted: t("chat.files.deleted") };
   for (const change of changes) {
     const item = document.createElement("div");
     item.className = `file-change-item ${change.kind}`;

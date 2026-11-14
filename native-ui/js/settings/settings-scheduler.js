@@ -5,8 +5,10 @@ const schedulePrefix = "[NESTCAFE_SCHEDULE] ";
 
 function scheduleDate(value) {
   if (!value) return "—";
+  const i18n = window.NestCafe?.i18n;
+  if (i18n?.formatDate) return i18n.formatDate(value, { dateStyle: "short", timeStyle: "medium" });
   try {
-    return new Date(value).toLocaleString("pl-PL");
+    return new Date(value).toLocaleString();
   } catch {
     return value;
   }
@@ -21,13 +23,17 @@ function scheduleRow(item, refresh) {
   const prompt = document.createElement("strong");
   prompt.textContent = item.prompt;
   const meta = document.createElement("span");
-  meta.textContent = `Następne: ${scheduleDate(item.next_run_at)} · Ostatnie: ${scheduleDate(item.last_run_at)}`;
+  meta.textContent = t("settings.scheduler.runs", {
+    next: scheduleDate(item.next_run_at),
+    last: scheduleDate(item.last_run_at),
+  });
   copy.append(cron, prompt, meta);
   const actions = document.createElement("div");
   const toggle = document.createElement("input");
   toggle.type = "checkbox";
   toggle.className = "settings-switch-input";
   toggle.checked = item.enabled;
+  toggle.setAttribute("aria-label", t("settings.scheduler.toggleLabel", { cron: item.cron }));
   toggle.addEventListener("change", async () => {
     await schedulerUI.json("/api/schedules", {
       method: "PATCH",
@@ -36,7 +42,7 @@ function scheduleRow(item, refresh) {
     });
     refresh();
   });
-  const remove = schedulerUI.button("Usuń", "settings-danger-button");
+  const remove = schedulerUI.button(t("common.delete"), "settings-danger-button");
   remove.addEventListener("click", async () => {
     await schedulerUI.json(`/api/schedules?id=${encodeURIComponent(item.id)}`, { method: "DELETE" });
     refresh();
@@ -51,11 +57,11 @@ function scheduleForm(refresh) {
   form.className = "schedule-create";
   form.innerHTML = `
     <div class="schedule-form-grid">
-      <label><span>Wyrażenie cron</span><input name="cron" value="0 9 * * 1-5" required /></label>
-      <label class="settings-form-wide"><span>Zadanie</span><textarea name="prompt" rows="3" required placeholder="Np. przygotuj poranny przegląd wiadomości i spotkań."></textarea></label>
+      <label><span>${t("settings.scheduler.cronLabel")}</span><input name="cron" value="0 9 * * 1-5" required /></label>
+      <label class="settings-form-wide"><span>${t("settings.scheduler.promptLabel")}</span><textarea name="prompt" rows="3" required placeholder="${t("settings.scheduler.promptPlaceholder")}"></textarea></label>
     </div>
-    <div class="schedule-help">Format: minuta · godzina · dzień · miesiąc · dzień tygodnia. Przykład <code>0 9 * * 1-5</code> oznacza dni robocze o 09:00.</div>
-    <button class="settings-primary-button" type="submit">Dodaj harmonogram</button>`;
+    <div class="schedule-help">${t("settings.scheduler.help", { example: "<code>0 9 * * 1-5</code>" })}</div>
+    <button class="settings-primary-button" type="submit">${t("settings.scheduler.add")}</button>`;
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = new FormData(form);
@@ -68,13 +74,13 @@ function scheduleForm(refresh) {
       }),
     });
     form.querySelector("textarea").value = "";
-    window.NestCafe?.toast?.("Harmonogram został zapisany.");
+    window.NestCafe?.toast?.(t("settings.scheduler.saved"));
     refresh();
   });
   return form;
 }
 
-window.NestCafe?.settings?.registerPage?.("scheduler", "Harmonogram", async (root) => {
+window.NestCafe?.settings?.registerPage?.("scheduler", t("settings.nav.scheduler"), async (root) => {
   const list = document.createElement("div");
   list.className = "settings-list schedule-list";
 
@@ -84,8 +90,8 @@ window.NestCafe?.settings?.registerPage?.("scheduler", "Harmonogram", async (roo
     if (!data.schedules?.length) {
       list.append(
         schedulerUI.empty(
-          "Brak zaplanowanych zadań",
-          "Utwórz harmonogram, aby NestCafe dodawało zadanie do kolejki o określonej porze.",
+          t("settings.scheduler.emptyTitle"),
+          t("settings.scheduler.emptyHint"),
         ),
       );
     }
@@ -96,19 +102,18 @@ window.NestCafe?.settings?.registerPage?.("scheduler", "Harmonogram", async (roo
     renderList(data, refresh);
   };
 
-  // Najpierw pobierz dane, a dopiero potem wstaw cały ekran. Dzięki temu formularz
-  // i zielony przycisk nie pojawiają się wysoko i nie są spychane w dół po doładowaniu listy.
+  // Fetch the data first and only then insert the whole screen, so the form and the
+  // green button do not appear high up and then get pushed down once the list loads.
   const initialData = await schedulerUI.json("/api/schedules");
   renderList(initialData, refresh);
 
   const notice = document.createElement("div");
   notice.className = "settings-notice";
-  notice.textContent =
-    "Harmonogram działa w natywnej wersji Go. Gdy aplikacja jest zamknięta, zaległe zadanie zostanie dodane do kolejki przy następnym uruchomieniu.";
+  notice.textContent = t("settings.scheduler.notice");
   root.replaceChildren(
     schedulerUI.sectionHeader(
-      "Zaplanowane zadania",
-      "Automatyzuj powtarzalną pracę za pomocą pięciopolowych wyrażeń cron.",
+      t("settings.scheduler.heading"),
+      t("settings.scheduler.description"),
     ),
     notice,
     list,

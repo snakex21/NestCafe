@@ -47,15 +47,19 @@
   justify-content: flex-end;
 }
 
+/* Same size as the other settings buttons (.settings-primary-button etc. in legacy.css). */
 .integration-feature-actions a,
 .integration-feature-actions button {
-  min-height: 36px;
-  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px 11px;
   border: 1px solid var(--nc-line-strong);
-  border-radius: 8px;
+  border-radius: var(--nc-radius-sm, 5px);
   background: var(--nc-panel);
   color: var(--nc-text-strong);
-  font: 500 13px/1.2 var(--nc-body-font, inherit);
+  font: 560 12px/1.2 var(--nc-body-font, inherit);
+  white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
 }
@@ -79,6 +83,35 @@
 .integration-feature-actions button:disabled {
   opacity: .55;
   cursor: wait;
+}
+
+/* Installation and pairing steps. */
+.integration-steps {
+  display: grid;
+  gap: 4px;
+  margin: 4px 0 0;
+  padding-left: 20px;
+  color: var(--nc-text);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.integration-steps li::marker {
+  color: var(--nc-muted);
+  font-weight: 600;
+}
+
+/* Secondary text link (repository), not a button. */
+.integration-text-link {
+  justify-self: start;
+  color: var(--nc-accent);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.integration-text-link:hover,
+.integration-text-link:focus-visible {
+  text-decoration: underline;
 }
 
 @media (max-width: 760px) {

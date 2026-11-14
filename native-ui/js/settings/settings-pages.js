@@ -5,8 +5,8 @@ settingsPageDialog.className = "settings-page-dialog";
 settingsPageDialog.id = "settings-page-dialog";
 settingsPageDialog.innerHTML = `
   <header class="settings-page-head">
-    <h2 id="settings-page-title">Ustawienia</h2>
-    <button type="button" aria-label="Zamknij">×</button>
+    <h2 id="settings-page-title">${t("common.settings")}</h2>
+    <button type="button" aria-label="${t("common.close")}">×</button>
   </header>
   <section class="settings-page-content" id="settings-page-content"></section>`;
 document.body.appendChild(settingsPageDialog);
@@ -101,13 +101,13 @@ async function openSettingsPage(action) {
   settingsPageNavigation?.querySelectorAll("[data-settings-action]").forEach((button) => {
     button.classList.toggle("active", button.dataset.settingsAction === action);
   });
-  settingsPageContent.replaceChildren(settingsEmpty("Ładowanie…", "Pobieram aktualne dane."));
+  settingsPageContent.replaceChildren(settingsEmpty(t("common.loading"), t("settings.pages.loadingData")));
   if (!settingsPageDialog.open) settingsPageDialog.showModal();
   const scopedRoot = scopedSettingsRoot(action, loadID);
   try {
     await page.loader(scopedRoot);
   } catch (error) {
-    scopedRoot.replaceChildren(settingsEmpty("Nie udało się wczytać strony", error.message));
+    scopedRoot.replaceChildren(settingsEmpty(t("settings.pages.loadFailed"), error.message));
   }
 }
 
@@ -136,7 +136,7 @@ function projectRow(project, refresh) {
   row.className = `settings-list-row${project.active ? " active" : ""}`;
   const copy = document.createElement("div");
   const title = document.createElement("strong");
-  title.textContent = project.name || "Przestrzeń robocza";
+  title.textContent = project.name || t("settings.workspaces.defaultName");
   const path = document.createElement("span");
   path.textContent = project.path;
   copy.append(title, path);
@@ -144,13 +144,13 @@ function projectRow(project, refresh) {
   if (project.active) {
     const badge = document.createElement("span");
     badge.className = "settings-status-badge";
-    badge.textContent = "Aktywna";
+    badge.textContent = t("settings.workspaces.active");
     actions.append(badge);
   } else {
-    const use = settingsButton("Użyj");
+    const use = settingsButton(t("settings.workspaces.use"));
     use.addEventListener("click", async () => {
       if (window.NestCafe?.isRunning?.()) {
-        window.NestCafe?.toast?.("Zakończ aktywne zadanie przed zmianą przestrzeni.");
+        window.NestCafe?.toast?.(t("settings.workspaces.busy"));
         return;
       }
       await settingsPageJson("/api/projects", {
@@ -167,13 +167,13 @@ function projectRow(project, refresh) {
     });
     actions.append(use);
   }
-  const remove = settingsButton("Usuń", "settings-danger-button");
+  const remove = settingsButton(t("common.delete"), "settings-danger-button");
   remove.disabled = project.active;
   remove.addEventListener("click", async () => {
     const approved = await window.NestCafe?.dialogs?.confirm?.({
-      title: "Usunąć przestrzeń z listy?",
-      message: `„${project.name}” zniknie z listy NestCafe. Pliki w folderze nie zostaną usunięte.`,
-      confirmLabel: "Usuń z listy",
+      title: t("settings.workspaces.removeTitle"),
+      message: t("settings.workspaces.removeMessage", { name: project.name }),
+      confirmLabel: t("settings.workspaces.removeConfirm"),
     });
     if (!approved) return;
     await settingsPageJson("/api/projects", {
@@ -188,8 +188,8 @@ function projectRow(project, refresh) {
   return row;
 }
 
-registerSettingsPage("workspaces", "Przestrzenie robocze", async (root) => {
-  const add = settingsButton("+ Dodaj przestrzeń", "settings-primary-button");
+registerSettingsPage("workspaces", t("settings.workspaces.title"), async (root) => {
+  const add = settingsButton(t("settings.workspaces.add"), "settings-primary-button");
   const list = document.createElement("div");
   list.className = "settings-list";
   const refresh = async () => {
@@ -197,17 +197,17 @@ registerSettingsPage("workspaces", "Przestrzenie robocze", async (root) => {
     list.replaceChildren();
     for (const project of data.projects || []) list.append(projectRow(project, refresh));
     if (!data.projects?.length) {
-      list.append(settingsEmpty("Brak przestrzeni", "Dodaj folder, aby utworzyć pierwszą przestrzeń roboczą."));
+      list.append(settingsEmpty(t("settings.workspaces.emptyTitle"), t("settings.workspaces.emptyHint")));
     }
   };
   add.addEventListener("click", async () => {
     if (window.NestCafe?.isRunning?.()) {
-      window.NestCafe?.toast?.("Zakończ aktywne zadanie przed zmianą przestrzeni.");
+      window.NestCafe?.toast?.(t("settings.workspaces.busy"));
       return;
     }
     const picked = await settingsPageJson("/api/folder-picker");
     if (!picked.path) return;
-    const name = picked.path.split(/[\\/]/).filter(Boolean).pop() || "Przestrzeń";
+    const name = picked.path.split(/[\\/]/).filter(Boolean).pop() || t("settings.workspaces.fallbackName");
     await settingsPageJson("/api/projects", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -222,8 +222,8 @@ registerSettingsPage("workspaces", "Przestrzenie robocze", async (root) => {
   });
   root.replaceChildren(
     settingsSectionHeader(
-      "Twoje przestrzenie",
-      "Każda przestrzeń ma własny folder, historię rozmów i pamięć projektu.",
+      t("settings.workspaces.heading"),
+      t("settings.workspaces.description"),
       add,
     ),
     list,

@@ -58,7 +58,7 @@ function renderTranscriptAttachmentChips(messageContent, names) {
     chip.className = "sent-attachment-chip";
     chip.title = name;
     const icon = document.createElement("span");
-    icon.textContent = isPDF(name) ? "PDF" : isImage(name) ? "IMG" : "PLIK";
+    icon.textContent = isPDF(name) ? "PDF" : isImage(name) ? "IMG" : t("attachments.badge.file");
     const label = document.createElement("strong");
     label.textContent = name;
     chip.append(icon, label);
@@ -107,24 +107,25 @@ function ensurePreviewDialog() {
   dialog = document.createElement("dialog");
   dialog.id = "attachment-preview-dialog";
   dialog.className = "attachment-preview-dialog";
+  const attr = (key) => t(key).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
   dialog.innerHTML = `
     <header>
       <div>
-        <span class="attachment-preview-kicker">PODGLĄD</span>
+        <span class="attachment-preview-kicker">${attr("attachments.preview.kicker")}</span>
         <strong class="attachment-preview-title"></strong>
         <small class="attachment-preview-count" hidden></small>
       </div>
       <div class="attachment-preview-toolbar">
-        <button type="button" class="attachment-preview-zoom-out" title="Pomniejsz" aria-label="Pomniejsz">−</button>
-        <button type="button" class="attachment-preview-zoom-reset" title="Resetuj powiększenie">100%</button>
-        <button type="button" class="attachment-preview-zoom-in" title="Powiększ" aria-label="Powiększ">+</button>
-        <button type="button" class="attachment-preview-close" aria-label="Zamknij podgląd">×</button>
+        <button type="button" class="attachment-preview-zoom-out" title="${attr("attachments.preview.zoomOut")}" aria-label="${attr("attachments.preview.zoomOut")}">−</button>
+        <button type="button" class="attachment-preview-zoom-reset" title="${attr("attachments.preview.zoomReset")}">100%</button>
+        <button type="button" class="attachment-preview-zoom-in" title="${attr("attachments.preview.zoomIn")}" aria-label="${attr("attachments.preview.zoomIn")}">+</button>
+        <button type="button" class="attachment-preview-close" aria-label="${attr("attachments.preview.close")}">×</button>
       </div>
     </header>
     <div class="attachment-preview-body">
-      <button type="button" class="attachment-preview-nav prev" aria-label="Poprzednie zdjęcie">‹</button>
+      <button type="button" class="attachment-preview-nav prev" aria-label="${attr("attachments.preview.previous")}">‹</button>
       <div class="attachment-preview-stage"></div>
-      <button type="button" class="attachment-preview-nav next" aria-label="Następne zdjęcie">›</button>
+      <button type="button" class="attachment-preview-nav next" aria-label="${attr("attachments.preview.next")}">›</button>
     </div>
     <footer class="attachment-preview-thumbs" hidden></footer>`;
   dialog.querySelector(".attachment-preview-close").addEventListener("click", () => dialog.close());
@@ -179,7 +180,7 @@ function previewTypeLabel(path) {
   if (isImage(path)) return "IMG";
   if (isPDF(path)) return "PDF";
   if (fileExtension(path) === "docx") return "WORD";
-  return "TEKST";
+  return t("attachments.badge.text");
 }
 
 function documentPreviewURL(path) {
@@ -227,7 +228,7 @@ function renderPreviewStrip(thumbs, paths, activeIndex) {
     thumb.type = "button";
     thumb.className = `attachment-preview-thumb${itemIndex === activeIndex ? " active" : ""}`;
     thumb.title = fileName(itemPath);
-    thumb.setAttribute("aria-label", `Pokaż ${fileName(itemPath)}`);
+    thumb.setAttribute("aria-label", t("attachments.preview.showItem", { name: fileName(itemPath) }));
     if (isImage(itemPath)) {
       const img = document.createElement("img");
       img.src = previewURL(itemPath);
@@ -289,7 +290,7 @@ async function showPreviewAt(index) {
     image.addEventListener(
       "error",
       () => {
-        if (token === previewState.renderToken) stage.textContent = "Nie udało się otworzyć obrazu.";
+        if (token === previewState.renderToken) stage.textContent = t("attachments.preview.imageError");
       },
       { once: true },
     );
@@ -301,7 +302,7 @@ async function showPreviewAt(index) {
     const frame = document.createElement("iframe");
     frame.className = "attachment-preview-pdf";
     frame.dataset.baseSrc = previewURL(path);
-    frame.title = `Podgląd ${fileName(path)}`;
+    frame.title = t("attachments.preview.ofFile", { name: fileName(path) });
     stage.append(frame);
     applyPreviewZoom();
     return;
@@ -309,7 +310,7 @@ async function showPreviewAt(index) {
   if (isTextDocument(path)) {
     const loading = document.createElement("div");
     loading.className = "attachment-preview-loading";
-    loading.textContent = "Wczytywanie dokumentu…";
+    loading.textContent = t("attachments.preview.loadingDocument");
     stage.append(loading);
     try {
       const result = await attachmentJson(documentPreviewURL(path));
@@ -322,11 +323,11 @@ async function showPreviewAt(index) {
       stage.replaceChildren(page);
       applyPreviewZoom();
     } catch (error) {
-      if (token === previewState.renderToken) stage.textContent = `Nie udało się otworzyć dokumentu: ${error.message}`;
+      if (token === previewState.renderToken) stage.textContent = t("attachments.preview.documentError", { error: error.message });
     }
     return;
   }
-  stage.textContent = "Podgląd niedostępny dla tego typu pliku.";
+  stage.textContent = t("attachments.preview.unsupported");
 }
 
 function openAttachmentPreview(path, paths = null) {
@@ -490,9 +491,9 @@ function renderSentAttachments(messageContent, paths) {
 }
 
 function attachmentStatus(path) {
-  if (isImage(path)) return "Obraz gotowy";
-  if (isPDF(path)) return "PDF gotowy";
-  if (isTextDocument(path)) return "Podgląd gotowy";
+  if (isImage(path)) return t("attachments.status.image");
+  if (isPDF(path)) return t("attachments.status.pdf");
+  if (isTextDocument(path)) return t("attachments.status.preview");
   return "";
 }
 
@@ -508,7 +509,7 @@ function renderAttachments() {
     preview.type = "button";
     preview.className = "attachment-preview-trigger";
     preview.disabled = !isPreviewable(path);
-    preview.setAttribute("aria-label", `Podgląd ${fileName(path)}`);
+    preview.setAttribute("aria-label", t("attachments.preview.ofFile", { name: fileName(path) }));
     if (isImage(path)) {
       const thumb = document.createElement("img");
       thumb.src = previewURL(path);
@@ -539,7 +540,7 @@ function renderAttachments() {
     remove.type = "button";
     remove.className = "attachment-remove";
     remove.textContent = "×";
-    remove.setAttribute("aria-label", `Usuń ${fileName(path)}`);
+    remove.setAttribute("aria-label", t("attachments.chip.remove", { name: fileName(path) }));
     remove.addEventListener("click", () => {
       attachments = attachments.filter((item) => item !== path);
       renderAttachments();
@@ -571,7 +572,7 @@ async function uploadFiles(files) {
 
 attachButton?.addEventListener("click", () => {
   if (composer?.classList.contains("question-pending")) {
-    window.NestCafe?.toast?.("Najpierw odpowiedz na pytanie agenta powyżej.");
+    window.NestCafe?.toast?.(t("attachments.toast.answerQuestionFirst"));
     return;
   }
   attachmentFileInput?.click();
@@ -582,7 +583,7 @@ attachmentFileInput?.addEventListener("change", async () => {
   if (!files.length) return;
   if (composer?.classList.contains("question-pending")) {
     attachmentFileInput.value = "";
-    window.NestCafe?.toast?.("Najpierw odpowiedz na pytanie agenta powyżej.");
+    window.NestCafe?.toast?.(t("attachments.toast.answerQuestionFirst"));
     return;
   }
   if (attachButton) attachButton.disabled = true;
@@ -590,7 +591,7 @@ attachmentFileInput?.addEventListener("change", async () => {
   try {
     await uploadFiles(files);
   } catch (error) {
-    window.NestCafe?.toast?.(`Nie udało się dodać pliku: ${error.message}`);
+    window.NestCafe?.toast?.(t("attachments.toast.addFailed", { error: error.message }));
   } finally {
     attachmentFileInput.value = "";
     if (attachButton) attachButton.disabled = false;
@@ -647,7 +648,7 @@ document.addEventListener("drop", async (event) => {
   attachmentDragDepth = 0;
   composer?.classList.remove("attachment-drop-active");
   if (composer?.classList.contains("question-pending")) {
-    window.NestCafe?.toast?.("Najpierw odpowiedz na pytanie agenta powyżej.");
+    window.NestCafe?.toast?.(t("attachments.toast.answerQuestionFirst"));
     return;
   }
   try {

@@ -21,14 +21,15 @@
   border: 1px solid var(--nc-line);
   border-radius: 999px;
   color: var(--nc-muted);
-  font-size: 10.5px;
+  font-size: 12px;
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
 
+/* Reversible is reassuring, not a call to action: success tone, not accent. */
 .approval-badge.reversible {
-  border-color: var(--nc-accent);
-  color: var(--nc-accent);
+  border-color: var(--nc-success, #2f7d4f);
+  color: var(--nc-success, #2f7d4f);
 }
 
 .approval-badge.irreversible {
@@ -46,7 +47,7 @@
   border-radius: 7px;
   background: var(--nc-panel-soft);
   color: var(--nc-text);
-  font: 11.5px/1.55 var(--nc-body-font, inherit);
+  font: 12px/1.55 var(--nc-body-font, inherit);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -63,7 +64,7 @@
 .approval-receipt {
   margin-top: 10px;
   color: var(--nc-text-strong);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -74,4 +75,35 @@
 .approval-panel.denied,
 .approval-panel.approved {
   border-left-color: var(--nc-line);
+}
+
+/* Minimum readable size for the remaining card text (base styles are smaller). */
+.approval-panel .question-kicker,
+.approval-panel .question-error {
+  font-size: 12px;
+}
+
+.approval-panel:focus {
+  outline: none;
+}
+
+/* Expired approval / question: stays in the transcript, actions are gone. */
+.approval-panel.expired,
+.question-overlay.expired .question-panel {
+  border-left-color: var(--nc-line);
+}
+
+.approval-panel.expired .approval-receipt,
+.question-expired-status {
+  color: var(--nc-muted);
+}
+
+.question-expired-status {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.question-receipt-item.unsent .question-receipt-answer {
+  color: var(--nc-muted);
 }

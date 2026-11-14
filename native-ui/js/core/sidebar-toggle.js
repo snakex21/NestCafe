@@ -11,8 +11,9 @@
     const active = Boolean(open) && narrow.matches;
     document.body.classList.toggle("sidebar-open", active);
     toggle.setAttribute("aria-expanded", active ? "true" : "false");
-    toggle.setAttribute("aria-label", active ? "Ukryj menu" : "Pokaż menu");
-    toggle.title = active ? "Ukryj menu" : "Pokaż menu";
+    const label = active ? t("sidebar.toggle.hide") : t("sidebar.toggle.show");
+    toggle.setAttribute("aria-label", label);
+    toggle.title = label;
     toggle.textContent = active ? "×" : "☰";
     if (active) sidebar.querySelector("button")?.focus();
   }

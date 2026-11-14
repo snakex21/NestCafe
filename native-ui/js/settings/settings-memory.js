@@ -4,17 +4,17 @@ const memorySettingsUI = window.NestCafe?.settings?.ui;
 
 function memoryScopeLabel(scope) {
   return {
-    fact: "Fakt",
-    preference: "Preferencja",
-    decision: "Decyzja",
-    "task-log": "Dziennik zadania",
-  }[scope] || scope || "Pamięć";
+    fact: t("settings.memory.scope.fact"),
+    preference: t("settings.memory.scope.preference"),
+    decision: t("settings.memory.scope.decision"),
+    "task-log": t("settings.memory.scope.taskLog"),
+  }[scope] || scope || t("settings.nav.memory");
 }
 
-window.NestCafe?.settings?.registerPage?.("memory", "Pamięć", async (root) => {
-  const refreshButton = memorySettingsUI.button("Odśwież");
-  const dedupButton = memorySettingsUI.button("Usuń duplikaty");
-  const addButton = memorySettingsUI.button("+ Dodaj fakt");
+window.NestCafe?.settings?.registerPage?.("memory", t("settings.nav.memory"), async (root) => {
+  const refreshButton = memorySettingsUI.button(t("common.refresh"));
+  const dedupButton = memorySettingsUI.button(t("settings.memory.dedup"));
+  const addButton = memorySettingsUI.button(t("settings.memory.addFact"));
   const list = document.createElement("div");
   list.className = "memory-settings-list";
   const summary = document.createElement("div");
@@ -28,28 +28,29 @@ window.NestCafe?.settings?.registerPage?.("memory", "Pamięć", async (root) => 
   const automatic = document.createElement("label");
   automatic.className = "settings-control-row memory-auto-row";
   automatic.innerHTML = `
-    <span><strong>Automatyczna pamięć rozmów</strong><small>Po zakończeniu pracy agent zapisuje krótkie, trwałe fakty narzędziem remember.</small></span>`;
+    <span><strong>${t("settings.memory.autoTitle")}</strong><small>${t("settings.memory.autoHint")}</small></span>`;
   automatic.append(toggle);
 
   const editor = document.createElement("form");
   editor.className = "memory-add-form";
   editor.hidden = true;
   editor.innerHTML = `
-    <label class="settings-form-wide"><span>Treść pamięci</span><textarea name="content" rows="3" required placeholder="Np. Użytkownik preferuje odpowiedzi po polsku."></textarea></label>
-    <label><span>Rodzaj</span><select name="type"><option value="fact">Fakt</option><option value="preference">Preferencja</option><option value="decision">Decyzja</option><option value="task-log">Dziennik zadania</option></select></label>
-    <label><span>Zasięg</span><select name="target"><option value="project">Bieżąca rozmowa i jej kontekst</option><option value="global">Wspólna pamięć NestCafe</option></select></label>
-    <div class="settings-form-actions"><button class="settings-secondary-button memory-cancel" type="button">Anuluj</button><button class="settings-primary-button" type="submit">Zapisz w pamięci</button></div>`;
+    <label class="settings-form-wide"><span>${t("settings.memory.contentLabel")}</span><textarea name="content" rows="3" required placeholder="${t("settings.memory.contentPlaceholder")}"></textarea></label>
+    <label><span>${t("settings.memory.typeLabel")}</span><select name="type"><option value="fact">${t("settings.memory.scope.fact")}</option><option value="preference">${t("settings.memory.scope.preference")}</option><option value="decision">${t("settings.memory.scope.decision")}</option><option value="task-log">${t("settings.memory.scope.taskLog")}</option></select></label>
+    <label><span>${t("settings.memory.targetLabel")}</span><select name="target"><option value="project">${t("settings.memory.targetProject")}</option><option value="global">${t("settings.memory.targetGlobal")}</option></select></label>
+    <div class="settings-form-actions"><button class="settings-secondary-button memory-cancel" type="button">${t("common.cancel")}</button><button class="settings-primary-button" type="submit">${t("settings.memory.saveEntry")}</button></div>`;
 
   const load = async () => {
     const items = await memorySettingsUI.json("/api/memory?limit=150");
     list.replaceChildren();
     const preferences = (items || []).filter((item) => item.scope === "preference" && item.target === "global").length;
     const indexed = (items || []).filter((item) => item.tags?.includes("folder-index")).length;
+    const count = (value) => window.NestCafe?.i18n?.formatNumber?.(value) ?? value;
     summary.innerHTML = `
-      <div><strong>${(items || []).length}</strong><span>Wpisy pamięci</span></div>
-      <div><strong>${preferences}</strong><span>Preferencje globalne</span></div>
-      <div><strong>${indexed}</strong><span>Fragmenty indeksów folderów</span></div>
-      <p><span class="memory-runtime-dot"></span> Narzędzia <code>remember</code> i <code>recall</code> są aktywne w silniku Go.</p>`;
+      <div><strong>${count((items || []).length)}</strong><span>${t("settings.memory.stat.entries")}</span></div>
+      <div><strong>${count(preferences)}</strong><span>${t("settings.memory.stat.globalPreferences")}</span></div>
+      <div><strong>${count(indexed)}</strong><span>${t("settings.memory.stat.folderIndex")}</span></div>
+      <p><span class="memory-runtime-dot"></span> ${t("settings.memory.toolsActive", { remember: "<code>remember</code>", recall: "<code>recall</code>" })}</p>`;
     for (const item of items || []) {
       const row = document.createElement("article");
       row.className = "memory-settings-row";
@@ -59,20 +60,22 @@ window.NestCafe?.settings?.registerPage?.("memory", "Pamięć", async (root) => 
       badge.className = "settings-status-badge";
       badge.textContent = memoryScopeLabel(item.scope);
       const date = document.createElement("time");
-      date.textContent = item.updated_at ? new Date(item.updated_at).toLocaleString("pl-PL") : "";
+      date.textContent = item.updated_at
+        ? window.NestCafe?.i18n?.formatDate?.(item.updated_at, { dateStyle: "short", timeStyle: "medium" }) ?? new Date(item.updated_at).toLocaleString()
+        : "";
       top.append(badge, date);
       const content = document.createElement("p");
       content.textContent = item.content;
       const meta = document.createElement("span");
-      const targetLabel = item.target === "global" ? "pamięć wspólna" : "bieżąca przestrzeń";
+      const targetLabel = item.target === "global" ? t("settings.memory.metaGlobal") : t("settings.memory.metaProject");
       meta.textContent = [targetLabel, item.source, ...(item.tags || [])].filter(Boolean).join(" · ");
       copy.append(top, content, meta);
-      const remove = memorySettingsUI.button("Usuń", "settings-danger-button");
+      const remove = memorySettingsUI.button(t("common.delete"), "settings-danger-button");
       remove.addEventListener("click", async () => {
         const approved = await window.NestCafe?.dialogs?.confirm?.({
-          title: "Usunąć wpis z pamięci?",
-          message: "Ten fakt przestanie być dostępny w kolejnych rozmowach.",
-          confirmLabel: "Usuń wpis",
+          title: t("settings.memory.removeTitle"),
+          message: t("settings.memory.removeMessage"),
+          confirmLabel: t("settings.memory.removeConfirm"),
         });
         if (!approved) return;
         const target = item.target ? `&target=${encodeURIComponent(item.target)}` : "";
@@ -83,7 +86,7 @@ window.NestCafe?.settings?.registerPage?.("memory", "Pamięć", async (root) => 
       list.append(row);
     }
     if (!items?.length) {
-      list.append(memorySettingsUI.empty("Pamięć jest pusta", "Dodaj fakt ręcznie albo poproś agenta, aby coś zapamiętał."));
+      list.append(memorySettingsUI.empty(t("settings.memory.emptyTitle"), t("settings.memory.emptyHint")));
     }
   };
 
@@ -96,7 +99,7 @@ window.NestCafe?.settings?.registerPage?.("memory", "Pamięć", async (root) => 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ "nestcafe.autoMemory": checked }),
       });
-      window.NestCafe?.toast?.(checked ? "Automatyczna pamięć została włączona." : "Automatyczna pamięć została wyłączona.");
+      window.NestCafe?.toast?.(checked ? t("settings.memory.autoOn") : t("settings.memory.autoOff"));
     } catch (error) {
       toggle.checked = !checked;
       window.NestCafe?.toast?.(error.message);
@@ -127,7 +130,7 @@ window.NestCafe?.settings?.registerPage?.("memory", "Pamięć", async (root) => 
     });
     editor.reset();
     editor.hidden = true;
-    window.NestCafe?.toast?.("Wpis został zapisany w trwałej pamięci.");
+    window.NestCafe?.toast?.(t("settings.memory.saved"));
     load();
   });
   refreshButton.addEventListener("click", load);
@@ -139,7 +142,7 @@ window.NestCafe?.settings?.registerPage?.("memory", "Pamięć", async (root) => 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "dedup" }),
       });
-      window.NestCafe?.toast?.(`Pamięć uporządkowana. Usunięto duplikaty: ${result.removed || 0}.`);
+      window.NestCafe?.toast?.(t("settings.memory.deduped", { count: result.removed || 0 }));
       await load();
     } finally {
       dedupButton.disabled = false;
@@ -151,8 +154,8 @@ window.NestCafe?.settings?.registerPage?.("memory", "Pamięć", async (root) => 
   headerActions.append(refreshButton, dedupButton, addButton);
   root.replaceChildren(
     memorySettingsUI.sectionHeader(
-      "Pamięć NestCafe",
-      "Trwałe fakty są zapisywane w SQLite i wstrzykiwane do kolejnych rozmów.",
+      t("settings.memory.heading"),
+      t("settings.memory.description"),
       headerActions,
     ),
     summary,

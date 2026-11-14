@@ -19,10 +19,10 @@ async function skillsJson(path) {
 }
 
 function skillSourceLabel(source) {
-  if (source === "project") return "projekt";
-  if (source === "user") return "użytkownik";
-  if (source === "builtin") return "wbudowana";
-  return source || "katalog";
+  if (source === "project") return t("dialogs.skills.source.project");
+  if (source === "user") return t("dialogs.skills.source.user");
+  if (source === "builtin") return t("dialogs.skills.source.builtin");
+  return source || t("dialogs.skills.source.catalog");
 }
 
 function renderSkill(item) {
@@ -42,7 +42,7 @@ function renderSkill(item) {
   source.textContent = skillSourceLabel(item.source);
   heading.append(title, source);
   const description = document.createElement("p");
-  description.textContent = item.description || "Brak krótkiego opisu.";
+  description.textContent = item.description || t("dialogs.skills.noDescription");
   const tags = document.createElement("div");
   tags.className = "skill-tags";
   for (const tag of [item.category, ...(item.tags || []).slice(0, 3)].filter(Boolean)) {
@@ -53,19 +53,17 @@ function renderSkill(item) {
   copy.append(heading, description, tags);
   const risk = document.createElement("small");
   risk.className = `skill-risk risk-${item.risk || "standard"}`;
-  risk.textContent = item.risk === "high" ? "podwyższone uprawnienia" : "gotowa";
+  risk.textContent = item.risk === "high" ? t("dialogs.skills.riskHigh") : t("dialogs.skills.ready");
   row.append(icon, copy, risk);
   return row;
 }
 
-function setSkillsMessage(text) {
+function setSkillsMessage(title, detail) {
   const empty = document.createElement("div");
   empty.className = "skills-empty";
   empty.innerHTML = `<strong></strong><span></span>`;
-  const [title, detail] = String(text || "").split(/\n+/, 2);
-  empty.querySelector("strong").textContent = title || "Brak umiejętności";
-  empty.querySelector("span").textContent =
-    detail || "Katalog jest pusty albo filtr niczego nie zwraca.";
+  empty.querySelector("strong").textContent = title || t("dialogs.skills.emptyTitle");
+  empty.querySelector("span").textContent = detail || t("dialogs.skills.emptyDetail");
   skillsList.replaceChildren(empty);
 }
 
@@ -75,7 +73,7 @@ async function loadSkills(reset = true) {
   skillsMore.disabled = true;
   if (reset) {
     skillsOffset = 0;
-    skillsSummary.textContent = "Ładowanie katalogu…";
+    skillsSummary.textContent = t("dialogs.skills.loading");
   }
   try {
     const query = encodeURIComponent(skillsSearch.value.trim());
@@ -85,19 +83,16 @@ async function loadSkills(reset = true) {
     if (reset) skillsList.replaceChildren();
     for (const item of items) skillsList.appendChild(renderSkill(item));
     skillsOffset += items.length;
-    skillsSummary.textContent = `${skillsOffset} z ${skillsTotal}`;
+    skillsSummary.textContent = t("dialogs.skills.summary", { shown: skillsOffset, total: skillsTotal });
     skillsMore.hidden = skillsOffset >= skillsTotal;
     if (!skillsTotal) {
-      setSkillsMessage(
-        skillsSearch.value.trim()
-          ? "Brak wyników\nZmień frazę wyszukiwania."
-          : "Katalog jest pusty\nNie załadowano żadnych umiejętności.",
-      );
+      if (skillsSearch.value.trim()) setSkillsMessage(t("dialogs.skills.noResultsTitle"), t("dialogs.skills.noResultsDetail"));
+      else setSkillsMessage(t("dialogs.skills.catalogEmptyTitle"), t("dialogs.skills.catalogEmptyDetail"));
     }
   } catch (error) {
-    skillsSummary.textContent = "Katalog niedostępny";
+    skillsSummary.textContent = t("dialogs.skills.unavailable");
     skillsMore.hidden = true;
-    setSkillsMessage(`Nie udało się wczytać\n${error.message || "Błąd sieci."}`);
+    setSkillsMessage(t("dialogs.skills.loadFailed"), error.message || t("dialogs.skills.networkError"));
   } finally {
     skillsBusy = false;
     skillsMore.disabled = false;

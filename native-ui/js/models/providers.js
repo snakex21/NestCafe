@@ -68,9 +68,27 @@ function providerLogo(name, className = "provider-logo") {
   return image;
 }
 
+// Display-only name; the stored provider/template id stays unchanged.
+function providerLabel(name) {
+  return window.NestCafe?.models?.providerDisplayName?.(name) || String(name || "");
+}
+
+function templateLabel(template) {
+  return field(template, "displayName") || providerLabel(field(template, "name"));
+}
+
+// Template descriptions come from the engine in English; known ids get a
+// translated description, anything else keeps the engine text.
+function templateDescription(template) {
+  const key = `providers.template.${field(template, "name")}.description`;
+  if (window.NestCafe?.i18n?.has?.(key)) return t(key);
+  return field(template, "desc");
+}
+
 const providerTitleCopy = document.querySelector(".provider-form-title > div");
 const providerHeaderIcon = providerLogo("custom", "provider-header-logo");
 providerTitleCopy.prepend(providerHeaderIcon);
+providerModel.placeholder = t("providers.form.modelPlaceholder");
 
 async function providerJson(path, options) {
   const response = await fetch(path, options);
@@ -98,11 +116,11 @@ function setProviderBusy(busy) {
   saveProvider.disabled = busy;
   checkProvider.disabled = busy;
   deleteProvider.disabled = busy;
-  saveProvider.textContent = busy ? "Sprawdzam…" : selectedProvider ? "Zapisz zmiany" : "Dodaj i sprawdź";
+  saveProvider.textContent = busy ? t("providers.form.checking") : selectedProvider ? t("providers.form.saveChanges") : t("providers.form.addAndCheck");
 }
 
 function showProviderMessage(text, state = "") {
-  providerStatus.textContent = state === "online" ? "Dostępny" : state === "offline" ? "Niedostępny" : "Nie sprawdzono";
+  providerStatus.textContent = state === "online" ? t("providers.status.online") : state === "offline" ? t("providers.status.offline") : t("providers.status.unchecked");
   providerStatus.className = `provider-status${state ? ` ${state}` : ""}`;
   providerDiagnostic.textContent = text;
 }
@@ -131,12 +149,12 @@ function renderProviderModels() {
   const query = providerModelSearch.value.trim().toLowerCase();
   const visibleModels = allModels.filter((model) => model.id.toLowerCase().includes(query));
   const enabled = allModels.filter((model) => !model.hidden).length;
-  providerModelsCount.textContent = `${enabled} / ${allModels.length} włączone`;
+  providerModelsCount.textContent = t("providers.models.enabledCount", { enabled, total: allModels.length });
 
   if (!visibleModels.length) {
     const empty = document.createElement("div");
     empty.className = "provider-model-empty";
-    empty.textContent = "Brak modeli pasujących do wyszukiwania.";
+    empty.textContent = t("providers.models.noMatches");
     providerModelList.appendChild(empty);
     return;
   }
@@ -149,9 +167,9 @@ function renderProviderModels() {
     const meta = document.createElement("small");
     name.textContent = model.id;
     meta.textContent = [
-      model.active ? "aktywny" : "",
-      model.reasoning ? "reasoning" : "",
-    ].filter(Boolean).join(" · ") || "model dostawcy";
+      model.active ? t("providers.models.active") : "",
+      model.reasoning ? t("providers.models.reasoning") : "",
+    ].filter(Boolean).join(" · ") || t("providers.models.providerModel");
     copy.append(name, meta);
 
     const toggle = document.createElement("button");
@@ -159,8 +177,8 @@ function renderProviderModels() {
     toggle.className = "provider-model-toggle";
     toggle.setAttribute("role", "switch");
     toggle.setAttribute("aria-checked", String(!model.hidden));
-    toggle.setAttribute("aria-label", `${model.hidden ? "Włącz" : "Wyłącz"} model ${model.id}`);
-    toggle.title = model.hidden ? "Włącz model" : "Wyłącz model";
+    toggle.setAttribute("aria-label", t(model.hidden ? "providers.models.enableNamed" : "providers.models.disableNamed", { model: model.id }));
+    toggle.title = model.hidden ? t("providers.models.enable") : t("providers.models.disable");
     toggle.addEventListener("click", async () => {
       toggle.disabled = true;
       try {
@@ -214,7 +232,7 @@ function renderProviderList() {
   if (providers.length) {
     const label = document.createElement("div");
     label.className = "provider-group-label";
-    label.textContent = "SKONFIGUROWANE";
+    label.textContent = t("providers.list.configured");
     providerList.appendChild(label);
   }
   for (const provider of providers) {
@@ -223,13 +241,13 @@ function renderProviderList() {
     row.className = `provider-row${selectedProvider?.name === provider.name ? " active" : ""}${provider.disabled ? " disabled" : ""}`;
     const text = document.createElement("span");
     const name = document.createElement("strong");
-    name.textContent = provider.name;
+    name.textContent = providerLabel(provider.name);
     const meta = document.createElement("small");
-    meta.textContent = provider.disabled ? "wyłączony" : `${provider.models.length} modeli`;
+    meta.textContent = provider.disabled ? t("providers.list.disabledMeta") : tn("providers.list.modelCount", provider.models.length);
     text.append(name, meta);
     const state = document.createElement("span");
     state.className = `provider-row-state${provider.disabled ? "" : " ready"}`;
-    state.textContent = provider.disabled ? "Wyłączony" : "Gotowe";
+    state.textContent = provider.disabled ? t("providers.list.stateDisabled") : t("providers.list.stateReady");
     row.append(providerLogo(provider.name), text, state);
     row.addEventListener("click", () => editProvider(provider));
     providerList.appendChild(row);
@@ -241,7 +259,7 @@ function renderProviderList() {
   if (available.length) {
     const label = document.createElement("div");
     label.className = "provider-group-label";
-    label.textContent = "DOSTĘPNE";
+    label.textContent = t("providers.list.available");
     providerList.appendChild(label);
   }
   for (const template of available) {
@@ -253,15 +271,65 @@ function renderProviderList() {
     const description = document.createElement("small");
     text.append(name, description);
     row.append(providerLogo(field(template, "name")), text);
-    name.textContent = field(template, "name");
-    description.textContent = field(template, "desc") || "Gotowy szablon";
-    row.addEventListener("click", () => {
-      resetProviderForm();
-      providerTemplate.value = field(template, "name");
-      providerTemplate.dispatchEvent(new Event("change"));
-    });
+    name.textContent = templateLabel(template);
+    description.textContent = templateDescription(template) || t("providers.list.templateFallback");
+    row.addEventListener("click", () => openProviderTemplate(field(template, "name")));
     providerList.appendChild(row);
   }
+  renderProviderEmptyChoices(available);
+}
+
+function openProviderTemplate(name) {
+  resetProviderForm();
+  providerTemplate.value = name;
+  providerTemplate.dispatchEvent(new Event("change"));
+}
+
+// Most common templates offered as shortcuts in the empty right column
+// (shown while nothing is selected; the empty-state element is created by settings.js).
+const commonProviderTemplates = ["openai", "anthropic", "openrouter", "deepseek", "google", "ollama", "lmstudio"];
+
+function renderProviderEmptyChoices(available) {
+  const emptyState = document.querySelector(".provider-layout .provider-empty-state");
+  if (!emptyState || typeof emptyState.querySelector !== "function") return;
+  let choices = emptyState.querySelector(".provider-empty-choices");
+  if (!choices || !choices.classList?.contains("provider-empty-choices")) {
+    choices = document.createElement("div");
+    choices.className = "provider-empty-choices";
+    if (choices.style) Object.assign(choices.style, { display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px", marginTop: "10px" });
+    emptyState.append(choices);
+  }
+  choices.replaceChildren();
+  const names = available.map((template) => field(template, "name"));
+  const picks = commonProviderTemplates.filter((name) => names.includes(name));
+  if (!picks.length) return;
+  const label = document.createElement("small");
+  label.className = "provider-empty-choices-label";
+  if (label.style) label.style.flexBasis = "100%";
+  label.textContent = t("providers.emptyState.commonChoices");
+  choices.append(label);
+  const choose = (handler) => () => {
+    providerDialog.classList?.remove("no-selection");
+    handler();
+  };
+  for (const name of picks) {
+    const template = available.find((item) => field(item, "name") === name);
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "secondary-button provider-empty-choice";
+    button.append(providerLogo(name), document.createTextNode(` ${templateLabel(template)}`));
+    button.addEventListener("click", choose(() => openProviderTemplate(name)));
+    choices.append(button);
+  }
+  const custom = document.createElement("button");
+  custom.type = "button";
+  custom.className = "secondary-button provider-empty-choice";
+  custom.textContent = t("providers.emptyState.custom");
+  custom.addEventListener("click", choose(() => {
+    resetProviderForm();
+    providerName.focus?.();
+  }));
+  choices.append(custom);
 }
 
 function resetProviderForm() {
@@ -277,11 +345,11 @@ function resetProviderForm() {
   providerModelList.replaceChildren();
   deleteProvider.hidden = true;
   checkProvider.hidden = true;
-  document.querySelector("#provider-mode").textContent = "NOWE POŁĄCZENIE";
-  document.querySelector("#provider-title").textContent = "Dodaj dostawcę";
+  document.querySelector("#provider-mode").textContent = t("providers.form.modeNew");
+  document.querySelector("#provider-title").textContent = t("providers.form.titleNew");
   providerHeaderIcon.src = providerLogoSource("custom");
-  document.querySelector("#provider-key-hint").textContent = "pozostaw pusty, jeśli serwer go nie wymaga";
-  showProviderMessage("Po zapisaniu NestCafe wykryje OpenAI/Anthropic przez endpoint modeli, bez uruchamiania inferencji. Responses API wybierz ręcznie.");
+  document.querySelector("#provider-key-hint").textContent = t("providers.form.keyHintOptional");
+  showProviderMessage(t("providers.form.newHint"));
   renderProviderList();
 }
 
@@ -305,13 +373,13 @@ function editProvider(provider) {
   providerModelSearch.value = "";
   deleteProvider.hidden = false;
   checkProvider.hidden = provider.disabled;
-  document.querySelector("#provider-mode").textContent = "KONFIGURACJA";
-  document.querySelector("#provider-title").textContent = provider.name;
+  document.querySelector("#provider-mode").textContent = t("providers.form.modeEdit");
+  document.querySelector("#provider-title").textContent = providerLabel(provider.name);
   providerHeaderIcon.src = providerLogoSource(provider.name);
   document.querySelector("#provider-key-hint").textContent = provider.hasKey
-    ? "klucz jest zapisany — wpisz nowy tylko, aby go zastąpić"
-    : "brak zapisanego klucza";
-  showProviderMessage(provider.disabled ? "Dostawca jest zachowany, ale wyłączony." : "Możesz sprawdzić połączenie bez uruchamiania modelu.");
+    ? t("providers.form.keyHintSaved")
+    : t("providers.form.keyHintMissing");
+  showProviderMessage(provider.disabled ? t("providers.form.disabledHint") : t("providers.form.checkHint"));
   renderProviderModels();
   renderProviderList();
   if (!provider.disabled) diagnoseProvider(provider.name);
@@ -322,7 +390,8 @@ function fillTemplates() {
   for (const template of providerTemplates) {
     const option = document.createElement("option");
     option.value = field(template, "name");
-    option.textContent = `${field(template, "name")} — ${field(template, "desc")}`;
+    const description = templateDescription(template);
+    option.textContent = description ? `${templateLabel(template)} — ${description}` : templateLabel(template);
     providerTemplate.appendChild(option);
   }
 }
@@ -349,14 +418,14 @@ async function loadProviders(preferred = "") {
 async function diagnoseProvider(name) {
   const seq = ++providerDiagnosticSeq;
   const isCurrent = () => providerDialog.open && seq === providerDiagnosticSeq && selectedProvider?.name === name;
-  showProviderMessage("Sprawdzam endpoint modeli…");
+  showProviderMessage(t("providers.diagnostic.checking"));
   try {
     const result = await providerJson(`/api/provider/diagnostics?name=${encodeURIComponent(name)}`);
     if (!isCurrent()) return;
-    const models = result.models?.length ? `${result.models.length} modeli` : "brak modeli";
+    const models = result.models?.length ? tn("providers.diagnostic.modelCount", result.models.length) : t("providers.diagnostic.noModels");
     const latency = result.latency_ms ? ` · ${result.latency_ms} ms` : "";
     const endpoint = result.endpoint ? ` · ${result.endpoint}` : "";
-    showProviderMessage(`${result.server || "provider"} · ${models}${latency}${endpoint}`, result.status === "online" ? "online" : "offline");
+    showProviderMessage(`${result.server || t("providers.diagnostic.serverFallback")} · ${models}${latency}${endpoint}`, result.status === "online" ? "online" : "offline");
     if (result.status === "online") await reloadProviderModelCatalog(isCurrent);
   } catch (error) {
     if (!isCurrent()) return;
@@ -398,8 +467,9 @@ providerForm.addEventListener("submit", async (event) => {
     await loadProviders(payload.name);
     await window.NestCafe?.models?.refresh?.();
     await window.NestCafe?.refreshHealth?.();
-    const detected = saved?.type ? ` · typ: ${saved.type}` : "";
-    window.NestCafe?.toast?.(`Konfiguracja dostawcy została zapisana${detected}.`);
+    window.NestCafe?.toast?.(saved?.type
+      ? t("providers.toast.savedWithType", { type: saved.type })
+      : t("providers.toast.saved"));
   } catch (error) {
     showProviderMessage(error.message, "offline");
     window.NestCafe?.toast?.(error.message);
@@ -418,9 +488,9 @@ providerModelsDisable.addEventListener("click", () => setProviderModelsHidden(tr
 deleteProvider.addEventListener("click", async () => {
   if (!selectedProvider) return;
   const approved = await window.NestCafe?.dialogs?.confirm?.({
-    title: "Usunąć dostawcę?",
-    message: `Połączenie „${selectedProvider.name}” oraz jego lokalna konfiguracja zostaną usunięte.`,
-    confirmLabel: "Usuń dostawcę",
+    title: t("providers.delete.title"),
+    message: t("providers.delete.message", { name: providerLabel(selectedProvider.name) }),
+    confirmLabel: t("providers.delete.confirm"),
   });
   if (!approved) return;
   setProviderBusy(true);

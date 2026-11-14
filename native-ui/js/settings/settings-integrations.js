@@ -9,13 +9,31 @@ function integrationStatus(text, active = false, error = false) {
   return badge;
 }
 
+// Inline empty state: one title line and one hint line (styled by .settings-empty-inline).
 function compactEmpty(title, description) {
   const empty = document.createElement("div");
-  empty.className = "settings-compact-empty";
-  empty.innerHTML = `<strong></strong><span></span>`;
-  empty.querySelector("strong").textContent = title;
-  empty.querySelector("span").textContent = description;
+  empty.className = "settings-empty-inline";
+  const heading = document.createElement("strong");
+  heading.textContent = title;
+  const hint = document.createElement("span");
+  hint.textContent = description;
+  empty.append(heading, hint);
   return empty;
+}
+
+const THUNDERBIRD_ADDRESS = "127.0.0.1:47831";
+
+// Known fixed English messages from the engine's Thunderbird bridge, mapped by exact match.
+const THUNDERBIRD_ENGINE_MESSAGES = {
+  "Enter the code in Thunderbird: Add-ons -> Thunderbird AI Bridge -> Options -> Pair.": "integrations.thunderbird.engine.enterCode",
+  "Not paired. Pair this SuperCli with Thunderbird AI Bridge 0.10.0 or newer.": "integrations.thunderbird.engine.notPaired",
+  "Paired and connected.": "integrations.thunderbird.engine.connected",
+  "Thunderbird Bridge is not connected: start Thunderbird with Thunderbird AI Bridge 0.10.0 or newer paired with this SuperCli (Add-ons -> Thunderbird AI Bridge -> Options shows the connection)": "integrations.thunderbird.engine.notRunning",
+};
+
+function thunderbirdEngineMessage(text) {
+  const key = THUNDERBIRD_ENGINE_MESSAGES[String(text || "").trim()];
+  return key ? t(key) : text;
 }
 
 function integrationPackageRow(pkg) {
@@ -28,13 +46,13 @@ function integrationPackageRow(pkg) {
   const title = document.createElement("strong");
   title.textContent = pkg.name || pkg.id;
   const meta = document.createElement("span");
-  meta.textContent = pkg.description || pkg.manifest || "Przenośny pakiet MCP";
+  meta.textContent = pkg.description || pkg.manifest || t("integrations.mcp.package.fallbackDescription");
   copy.append(title, meta);
   const state = pkg.error
-    ? integrationStatus("Błąd", false, true)
+    ? integrationStatus(t("common.error"), false, true)
     : pkg.running
-      ? integrationStatus(`${pkg.tools || 0} narzędzi`, true)
-      : integrationStatus(pkg.available ? "Gotowy" : "Brak zależności");
+      ? integrationStatus(tn("integrations.mcp.toolCount", pkg.tools || 0), true)
+      : integrationStatus(pkg.available ? t("integrations.mcp.package.ready") : t("integrations.mcp.package.missingDependencies"));
   row.append(icon, copy, state);
   return row;
 }
@@ -54,19 +72,19 @@ function integrationServerRow(server, openEditor, refresh) {
   const actions = document.createElement("div");
   actions.append(
     server.runtime_error
-      ? integrationStatus("Błąd uruchomienia", false, true)
+      ? integrationStatus(t("integrations.mcp.server.startError"), false, true)
       : server.running
-        ? integrationStatus(`${server.tools || 0} narzędzi`, true)
-        : integrationStatus("Leniwy"),
+        ? integrationStatus(tn("integrations.mcp.toolCount", server.tools || 0), true)
+        : integrationStatus(t("integrations.mcp.server.lazy")),
   );
-  const edit = settingsIntegrationsUI.button("Edytuj");
+  const edit = settingsIntegrationsUI.button(t("common.edit"));
   edit.addEventListener("click", () => openEditor(server.name));
-  const remove = settingsIntegrationsUI.button("Usuń", "settings-danger-button");
+  const remove = settingsIntegrationsUI.button(t("common.delete"), "settings-danger-button");
   remove.addEventListener("click", async () => {
     const approved = await window.NestCafe?.dialogs?.confirm?.({
-      title: "Usunąć integrację?",
-      message: `Serwer „${server.name}” zostanie usunięty z lokalnej konfiguracji MCP.`,
-      confirmLabel: "Usuń integrację",
+      title: t("integrations.mcp.server.removeConfirm.title"),
+      message: t("integrations.mcp.server.removeConfirm.message", { name: server.name }),
+      confirmLabel: t("integrations.mcp.server.removeConfirm.confirm"),
     });
     if (!approved) return;
     await settingsIntegrationsUI.json("/api/mcp/remove", {
@@ -74,7 +92,7 @@ function integrationServerRow(server, openEditor, refresh) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: server.name }),
     });
-    window.NestCafe?.toast?.("Serwer MCP został usunięty.");
+    window.NestCafe?.toast?.(t("integrations.mcp.server.removed"));
     refresh();
   });
   actions.append(edit, remove);
@@ -82,7 +100,7 @@ function integrationServerRow(server, openEditor, refresh) {
   return row;
 }
 
-window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (root) => {
+window.NestCafe?.settings?.registerPage?.("integrations", t("integrations.pageTitle"), async (root) => {
   let configDocument = { servers: {} };
 
   const thunderbirdCard = document.createElement("section");
@@ -93,81 +111,109 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
   thunderbirdTitle.className = "integration-feature-title";
   const thunderbirdName = document.createElement("strong");
   thunderbirdName.textContent = "Thunderbird AI Bridge";
-  const thunderbirdStatus = integrationStatus("Sprawdzanie…");
+  const thunderbirdStatus = integrationStatus(t("integrations.thunderbird.status.checking"));
   const thunderbirdDescription = document.createElement("p");
-  thunderbirdDescription.textContent = "Lokalny most do poczty Thunderbird: wyszukiwanie, odczyt, załączniki, foldery, kontakty i bezpieczne operacje na wiadomościach.";
+  thunderbirdDescription.textContent = t("integrations.thunderbird.description");
   const thunderbirdMeta = document.createElement("small");
-  thunderbirdMeta.textContent = "Host NestCafe: 127.0.0.1:47831 · Thunderbird musi mieć rozszerzenie Thunderbird AI Bridge 0.10.0 lub nowsze, sparowane z NestCafe.";
+  thunderbirdMeta.textContent = t("integrations.thunderbird.meta.initial", { address: THUNDERBIRD_ADDRESS });
+  // Installation and pairing steps, shown while Thunderbird is not connected.
+  const thunderbirdSteps = document.createElement("ol");
+  thunderbirdSteps.className = "integration-steps";
+  thunderbirdSteps.hidden = true;
+  const renderThunderbirdSteps = (bundled) => {
+    const keys = [
+      bundled ? "integrations.thunderbird.steps.saveXpi" : "integrations.thunderbird.steps.downloadXpi",
+      "integrations.thunderbird.steps.install",
+      "integrations.thunderbird.steps.pair",
+      "integrations.thunderbird.steps.check",
+    ];
+    thunderbirdSteps.replaceChildren(...keys.map((key) => {
+      const item = document.createElement("li");
+      item.textContent = t(key);
+      return item;
+    }));
+  };
+  renderThunderbirdSteps(false);
   // One-time pairing code (shown only here, never stored by the page).
   const thunderbirdCode = document.createElement("div");
   thunderbirdCode.className = "integration-pairing-code";
   thunderbirdCode.hidden = true;
+  const thunderbirdRepo = document.createElement("a");
+  thunderbirdRepo.className = "integration-text-link";
+  thunderbirdRepo.href = "https://github.com/snakex21/Thunderbird-AI-Bridge";
+  thunderbirdRepo.target = "_blank";
+  thunderbirdRepo.rel = "noopener";
+  thunderbirdRepo.textContent = t("integrations.thunderbird.repoLink");
   thunderbirdTitle.append(thunderbirdName, thunderbirdStatus);
-  thunderbirdCopy.append(thunderbirdTitle, thunderbirdDescription, thunderbirdMeta, thunderbirdCode);
+  thunderbirdCopy.append(thunderbirdTitle, thunderbirdDescription, thunderbirdMeta, thunderbirdSteps, thunderbirdCode, thunderbirdRepo);
   const thunderbirdActions = document.createElement("div");
   thunderbirdActions.className = "integration-feature-actions";
-  const thunderbirdRefresh = settingsIntegrationsUI.button("Sprawdź połączenie");
-  const thunderbirdPair = settingsIntegrationsUI.button("Paruj z Thunderbirdem", "settings-primary-button");
-  const thunderbirdUnpair = settingsIntegrationsUI.button("Rozparuj", "settings-danger-button");
+  const thunderbirdRefresh = settingsIntegrationsUI.button(t("integrations.thunderbird.action.check"));
+  const thunderbirdPair = settingsIntegrationsUI.button(t("integrations.thunderbird.action.pair"), "settings-primary-button");
+  const thunderbirdUnpair = settingsIntegrationsUI.button(t("integrations.thunderbird.action.unpair"), "settings-danger-button");
   thunderbirdUnpair.hidden = true;
   let thunderbirdPairTimer = null;
   const thunderbirdBundle = document.createElement("a");
   thunderbirdBundle.className = "settings-primary-button integration-download";
   thunderbirdBundle.href = "/api/integrations/thunderbird/xpi";
   thunderbirdBundle.download = "Thunderbird-AI-Bridge.xpi";
-  thunderbirdBundle.textContent = "Zapisz wbudowane XPI";
+  thunderbirdBundle.textContent = t("integrations.thunderbird.action.saveXpi");
   thunderbirdBundle.hidden = true;
-  const thunderbirdRepo = document.createElement("a");
-  thunderbirdRepo.href = "https://github.com/snakex21/Thunderbird-AI-Bridge";
-  thunderbirdRepo.target = "_blank";
-  thunderbirdRepo.rel = "noopener";
-  thunderbirdRepo.textContent = "GitHub";
-  thunderbirdActions.append(thunderbirdPair, thunderbirdUnpair, thunderbirdRefresh, thunderbirdBundle, thunderbirdRepo);
+  thunderbirdActions.append(thunderbirdPair, thunderbirdUnpair, thunderbirdRefresh, thunderbirdBundle);
   thunderbirdCard.append(thunderbirdCopy, thunderbirdActions);
 
   const refreshThunderbird = async () => {
     thunderbirdRefresh.disabled = true;
     thunderbirdStatus.className = "settings-status-badge";
-    thunderbirdStatus.textContent = "Sprawdzanie…";
+    thunderbirdStatus.textContent = t("integrations.thunderbird.status.checking");
     try {
       const data = await settingsIntegrationsUI.json("/api/integrations/thunderbird");
       const bridge = data.bridge || null;
       thunderbirdBundle.hidden = !data.bundled_available;
+      renderThunderbirdSteps(Boolean(data.bundled_available));
+      thunderbirdSteps.hidden = Boolean(data.connected);
       thunderbirdUnpair.hidden = !bridge?.paired;
-      thunderbirdPair.textContent = bridge?.paired ? "Paruj ponownie" : "Paruj z Thunderbirdem";
+      thunderbirdPair.textContent = bridge?.paired
+        ? t("integrations.thunderbird.action.pairAgain")
+        : t("integrations.thunderbird.action.pair");
       if (bridge && !bridge.pairing_active) thunderbirdCode.hidden = true;
       if (bridge && !bridge.paired && !bridge.pairing_active) {
         // A host from before pairing does not send "bridge"; then the old view stays.
         thunderbirdStatus.className = "settings-status-badge error";
-        thunderbirdStatus.textContent = "Niesparowany";
-        thunderbirdMeta.textContent = bridge.state === "port_busy"
-          ? bridge.message
-          : "Kliknij „Paruj z Thunderbirdem”, a w Thunderbirdzie: Dodatki i motywy → Thunderbird AI Bridge → Opcje, wpisz pokazany kod i kliknij „Paruj”. Wymagane rozszerzenie 0.10.0 lub nowsze.";
-        if (bridge.legacy_extension) thunderbirdMeta.textContent += " Thunderbird ma stare rozszerzenie 0.9.x: najpierw je zaktualizuj (wbudowane XPI poniżej).";
+        thunderbirdStatus.textContent = t("integrations.thunderbird.status.unpaired");
+        if (bridge.state === "port_busy") {
+          thunderbirdMeta.textContent = t("integrations.thunderbird.meta.portBusy", { detail: bridge.message });
+        } else if (bridge.legacy_extension) {
+          thunderbirdMeta.textContent = t("integrations.thunderbird.meta.legacyUnpaired");
+        } else {
+          thunderbirdMeta.textContent = t("integrations.thunderbird.meta.unpaired");
+        }
         if (data.repo_url) thunderbirdRepo.href = data.repo_url;
         return;
       }
       if (data.connected) {
         thunderbirdStatus.className = "settings-status-badge online";
-        thunderbirdStatus.textContent = "Połączony";
+        thunderbirdStatus.textContent = t("integrations.thunderbird.status.connected");
         const details = data.status && typeof data.status === "object"
-          ? (data.status.account || data.status.accountName || data.status.message || "Thunderbird odpowiada")
-          : "Thunderbird odpowiada";
+          ? (data.status.account || data.status.accountName || data.status.message || t("integrations.thunderbird.meta.responding"))
+          : t("integrations.thunderbird.meta.responding");
         thunderbirdMeta.textContent = data.bundled_available
-          ? `127.0.0.1:47831 · ${details} · pakiet XPI jest dołączony do NestCafe`
-          : `127.0.0.1:47831 · ${details}`;
+          ? t("integrations.thunderbird.meta.connectedBundled", { address: THUNDERBIRD_ADDRESS, details })
+          : t("integrations.thunderbird.meta.connected", { address: THUNDERBIRD_ADDRESS, details });
       } else {
         thunderbirdStatus.className = "settings-status-badge error";
-        thunderbirdStatus.textContent = bridge?.pairing_active ? "Czeka na kod" : "Niepołączony";
-        const reason = bridge?.message || data.error || "Uruchom Thunderbird i włącz rozszerzenie Thunderbird AI Bridge.";
+        thunderbirdStatus.textContent = bridge?.pairing_active
+          ? t("integrations.thunderbird.status.waitingForCode")
+          : t("integrations.thunderbird.status.disconnected");
+        const reason = thunderbirdEngineMessage(bridge?.message || data.error) || t("integrations.thunderbird.meta.startThunderbird");
         thunderbirdMeta.textContent = bridge?.legacy_extension
-          ? "Thunderbird ma stare rozszerzenie 0.9.x, które nie umie się uwierzytelnić. Zapisz wbudowane XPI 0.10.0, zainstaluj je w Thunderbirdzie (Dodatki i motywy → Zainstaluj dodatek z pliku) i sparuj."
-          : (bridge?.paired ? `Sparowany, ale bez połączenia: ${reason}` : reason);
+          ? t("integrations.thunderbird.meta.legacyExtension")
+          : (bridge?.paired ? t("integrations.thunderbird.meta.pairedNotConnected", { reason }) : reason);
       }
       if (data.repo_url) thunderbirdRepo.href = data.repo_url;
     } catch (error) {
       thunderbirdStatus.className = "settings-status-badge error";
-      thunderbirdStatus.textContent = "Błąd";
+      thunderbirdStatus.textContent = t("common.error");
       thunderbirdMeta.textContent = error.message;
     } finally {
       thunderbirdRefresh.disabled = false;
@@ -180,18 +226,21 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
     clearTimeout(thunderbirdPairTimer);
     try {
       const got = await settingsIntegrationsUI.json("/api/integrations/thunderbird/pair", { method: "POST" });
-      if (!got?.ok) throw new Error(got?.error || "Nie udało się rozpocząć parowania.");
+      if (!got?.ok) throw new Error(got?.error || t("integrations.thunderbird.pairing.startFailed"));
       const until = new Date(got.expires_at);
       thunderbirdCode.replaceChildren();
       const code = document.createElement("strong");
       code.textContent = got.code;
       code.style.cssText = "font:600 20px ui-monospace,monospace;letter-spacing:.08em;user-select:all;display:block;margin-top:8px";
       const help = document.createElement("small");
-      help.textContent = `W Thunderbirdzie: Dodatki i motywy → Thunderbird AI Bridge → Opcje, wpisz ten kod i kliknij „Paruj”. Kod jest ważny do ${until.toLocaleTimeString()}.`;
+      const time = window.NestCafe?.i18n?.formatDate
+        ? window.NestCafe.i18n.formatDate(until, { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+        : until.toLocaleTimeString();
+      help.textContent = t("integrations.thunderbird.pairing.codeHelp", { time });
       thunderbirdCode.append(code, help);
       thunderbirdCode.hidden = false;
       thunderbirdStatus.className = "settings-status-badge";
-      thunderbirdStatus.textContent = "Czeka na kod";
+      thunderbirdStatus.textContent = t("integrations.thunderbird.status.waitingForCode");
       const poll = async () => {
         if (!thunderbirdCard.isConnected || Date.now() > until.getTime()) {
           thunderbirdCode.hidden = true;
@@ -202,7 +251,7 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
           if (now.bridge && !now.bridge.pairing_active) {
             thunderbirdCode.hidden = true;
             await refreshThunderbird();
-            if (now.bridge.paired) window.NestCafe?.toast?.("Thunderbird został sparowany z NestCafe.");
+            if (now.bridge.paired) window.NestCafe?.toast?.(t("integrations.thunderbird.pairing.paired"));
             return;
           }
         } catch (_) {}
@@ -218,21 +267,21 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
 
   thunderbirdUnpair.addEventListener("click", async () => {
     const approved = await window.NestCafe?.dialogs?.confirm?.({
-      title: "Rozparować Thunderbirda?",
-      message: "NestCafe zapomni sekret parowania. Thunderbird nie połączy się, dopóki nie sparujesz go ponownie.",
-      confirmLabel: "Rozparuj",
+      title: t("integrations.thunderbird.unpairConfirm.title"),
+      message: t("integrations.thunderbird.unpairConfirm.message"),
+      confirmLabel: t("integrations.thunderbird.action.unpair"),
     });
     if (!approved) return;
     await settingsIntegrationsUI.json("/api/integrations/thunderbird/unpair", { method: "POST" });
-    window.NestCafe?.toast?.("Thunderbird został rozparowany.");
+    window.NestCafe?.toast?.(t("integrations.thunderbird.unpaired"));
     refreshThunderbird();
   });
 
-  const openFolder = settingsIntegrationsUI.button("Otwórz folder MCP");
+  const openFolder = settingsIntegrationsUI.button(t("integrations.mcp.openFolder"));
   openFolder.addEventListener("click", async () => {
     await settingsIntegrationsUI.json("/api/mcp/folder", { method: "POST" });
   });
-  const editJSON = settingsIntegrationsUI.button("Edytuj JSON", "settings-primary-button");
+  const editJSON = settingsIntegrationsUI.button(t("integrations.mcp.editJson"), "settings-primary-button");
 
   const overview = document.createElement("div");
   overview.className = "mcp-overview";
@@ -246,18 +295,19 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
   editor.hidden = true;
   editor.innerHTML = `
     <div class="mcp-json-head">
-      <div><strong>Konfiguracja MCP</strong><span>Pełny dokument jest walidowany przed zapisaniem.</span></div>
+      <div><strong data-i18n="integrations.mcp.editor.title"></strong><span data-i18n="integrations.mcp.editor.hint"></span></div>
       <span class="mcp-json-state">JSON</span>
     </div>
-    <textarea class="mcp-json-editor" spellcheck="false" aria-label="Konfiguracja MCP w JSON"></textarea>
+    <textarea class="mcp-json-editor" spellcheck="false" data-i18n-aria-label="integrations.mcp.editor.ariaLabel"></textarea>
     <div class="mcp-json-footer">
-      <span>Format: <code>{"servers":{"nazwa":{"command":"…","args":[],"env":{}}}}</code></span>
+      <span><span data-i18n="integrations.mcp.editor.formatLabel"></span> <code data-i18n="integrations.mcp.editor.formatExample"></code></span>
       <div>
-        <button class="settings-secondary-button mcp-format-json" type="button">Formatuj</button>
-        <button class="settings-secondary-button mcp-cancel-json" type="button">Anuluj</button>
-        <button class="settings-primary-button mcp-save-json" type="button">Zapisz konfigurację</button>
+        <button class="settings-secondary-button mcp-format-json" type="button" data-i18n="integrations.mcp.editor.format"></button>
+        <button class="settings-secondary-button mcp-cancel-json" type="button" data-i18n="common.cancel"></button>
+        <button class="settings-primary-button mcp-save-json" type="button" data-i18n="integrations.mcp.editor.save"></button>
       </div>
     </div>`;
+  window.NestCafe?.i18n?.apply?.(editor);
   const textarea = editor.querySelector(".mcp-json-editor");
   const jsonState = editor.querySelector(".mcp-json-state");
 
@@ -265,9 +315,9 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
     try {
       const parsed = JSON.parse(textarea.value);
       if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || typeof parsed.servers !== "object" || Array.isArray(parsed.servers)) {
-        throw new Error('Dokument musi zawierać obiekt "servers".');
+        throw new Error(t("integrations.mcp.editor.missingServers"));
       }
-      jsonState.textContent = "Poprawny JSON";
+      jsonState.textContent = t("integrations.mcp.editor.valid");
       jsonState.className = "mcp-json-state valid";
       return parsed;
     } catch (error) {
@@ -280,11 +330,12 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
   const openJSONEditor = (serverName = "", addTemplate = false) => {
     const documentCopy = JSON.parse(JSON.stringify(configDocument));
     if (addTemplate) {
-      let name = "nowy-serwer";
+      const baseName = t("integrations.mcp.template.serverName");
+      let name = baseName;
       let suffix = 2;
-      while (documentCopy.servers[name]) name = `nowy-serwer-${suffix++}`;
+      while (documentCopy.servers[name]) name = `${baseName}-${suffix++}`;
       documentCopy.servers[name] = {
-        command: "C:\\narzędzia\\server.exe",
+        command: t("integrations.mcp.template.command"),
         args: [],
         env: {},
       };
@@ -326,18 +377,19 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
     for (const pkg of data.packages || []) packages.append(integrationPackageRow(pkg));
     for (const server of data.servers || []) servers.append(integrationServerRow(server, openJSONEditor, refresh));
     if (!data.packages?.length) {
-      packages.append(compactEmpty("Brak pakietów", "Skopiuj przenośny pakiet do folderu MCP."));
+      packages.append(compactEmpty(t("integrations.mcp.packages.emptyTitle"), t("integrations.mcp.packages.emptyHint")));
     }
     if (!data.servers?.length) {
-      servers.append(compactEmpty("Brak własnych serwerów", "Dodaj pierwszy serwer bezpośrednio w edytorze JSON."));
+      servers.append(compactEmpty(t("integrations.mcp.servers.emptyTitle"), t("integrations.mcp.servers.emptyHint")));
     }
     const running = (data.servers || []).filter((server) => server.running).length +
       (data.packages || []).filter((pkg) => pkg.running).length;
     overview.innerHTML = `
-      <div><strong>${(data.servers || []).length}</strong><span>Własne serwery</span></div>
-      <div><strong>${(data.packages || []).length}</strong><span>Pakiety przenośne</span></div>
-      <div><strong>${running}</strong><span>Uruchomione teraz</span></div>
-      <p>Serwery startują dopiero wtedy, gdy agent potrzebuje ich narzędzi.</p>`;
+      <div><strong>${(data.servers || []).length}</strong><span data-i18n="integrations.mcp.overview.servers"></span></div>
+      <div><strong>${(data.packages || []).length}</strong><span data-i18n="integrations.mcp.overview.packages"></span></div>
+      <div><strong>${running}</strong><span data-i18n="integrations.mcp.overview.running"></span></div>
+      <p data-i18n="integrations.mcp.overview.lazyNote"></p>`;
+    window.NestCafe?.i18n?.apply?.(overview);
   };
 
   editor.querySelector(".mcp-save-json").addEventListener("click", async () => {
@@ -345,7 +397,7 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
     if (!parsed) return;
     const button = editor.querySelector(".mcp-save-json");
     button.disabled = true;
-    button.textContent = "Zapisywanie…";
+    button.textContent = t("common.saving");
     try {
       await settingsIntegrationsUI.json("/api/mcp/config", {
         method: "PUT",
@@ -353,28 +405,30 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
         body: JSON.stringify(parsed),
       });
       editor.hidden = true;
-      window.NestCafe?.toast?.("Konfiguracja MCP została zapisana.");
+      window.NestCafe?.toast?.(t("integrations.mcp.editor.saved"));
       await refresh();
     } finally {
       button.disabled = false;
-      button.textContent = "Zapisz konfigurację";
+      button.textContent = t("integrations.mcp.editor.save");
     }
   });
 
   editJSON.addEventListener("click", () => openJSONEditor());
-  const addServer = settingsIntegrationsUI.button("+ Dodaj serwer");
+  const addServer = settingsIntegrationsUI.button(t("integrations.mcp.addServer"));
   addServer.addEventListener("click", () => openJSONEditor("", true));
 
   const packageSection = document.createElement("section");
   packageSection.className = "settings-subsection";
-  packageSection.innerHTML = `<div class="settings-subsection-head"><div><h4>Przenośne pakiety</h4><span>Pakiety dołączane bez instalatora i bez Node.js w interfejsie.</span></div></div>`;
+  packageSection.innerHTML = `<div class="settings-subsection-head"><div><h4 data-i18n="integrations.mcp.packages.title"></h4><span data-i18n="integrations.mcp.packages.hint"></span></div></div>`;
+  window.NestCafe?.i18n?.apply?.(packageSection);
   packageSection.append(packages);
 
   const serverSection = document.createElement("section");
   serverSection.className = "settings-subsection";
   const serverHead = document.createElement("div");
   serverHead.className = "settings-subsection-head";
-  serverHead.innerHTML = `<div><h4>Własne serwery</h4><span>Polecenia stdio zapisane w lokalnej konfiguracji Go.</span></div>`;
+  serverHead.innerHTML = `<div><h4 data-i18n="integrations.mcp.servers.title"></h4><span data-i18n="integrations.mcp.servers.hint"></span></div>`;
+  window.NestCafe?.i18n?.apply?.(serverHead);
   serverHead.append(addServer);
   serverSection.append(serverHead, servers, editor);
 
@@ -383,8 +437,8 @@ window.NestCafe?.settings?.registerPage?.("integrations", "Integracje", async (r
   headerActions.append(openFolder, editJSON);
   root.replaceChildren(
     settingsIntegrationsUI.sectionHeader(
-      "Integracje",
-      "Połączenia lokalne NestCafe oraz serwery MCP używane przez agenta.",
+      t("integrations.pageTitle"),
+      t("integrations.pageDescription"),
       headerActions,
     ),
     thunderbirdCard,

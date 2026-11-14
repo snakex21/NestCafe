@@ -1,4 +1,4 @@
-# NestCafe smoke test — engine APIs + OCR embed checks (no full vision model needed).
+﻿# NestCafe smoke test — engine APIs + OCR embed checks (no full vision model needed).
 # By default does NOT open Explorer/Notepad (those paths left ghost windows after temp cleanup).
 param(
     [string]$Project = '',
@@ -196,8 +196,9 @@ try {
     }
 
     $i18nJs = Join-Path $Project 'native-ui\js\core\i18n.js'
-    if ((Test-Path -LiteralPath $i18nJs) -and ((Get-Content -LiteralPath $i18nJs -Raw) -match 'ensureLanguagePreference')) {
-        Pass 'i18n bootstrap'
+    $localeCount = @(Get-ChildItem -LiteralPath (Join-Path $Project 'native-ui\locales') -Filter '*.json' -ErrorAction SilentlyContinue).Count
+    if ((Test-Path -LiteralPath $i18nJs) -and ((Get-Content -LiteralPath $i18nJs -Raw) -match 'resolveLanguage') -and $localeCount -ge 27) {
+        Pass "i18n catalogs $localeCount"
     } else {
         Fail 'i18n missing'
     }

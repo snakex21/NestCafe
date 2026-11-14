@@ -3,26 +3,31 @@
 (function () {
   window.NestCafeModules = window.NestCafeModules || {};
 
+  // Values are catalog keys; translate with t() at render time.
   const languages = {
-    pl: "polski",
-    en: "angielski",
-    de: "niemiecki",
-    fr: "francuski",
-    es: "hiszpański",
+    pl: "ocr.language.pl",
+    en: "ocr.language.en",
+    de: "ocr.language.de",
+    fr: "ocr.language.fr",
+    es: "ocr.language.es",
   };
 
   const languageTitles = {
-    pl: "Tekst po polsku",
-    en: "Tekst po angielsku",
-    de: "Tekst po niemiecku",
-    fr: "Tekst po francusku",
-    es: "Tekst po hiszpańsku",
+    pl: "ocr.result.title.pl",
+    en: "ocr.result.title.en",
+    de: "ocr.result.title.de",
+    fr: "ocr.result.title.fr",
+    es: "ocr.result.title.es",
   };
 
   const textModes = {
-    original: "Oryginał",
-    translate: "Tłumaczenie",
+    original: "ocr.history.mode.original",
+    translate: "ocr.history.mode.translate",
   };
+
+  function languageName(code) {
+    return t(languages[code] || languages.pl);
+  }
 
   const languagePromptNames = {
     pl: "Polish",
@@ -33,23 +38,23 @@
   };
 
   const outputFormats = {
-    docx: { label: "Word (.docx)", action: "Pobierz DOCX" },
-    md: { label: "Markdown (.md)", action: "Pobierz MD" },
-    txt: { label: "Zwykły tekst (.txt)", action: "Pobierz TXT" },
+    docx: { label: "ocr.format.docx", action: "ocr.format.docxAction" },
+    md: { label: "ocr.format.md", action: "ocr.format.mdAction" },
+    txt: { label: "ocr.format.txt", action: "ocr.format.txtAction" },
   };
 
   function readAsDataURL(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.addEventListener("load", () => resolve(String(reader.result || "")), { once: true });
-      reader.addEventListener("error", () => reject(reader.error || new Error("Nie można odczytać pliku.")), { once: true });
+      reader.addEventListener("error", () => reject(reader.error || new Error(t("ocr.error.readFile"))), { once: true });
       reader.readAsDataURL(file);
     });
   }
 
   function splitDataURL(dataURL) {
     const match = /^data:([^;,]+);base64,(.+)$/s.exec(dataURL);
-    if (!match) throw new Error("Nieprawidłowy format obrazu.");
+    if (!match) throw new Error(t("ocr.error.imageFormat"));
     return { mimeType: match[1], imageBase64: match[2] };
   }
 
@@ -63,7 +68,7 @@
       script.src = src;
       script.dataset.ocrLibrary = key;
       script.addEventListener("load", resolve, { once: true });
-      script.addEventListener("error", () => reject(new Error(`Nie można załadować ${src}`)), { once: true });
+      script.addEventListener("error", () => reject(new Error(t("ocr.error.loadScript", { src }))), { once: true });
       document.head.appendChild(script);
     });
   }
@@ -196,10 +201,10 @@
       <div class="ocr-viewer">
         <aside class="ocr-history-panel">
           <div class="ocr-history-head">
-            <div><strong>Historia</strong><span>Ostatnie dokumenty</span></div>
+            <div><strong>${t("ocr.history.title")}</strong><span>${t("ocr.history.subtitle")}</span></div>
             <div class="ocr-history-actions">
-              <button class="ocr-clear-history" type="button" title="Wyczyść historię" hidden>Wyczyść</button>
-              <button class="ocr-new" type="button" title="Nowy dokument" aria-label="Nowy dokument">＋</button>
+              <button class="ocr-clear-history" type="button" title="${t("ocr.history.clearTitle")}" hidden>${t("ocr.history.clear")}</button>
+              <button class="ocr-new" type="button" title="${t("ocr.newDocument")}" aria-label="${t("ocr.newDocument")}">＋</button>
             </div>
           </div>
           <div class="ocr-history-list"></div>
@@ -208,102 +213,102 @@
           <div class="ocr-toolbar">
             <label class="ocr-file-button">
               <input class="ocr-file-input" type="file" accept="image/*,.pdf,.docx,.md,.txt" />
-              <span>＋ Wybierz dokument</span>
+              <span>＋ ${t("ocr.toolbar.chooseDocument")}</span>
             </label>
             <label class="ocr-control ocr-model-control">
-              <span>Model z wizją</span>
-              <select class="ocr-model" aria-label="Model OCR"><option value="">Ładowanie modeli…</option></select>
+              <span>${t("ocr.toolbar.model")}</span>
+              <select class="ocr-model" aria-label="${t("ocr.toolbar.modelAria")}"><option value="">${t("ocr.toolbar.modelsLoading")}</option></select>
             </label>
             <label class="ocr-control ocr-mode-control">
-              <span>Co zrobić</span>
-              <select class="ocr-mode" aria-label="Sposób rozpoznania">
-                <option value="">Wybierz…</option>
-                <option value="original">Wyciągnij oryginał</option>
-                <option value="translate">Wyciągnij i przetłumacz</option>
+              <span>${t("ocr.toolbar.mode")}</span>
+              <select class="ocr-mode" aria-label="${t("ocr.toolbar.modeAria")}">
+                <option value="">${t("ocr.toolbar.modeChoose")}</option>
+                <option value="original">${t("ocr.toolbar.modeOriginal")}</option>
+                <option value="translate">${t("ocr.toolbar.modeTranslate")}</option>
               </select>
             </label>
             <label class="ocr-control ocr-language-control disabled">
-              <span>Na język</span>
-              <select class="ocr-language" aria-label="Język tłumaczenia">
-                ${Object.entries(languages).map(([value, label]) => `<option value="${value}">${label.charAt(0).toUpperCase() + label.slice(1)}</option>`).join("")}
+              <span>${t("ocr.toolbar.language")}</span>
+              <select class="ocr-language" aria-label="${t("ocr.toolbar.languageAria")}">
+                ${Object.keys(languages).map((value) => { const label = languageName(value); return `<option value="${value}">${label.charAt(0).toUpperCase() + label.slice(1)}</option>`; }).join("")}
               </select>
             </label>
             <label class="ocr-control">
-              <span>Eksport jako</span>
-              <select class="ocr-format" aria-label="Format eksportu; zmiana nie uruchamia OCR ponownie">
-                ${Object.entries(outputFormats).map(([value, item]) => `<option value="${value}">${item.label}</option>`).join("")}
+              <span>${t("ocr.toolbar.format")}</span>
+              <select class="ocr-format" aria-label="${t("ocr.toolbar.formatAria")}">
+                ${Object.entries(outputFormats).map(([value, item]) => `<option value="${value}">${t(item.label)}</option>`).join("")}
               </select>
             </label>
             <label class="ocr-control ocr-pages-limit-control">
-              <span>Max stron PDF</span>
-              <select class="ocr-pages-limit" aria-label="Maksymalna liczba stron PDF">
+              <span>${t("ocr.toolbar.pagesLimit")}</span>
+              <select class="ocr-pages-limit" aria-label="${t("ocr.toolbar.pagesLimitAria")}">
                 <option value="5">5</option>
                 <option value="10">10</option>
                 <option value="20" selected>20</option>
                 <option value="40">40</option>
-                <option value="0">Wszystkie</option>
+                <option value="0">${t("ocr.toolbar.pagesAll")}</option>
               </select>
             </label>
-            <button class="ocr-run" type="button" disabled>Rozpoznaj i przygotuj</button>
+            <button class="ocr-run" type="button" disabled>${t("ocr.toolbar.run")}</button>
           </div>
           <div class="ocr-status">
             <span class="ocr-status-dot"></span>
-            <span class="ocr-status-text">Wybierz dokument, aby rozpocząć.</span>
-            <label class="ocr-auto-open" title="Po „Zapisz do folderu” od razu otwórz ten folder w Eksploratorze">
+            <span class="ocr-status-text">${t("ocr.status.start")}</span>
+            <label class="ocr-auto-open" title="${t("ocr.autoOpen.title")}">
               <input class="ocr-auto-open-folder" type="checkbox" />
-              <span>Po zapisie otwórz folder</span>
+              <span>${t("ocr.autoOpen.label")}</span>
             </label>
           </div>
           <div class="ocr-split">
             <section class="ocr-pane ocr-source-pane">
-              <header><strong>Oryginał</strong><span class="ocr-document-name">Brak dokumentu</span></header>
+              <header><strong>${t("ocr.source.title")}</strong><span class="ocr-document-name">${t("ocr.source.noDocument")}</span></header>
               <div class="ocr-drop-zone">
                 <div class="ocr-empty-preview">
-                  <b>Upuść tutaj dokument</b>
-                  <span>PNG, JPG, WEBP, PDF, DOCX, MD albo TXT</span>
+                  <b>${t("ocr.source.dropTitle")}</b>
+                  <span>${t("ocr.source.dropFormats")}</span>
                 </div>
                 <div class="ocr-pages"></div>
               </div>
             </section>
             <section class="ocr-pane ocr-text-pane">
               <header>
-                <span class="ocr-result-heading"><strong class="ocr-result-title">Tekst po polsku</strong><small class="ocr-result-meta">Word (.docx)</small></span>
+                <span class="ocr-result-heading"><strong class="ocr-result-title">${t(languageTitles.pl)}</strong><small class="ocr-result-meta">${t(outputFormats.docx.label)}</small></span>
                 <span class="ocr-text-actions">
-                  <button class="ocr-copy" type="button">Kopiuj</button>
-                  <button class="ocr-to-chat" type="button" disabled title="Wstaw wynik do pola wiadomości NestCafe">Do czatu</button>
-                  <button class="ocr-preview-toggle" type="button" hidden>Edytuj</button>
-                  <span class="ocr-export-formats" aria-label="Format eksportu bez ponownego OCR">
-                    <button type="button" data-export-format="docx" title="Ustaw eksport do Worda bez ponownego OCR">DOCX</button>
-                    <button type="button" data-export-format="md" title="Ustaw eksport do Markdown bez ponownego OCR">MD</button>
-                    <button type="button" data-export-format="txt" title="Ustaw eksport do zwykłego tekstu bez ponownego OCR">TXT</button>
+                  <button class="ocr-copy" type="button">${t("common.copy")}</button>
+                  <button class="ocr-to-chat" type="button" disabled title="${t("ocr.actions.toChatTitle")}">${t("ocr.actions.toChat")}</button>
+                  <button class="ocr-preview-toggle" type="button" hidden>${t("common.edit")}</button>
+                  <span class="ocr-export-formats" aria-label="${t("ocr.actions.exportFormatsAria")}">
+                    <button type="button" data-export-format="docx" title="${t("ocr.actions.exportDocxTitle")}">DOCX</button>
+                    <button type="button" data-export-format="md" title="${t("ocr.actions.exportMdTitle")}">MD</button>
+                    <button type="button" data-export-format="txt" title="${t("ocr.actions.exportTxtTitle")}">TXT</button>
                   </span>
-                  <button class="ocr-save-folder" type="button" disabled title="Zapisz do folderu wyników (fallback: supercli-data\\exports\\ocr)">Zapisz do folderu</button>
-                  <button class="ocr-open-folder" type="button" disabled title="Otwórz folder z ostatnim zapisem">Otwórz folder</button>
-                  <button class="ocr-open-file" type="button" disabled title="Otwórz ostatni zapisany plik (np. Word)">Otwórz plik</button>
-                  <button class="ocr-choose-folder" type="button" title="Ustaw własny folder wyników">Folder…</button>
-                  <button class="ocr-download" type="button" disabled>Zapisz jako…</button>
+                  <button class="ocr-save-folder" type="button" disabled title="${t("ocr.actions.saveFolderTitle")}">${t("ocr.actions.saveFolder")}</button>
+                  <button class="ocr-open-folder" type="button" disabled title="${t("ocr.actions.openFolderTitle")}">${t("common.openFolder")}</button>
+                  <button class="ocr-open-file" type="button" disabled title="${t("ocr.actions.openFileTitle")}">${t("ocr.actions.openFile")}</button>
+                  <button class="ocr-choose-folder" type="button" title="${t("ocr.actions.chooseFolderTitle")}">${t("ocr.actions.chooseFolder")}</button>
+                  <button class="ocr-download" type="button" disabled>${t("ocr.actions.saveAs")}</button>
                 </span>
               </header>
               <div class="ocr-document-editor">
-                <textarea class="ocr-output" spellcheck="true" placeholder="Rozpoznany tekst pojawi się tutaj…"></textarea>
+                <textarea class="ocr-output" spellcheck="true" placeholder="${t("ocr.output.placeholder")}"></textarea>
                 <div class="ocr-word-stage" hidden>
-                  <article class="ocr-markdown-preview ocr-word-page" aria-label="Podgląd jak w Wordzie"></article>
+                  <article class="ocr-markdown-preview ocr-word-page" aria-label="${t("ocr.output.previewAria")}"></article>
                 </div>
               </div>
               <form class="ocr-correction">
-                <input class="ocr-correction-input" placeholder="Np. popraw pisownię, zachowaj układ akapitów…" />
-                <button type="submit">Popraw z AI</button>
+                <input class="ocr-correction-input" placeholder="${t("ocr.correction.placeholder")}" />
+                <button type="submit">${t("ocr.correction.submit")}</button>
               </form>
             </section>
           </div>
         </section>
         <dialog class="ocr-confirm-dialog">
           <form method="dialog">
-            <strong class="ocr-confirm-title">Usunąć wpis?</strong>
+            <strong class="ocr-confirm-title">${t("ocr.confirm.defaultTitle")}</strong>
             <p class="ocr-confirm-text"></p>
             <div>
-              <button type="submit" value="cancel">Anuluj</button>
-              <button class="ocr-confirm-delete" type="submit" value="confirm">Usuń</button>
+              <button type="submit" value="cancel">${t("common.cancel")}</button>
+              <button class="ocr-confirm-delete" type="submit" value="confirm">${t("common.delete")}</button>
             </div>
           </form>
         </dialog>
@@ -407,21 +412,21 @@
       if (openFolderButton) {
         openFolderButton.disabled = busy || !lastSavedDir;
         openFolderButton.title = lastSavedDir
-          ? `Otwórz folder: ${lastSavedDir}`
-          : "Najpierw zapisz dokument do folderu";
+          ? t("ocr.actions.openFolderPath", { path: lastSavedDir })
+          : t("ocr.actions.saveFirst");
       }
       if (openFileButton) {
         openFileButton.disabled = busy || !lastSavedPath;
         openFileButton.title = lastSavedPath
-          ? `Otwórz plik: ${lastSavedPath}`
-          : "Najpierw zapisz dokument do folderu";
+          ? t("ocr.actions.openFilePath", { path: lastSavedPath })
+          : t("ocr.actions.saveFirst");
       }
       void usedFallback;
     }
 
     function outputFolderLabel() {
       if (outputFolder) return outputFolder;
-      return "supercli-data\\exports\\ocr (domyślny)";
+      return t("ocr.folder.defaultLabel");
     }
 
     function setActivePage(index) {
@@ -460,14 +465,14 @@
     function updateResultLabels() {
       const format = outputFormats[formatSelect.value] || outputFormats.docx;
       if (modeSelect.value === "original") {
-        resultTitle.textContent = "Rozpoznany tekst";
+        resultTitle.textContent = t("ocr.result.title.original");
       } else if (modeSelect.value === "translate") {
-        resultTitle.textContent = languageTitles[languageSelect.value] || languageTitles.pl;
+        resultTitle.textContent = t(languageTitles[languageSelect.value] || languageTitles.pl);
       } else {
-        resultTitle.textContent = "Wynik dokumentu";
+        resultTitle.textContent = t("ocr.result.title.default");
       }
-      resultMeta.textContent = format.label;
-      downloadButton.textContent = `Zapisz jako ${formatSelect.value.toUpperCase()}…`;
+      resultMeta.textContent = t(format.label);
+      downloadButton.textContent = t("ocr.actions.saveAsFormat", { format: formatSelect.value.toUpperCase() });
       downloadButton.disabled = busy || !output.value.trim();
       exportFormatButtons.forEach((button) => {
         const active = button.dataset.exportFormat === formatSelect.value;
@@ -477,14 +482,14 @@
       });
       if (saveFolderButton) {
         saveFolderButton.disabled = busy || !output.value.trim();
-        saveFolderButton.title = `Zapisz do: ${outputFolderLabel()}`;
+        saveFolderButton.title = t("ocr.actions.saveToPath", { path: outputFolderLabel() });
       }
       if (chooseFolderButton) {
         chooseFolderButton.disabled = busy;
         chooseFolderButton.title = outputFolder
-          ? `Folder wyników: ${outputFolder}\nKlik = zmień · PPM = wróć do domyślnego (supercli-data\\exports\\ocr)`
-          : "Ustaw własny folder wyników. Bez ustawienia: supercli-data\\exports\\ocr";
-        chooseFolderButton.textContent = outputFolder ? "Folder ✓" : "Folder…";
+          ? t("ocr.folder.customTitle", { path: outputFolder })
+          : t("ocr.folder.defaultTitle");
+        chooseFolderButton.textContent = outputFolder ? t("ocr.actions.chooseFolderSet") : t("ocr.actions.chooseFolder");
       }
       if (toChatButton) toChatButton.disabled = busy || !output.value.trim();
       if (openFolderButton) openFolderButton.disabled = busy || !lastSavedDir;
@@ -511,18 +516,18 @@
         const path = result?.path || "";
         rememberSavedPath(path, result?.dir || "", Boolean(result?.used_fallback));
         if (result?.used_fallback) {
-          api.toast(`Zapisano (fallback): ${path}`);
-          setBusy(false, `Zapisano do domyślnego folderu: ${path}`);
+          api.toast(t("ocr.save.savedFallbackToast", { path }));
+          setBusy(false, t("ocr.save.savedFallback", { path }));
         } else {
-          api.toast(`Zapisano: ${path}`);
-          setBusy(false, `Zapisano: ${path}`);
+          api.toast(t("ocr.save.saved", { path }));
+          setBusy(false, t("ocr.save.saved", { path }));
         }
         if (autoOpenFolderAfterSave && lastSavedDir) {
           await openLastFolder();
         }
       } catch (error) {
-        api.toast(error.message || "Nie udało się zapisać do folderu.");
-        setBusy(false, error.message || "Błąd zapisu do folderu.");
+        api.toast(error.message || t("ocr.save.folderFailed"));
+        setBusy(false, error.message || t("ocr.save.folderError"));
       } finally {
         updateResultLabels();
       }
@@ -530,7 +535,7 @@
 
     async function openLastFolder() {
       if (!lastSavedDir) {
-        api.toast("Najpierw zapisz dokument do folderu.");
+        api.toast(t("ocr.actions.saveFirstToast"));
         return;
       }
       try {
@@ -540,20 +545,20 @@
         try {
           await api.openPath(lastSavedDir);
         } catch (inner) {
-          api.toast(inner.message || error.message || "Nie udało się otworzyć folderu.");
+          api.toast(inner.message || error.message || t("ocr.error.openFolder"));
         }
       }
     }
 
     async function openLastFile() {
       if (!lastSavedPath) {
-        api.toast("Najpierw zapisz dokument do folderu.");
+        api.toast(t("ocr.actions.saveFirstToast"));
         return;
       }
       try {
         await api.openPath(lastSavedPath);
       } catch (error) {
-        api.toast(error.message || "Nie udało się otworzyć pliku.");
+        api.toast(error.message || t("ocr.error.openFile"));
       }
     }
 
@@ -563,23 +568,23 @@
         if (!picked?.path) return;
         outputFolder = picked.path;
         await api.setSetting("outputFolder", outputFolder);
-        api.toast(`Folder wyników: ${outputFolder}`);
-        setBusy(false, `Folder wyników ustawiony: ${outputFolder}`);
+        api.toast(t("ocr.folder.selectedToast", { path: outputFolder }));
+        setBusy(false, t("ocr.folder.selected", { path: outputFolder }));
         updateResultLabels();
       } catch (error) {
-        api.toast(error.message || "Nie udało się wybrać folderu.");
+        api.toast(error.message || t("ocr.error.chooseFolder"));
       }
     }
 
     async function clearOutputFolder() {
       if (!outputFolder) {
-        api.toast("Już używasz domyślnej ścieżki: supercli-data\\exports\\ocr");
+        api.toast(t("ocr.folder.alreadyDefault"));
         return;
       }
       outputFolder = "";
       await api.setSetting("outputFolder", "");
-      api.toast("Wrócono do domyślnego folderu: supercli-data\\exports\\ocr");
-      setBusy(false, "Zapisz do folderu → supercli-data\\exports\\ocr");
+      api.toast(t("ocr.folder.resetToast"));
+      setBusy(false, t("ocr.folder.resetStatus"));
       updateResultLabels();
     }
 
@@ -596,9 +601,9 @@
       outputPreview.classList.toggle("ocr-plain-preview", isPlain);
       previewToggle.hidden = !hasText;
       if (outputEditing) {
-        previewToggle.textContent = isWord ? "Jak w Wordzie" : isPlain ? "Podgląd TXT" : "Podgląd MD";
+        previewToggle.textContent = isWord ? t("ocr.preview.word") : isPlain ? t("ocr.preview.txt") : t("ocr.preview.md");
       } else {
-        previewToggle.textContent = "Edytuj treść";
+        previewToggle.textContent = t("ocr.preview.edit");
       }
       if (showPreview) {
         if (isPlain) {
@@ -611,8 +616,9 @@
 
     function outputFilename(format = formatSelect.value || "docx") {
       const extension = format || "docx";
-      const source = currentFile?.name || documentName.textContent || "transkrypcja";
-      return `${source.replace(/\.[^.]+$/, "") || "transkrypcja"}.${extension}`;
+      const fallbackName = t("ocr.file.defaultName");
+      const source = currentFile?.name || documentName.textContent || fallbackName;
+      return `${source.replace(/\.[^.]+$/, "") || fallbackName}.${extension}`;
     }
 
     function downloadBlob(blob, filename) {
@@ -654,7 +660,7 @@
     async function recognizeImage(dataURL) {
       const image = splitDataURL(dataURL);
       const model = selectedModel();
-      if (!model.modelId) throw new Error("Wybierz model obsługujący obrazy.");
+      if (!model.modelId) throw new Error(t("ocr.error.noVisionModel"));
       const result = await api.visionTranscribe({
         ...image,
         prompt: buildPrompt(),
@@ -662,11 +668,11 @@
         modelId: model.modelId,
       });
       const cleanText = stripReasoning(result.text);
-      if (!cleanText) throw new Error("Model nie zwrócił końcowego tekstu dokumentu.");
+      if (!cleanText) throw new Error(t("ocr.error.emptyResult"));
       return cleanText;
     }
 
-    function showImages(images, emptyTitle = "Upuść tutaj dokument", emptyDescription = "PNG, JPG, WEBP, PDF, DOCX, MD albo TXT") {
+    function showImages(images, emptyTitle = t("ocr.source.dropTitle"), emptyDescription = t("ocr.source.dropFormats")) {
       pages.replaceChildren();
       const empty = $(".ocr-empty-preview");
       empty.hidden = images.length > 0;
@@ -679,9 +685,9 @@
         figure.className = "ocr-page";
         const img = document.createElement("img");
         img.src = src;
-        img.alt = `Strona ${index + 1}`;
+        img.alt = t("ocr.page.label", { page: index + 1 });
         const caption = document.createElement("figcaption");
-        caption.textContent = images.length > 1 ? `Strona ${index + 1}` : "Podgląd dokumentu";
+        caption.textContent = images.length > 1 ? t("ocr.page.label", { page: index + 1 }) : t("ocr.page.preview");
         figure.append(img, caption);
         pages.appendChild(figure);
       });
@@ -701,7 +707,7 @@
       if (!candidates.length || typeof api.deleteSource !== "function") return;
       const results = await Promise.allSettled(candidates.map((path) => api.deleteSource(path)));
       const failed = results.filter((item) => item.status === "rejected").length;
-      if (failed) api.toast(`Historia została zapisana, ale nie udało się usunąć ${failed} nieużywanych plików źródłowych.`);
+      if (failed) api.toast(tn("ocr.history.cleanupFailed", failed));
     }
 
     async function saveHistory(name, text) {
@@ -709,7 +715,7 @@
       try {
         await storeCurrentSource();
       } catch (error) {
-        api.toast(`Tekst zapisano, ale nie udalo sie zachowac oryginalu: ${error.message || "blad zapisu pliku"}`);
+        api.toast(t("ocr.history.sourceSaveFailed", { detail: error.message || t("ocr.error.fileWrite") }));
       }
       const entry = {
         id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
@@ -737,7 +743,7 @@
       currentSourceType = item.sourceType || "";
       outputEditing = false;
       showImages([]);
-      documentName.textContent = item.name || "Dokument z historii";
+      documentName.textContent = item.name || t("ocr.history.documentFallback");
       output.value = stripReasoning(item.text);
       modeSelect.value = item.mode || (item.language === "original" ? "original" : "translate");
       languageSelect.value = languages[item.language] ? item.language : "pl";
@@ -745,15 +751,15 @@
       updateResultLabels();
 
       if (!currentSourcePath) {
-        setBusy(false, "Wczytano tekst ze starszego wpisu. Ten zapis nie zawiera jeszcze oryginalnego pliku.");
+        setBusy(false, t("ocr.history.restoredTextOnly"));
         return;
       }
 
-      setBusy(true, "Wczytywanie oryginalnego dokumentu z historii...");
+      setBusy(true, t("ocr.history.loadingSource"));
       try {
         const blob = await api.loadSource(currentSourcePath);
         currentSourceType = blob.type || currentSourceType;
-        currentFile = new File([blob], item.name || "dokument", { type: currentSourceType });
+        currentFile = new File([blob], item.name || t("ocr.file.documentName"), { type: currentSourceType });
         if (currentSourceType === "application/pdf" || /\.pdf$/i.test(item.name || "")) {
           const prepared = await processPDF(blob);
           currentPDF = prepared.pdf;
@@ -763,19 +769,19 @@
         } else if (/\.(docx|md|txt)$/i.test(item.name || "")) {
           currentImages = [];
           currentPageCount = 0;
-          showImages([], "Dokument tekstowy z historii", "Treść jest zachowana i może być ponownie wyeksportowana bez używania AI.");
+          showImages([], t("ocr.history.textDocumentTitle"), t("ocr.history.textDocumentHint"));
         } else {
           currentImages = [await readAsDataURL(blob)];
           currentPageCount = 1;
           showImages(currentImages);
         }
-        setBusy(false, "Wczytano tekst i oryginalny dokument z historii.");
+        setBusy(false, t("ocr.history.restored"));
       } catch (error) {
         releaseCurrentPDF();
         currentFile = null;
         currentImages = [];
         showImages([]);
-        setBusy(false, `Wczytano tekst, ale oryginalny plik jest niedostepny: ${error.message || "blad odczytu"}`);
+        setBusy(false, t("ocr.history.sourceUnavailable", { detail: error.message || t("ocr.error.fileRead") }));
       }
     }
 
@@ -787,10 +793,10 @@
     function requestHistoryDelete(item = null) {
       if (!item && history.length === 0) return;
       pendingHistoryDelete = item ? { id: item.id } : { all: true };
-      confirmTitle.textContent = item ? "Usunąć z historii?" : "Wyczyścić historię OCR?";
+      confirmTitle.textContent = item ? t("ocr.confirm.deleteTitle") : t("ocr.confirm.clearTitle");
       confirmText.textContent = item
-        ? `Dokument „${item.name || "Dokument"}” zostanie usunięty z historii. Jego lokalna kopia źródłowa też zostanie posprzątana, jeśli nie używa jej inny wpis.`
-        : `Usunięte zostaną wszystkie wpisy historii OCR (${history.length}) oraz nieużywane lokalne kopie ich plików źródłowych.`;
+        ? t("ocr.confirm.deleteText", { name: item.name || t("ocr.document") })
+        : t("ocr.confirm.clearText", { count: history.length });
       confirmDialog.returnValue = "";
       confirmDialog.showModal();
     }
@@ -801,7 +807,7 @@
       if (history.length === 0) {
         const empty = document.createElement("p");
         empty.className = "ocr-history-empty";
-        empty.textContent = "Historia jest pusta.";
+        empty.textContent = t("ocr.history.empty");
         historyList.appendChild(empty);
         return;
       }
@@ -811,22 +817,27 @@
         const row = document.createElement("button");
         row.type = "button";
         row.className = "ocr-history-item";
-        row.title = item.name || "Dokument";
+        row.title = item.name || t("ocr.document");
         const strong = document.createElement("strong");
-        strong.textContent = item.name || "Dokument";
+        strong.textContent = item.name || t("ocr.document");
         const preview = document.createElement("span");
         preview.textContent = stripReasoning(item.text).replace(/\s+/g, " ").slice(0, 140);
         const date = document.createElement("small");
         const savedMode = item.mode || (item.language === "original" ? "original" : "translate");
-        const savedLanguage = savedMode === "original" ? "język oryginału" : (languages[item.language] || languages.pl);
+        const savedLanguage = savedMode === "original" ? t("ocr.language.original") : languageName(item.language);
         const savedFormat = outputFormats[item.format] || outputFormats.docx;
-        date.textContent = `${textModes[savedMode] || textModes.original}: ${savedLanguage} · ${savedFormat.label} · ${new Date(item.date).toLocaleString("pl-PL")}`;
+        date.textContent = t("ocr.history.meta", {
+          mode: t(textModes[savedMode] || textModes.original),
+          language: savedLanguage,
+          format: t(savedFormat.label),
+          date: NestCafe.i18n.formatDate(item.date, { year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" }),
+        });
         row.append(strong, preview, date);
         row.addEventListener("click", () => restoreHistoryItem(item));
         const remove = document.createElement("button");
         remove.type = "button";
         remove.className = "ocr-history-delete";
-        remove.title = `Usuń „${item.name || "Dokument"}” z historii`;
+        remove.title = t("ocr.history.deleteItem", { name: item.name || t("ocr.document") });
         remove.setAttribute("aria-label", remove.title);
         remove.textContent = "×";
         remove.addEventListener("click", (event) => {
@@ -858,34 +869,34 @@
     async function transcribeCurrent() {
       const pageTotal = activePageCount();
       if (busy || pageTotal === 0 || !modeSelect.value) return;
-      setBusy(true, `Rozpoznawanie 1 z ${pageTotal}…`);
+      setBusy(true, t("ocr.status.recognizingFirst", { total: pageTotal }));
       outputEditing = false;
       output.value = "";
       try {
         const chunks = [];
         for (let index = 0; index < pageTotal; index += 1) {
           setActivePage(index);
-          setBusy(true, `Rozpoznawanie strony ${index + 1} z ${pageTotal}…`);
+          setBusy(true, t("ocr.status.recognizingPage", { page: index + 1, total: pageTotal }));
           // PDF pages are rendered at OCR resolution only for this one call and
           // released immediately afterwards. Long PDFs therefore no longer keep
           // dozens of full-resolution PNG data URLs in memory at once.
           const image = await renderPDFPageForOCR(index);
           const text = await recognizeImage(image);
-          const pageLabel = `## Strona ${index + 1}`;
+          const pageLabel = `## ${t("ocr.page.label", { page: index + 1 })}`;
           chunks.push(pageTotal > 1 ? `${pageLabel}\n\n${text}` : text);
           output.value = chunks.join("\n\n");
           updateResultLabels();
         }
         setActivePage(-1);
-        const name = currentFile?.name || documentName.textContent || "Dokument";
+        const name = currentFile?.name || documentName.textContent || t("ocr.document");
         await saveHistory(name, output.value);
-        const language = modeSelect.value === "original" ? "język oryginału" : (languages[languageSelect.value] || languages.pl);
-        const format = (outputFormats[formatSelect.value] || outputFormats.docx).label;
-        setBusy(false, `Gotowe · ${pageTotal} ${pageTotal === 1 ? "strona" : "stron"} · ${language} · ${format}`);
+        const language = modeSelect.value === "original" ? t("ocr.language.original") : languageName(languageSelect.value);
+        const format = t((outputFormats[formatSelect.value] || outputFormats.docx).label);
+        setBusy(false, t("ocr.status.done", { pages: tn("ocr.pages.count", pageTotal), language, format }));
       } catch (error) {
         setActivePage(-1);
-        setBusy(false, error.message || "Nie udało się rozpoznać tekstu.");
-        api.toast(error.message || "Błąd OCR");
+        setBusy(false, error.message || t("ocr.error.recognize"));
+        api.toast(error.message || t("ocr.error.ocr"));
       }
     }
 
@@ -897,15 +908,15 @@
       const limit = maxPdfPages > 0 ? maxPdfPages : pageCount;
       if (pageCount > limit) {
         const ok = await window.NestCafe?.dialogs?.confirm?.({
-          title: "Duży dokument PDF",
-          message: `PDF ma ${pageCount} stron. Zgodnie z ustawieniem OCR zostanie użyte pierwsze ${limit}.`,
-          confirmLabel: `Użyj ${limit} stron`,
+          title: t("ocr.pdf.largeTitle"),
+          message: t("ocr.pdf.largeMessage", { pages: tn("ocr.pages.accusative", pageCount), limit }),
+          confirmLabel: tn("ocr.pdf.useLimit", limit),
           danger: false,
           defaultConfirm: true,
         });
         if (!ok) {
           await pdf.destroy().catch(() => {});
-          throw new Error("Anulowano wczytywanie PDF.");
+          throw new Error(t("ocr.pdf.cancelled"));
         }
         pageCount = limit;
       }
@@ -915,7 +926,7 @@
       const images = [];
       const thumbnailScale = pageCount > 20 ? 0.32 : pageCount > 8 ? 0.4 : 0.52;
       for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
-        setBusy(true, `Tworzenie podglądu strony ${pageNumber} z ${pageCount}…`);
+        setBusy(true, t("ocr.status.thumbnail", { page: pageNumber, total: pageCount }));
         const page = await pdf.getPage(pageNumber);
         const viewport = page.getViewport({ scale: thumbnailScale });
         const canvas = document.createElement("canvas");
@@ -929,7 +940,7 @@
         page.cleanup?.();
       }
       if (pdf.numPages > pageCount) {
-        api.toast(`Wzięto ${pageCount} z ${pdf.numPages} stron PDF (limit w toolbarze).`);
+        api.toast(t("ocr.pdf.limited", { used: pageCount, pages: tn("ocr.pages.genitive", pdf.numPages) }));
       }
       return { pdf, pageCount, images };
     }
@@ -937,8 +948,8 @@
     function sendResultToChat() {
       const text = stripReasoning(output.value).trim();
       if (!text) return;
-      const name = currentFile?.name || documentName.textContent || "dokument";
-      const prompt = `Oto wynik OCR z pliku „${name}”.\n\n${text}`;
+      const name = currentFile?.name || documentName.textContent || t("ocr.file.documentName");
+      const prompt = `${t("ocr.chat.intro", { name })}\n\n${text}`;
       const field = document.querySelector("#prompt");
       if (field) {
         field.value = prompt;
@@ -946,7 +957,7 @@
         field.focus();
       }
       window.NestCafe?.closeModule?.() || window.closeNestCafeModule?.();
-      api.toast("Wynik OCR wstawiony do czatu. Uzupełnij pytanie i wyślij.");
+      api.toast(t("ocr.chat.inserted"));
     }
 
     async function processFile(file) {
@@ -957,11 +968,11 @@
       currentSourcePath = "";
       currentSourceType = file.type || "";
       outputEditing = false;
-      documentName.textContent = file.name || "Dokument";
+      documentName.textContent = file.name || t("ocr.document");
       modeSelect.value = "";
       output.value = "";
       updateResultLabels();
-      setBusy(true, "Wczytywanie dokumentu…");
+      setBusy(true, t("ocr.status.loadingDocument"));
       try {
         if (/\.(docx|md|txt)$/i.test(file.name)) {
           const imported = await api.importDocument(file);
@@ -970,11 +981,11 @@
           modeSelect.value = "original";
           formatSelect.value = outputFormats[imported.source_format] ? imported.source_format : "docx";
           output.value = stripReasoning(imported.text || "");
-          if (!output.value.trim()) throw new Error("Dokument nie zawiera tekstu do konwersji.");
-          showImages([], "Dokument tekstowy wczytany lokalnie", "Treść jest gotowa do eksportu jako DOCX, MD lub TXT bez używania AI.");
+          if (!output.value.trim()) throw new Error(t("ocr.error.noText"));
+          showImages([], t("ocr.import.title"), t("ocr.import.hint"));
           updateResultLabels();
-          await saveHistory(file.name || imported.name || "Dokument", output.value);
-          setBusy(false, `Wczytano ${String(imported.source_format || "dokument").toUpperCase()} lokalnie. Zmień format eksportu i zapisz — bez ponownego generowania.`);
+          await saveHistory(file.name || imported.name || t("ocr.document"), output.value);
+          setBusy(false, t("ocr.import.loaded", { format: String(imported.source_format || t("ocr.file.documentName")).toUpperCase() }));
           return;
         }
         if (file.type === "application/pdf" || /\.pdf$/i.test(file.name)) {
@@ -986,16 +997,16 @@
           currentImages = [await readAsDataURL(file)];
           currentPageCount = 1;
         } else {
-          throw new Error("Obsługiwane są obrazy PNG/JPG/WEBP, PDF, DOCX, MD oraz TXT.");
+          throw new Error(t("ocr.error.unsupported"));
         }
         showImages(currentImages);
-        setBusy(false, "Dokument gotowy. Wybierz „Oryginał” albo „Przetłumacz”, a potem uruchom rozpoznawanie.");
+        setBusy(false, t("ocr.status.documentReady"));
         modeSelect.focus();
       } catch (error) {
         releaseCurrentPDF();
         currentImages = [];
         showImages([]);
-        setBusy(false, error.message || "Nie można odczytać dokumentu.");
+        setBusy(false, error.message || t("ocr.error.readDocument"));
       }
     }
 
@@ -1013,7 +1024,7 @@
         }
         modelSelect.replaceChildren();
         if (models.length === 0) {
-          modelSelect.append(new Option("Brak skonfigurowanego modelu", ""));
+          modelSelect.append(new Option(t("ocr.models.none"), ""));
           return;
         }
         models.sort((a, b) => Number(b.active) - Number(a.active) || Number(b.vision) - Number(a.vision) || a.provider.localeCompare(b.provider) || a.id.localeCompare(b.id));
@@ -1025,7 +1036,7 @@
           modelSelect.appendChild(option);
         });
       } catch (error) {
-        modelSelect.replaceChildren(new Option("Nie można wczytać modeli", ""));
+        modelSelect.replaceChildren(new Option(t("ocr.models.loadFailed"), ""));
         status.textContent = error.message;
       }
     }
@@ -1035,17 +1046,17 @@
     modeSelect.addEventListener("change", () => {
       updateResultLabels();
       if (modeSelect.value === "original") {
-        setBusy(false, "Gotowe do wyciągnięcia tekstu w języku oryginału. Kliknij „Rozpoznaj i przygotuj”.");
+        setBusy(false, t("ocr.status.readyOriginal"));
       } else if (modeSelect.value === "translate") {
-        setBusy(false, `Gotowe do tłumaczenia na język ${languages[languageSelect.value] || languages.pl}. Kliknij „Rozpoznaj i przygotuj”.`);
+        setBusy(false, t("ocr.status.readyTranslate", { language: languageName(languageSelect.value) }));
       } else {
-        setBusy(false, "Wybierz „Oryginał” albo „Przetłumacz”.");
+        setBusy(false, t("ocr.status.chooseMode"));
       }
     });
     languageSelect.addEventListener("change", () => {
       updateResultLabels();
       api.setSetting("language", languageSelect.value);
-      if (currentImages.length && modeSelect.value === "translate") status.textContent = `Język tłumaczenia: ${languages[languageSelect.value]}. Kliknij „Rozpoznaj i przygotuj”.`;
+      if (currentImages.length && modeSelect.value === "translate") status.textContent = t("ocr.status.languageChanged", { language: languageName(languageSelect.value) });
     });
     function selectExportFormat(format, announce = true) {
       if (!outputFormats[format]) return;
@@ -1054,7 +1065,7 @@
       updateResultLabels();
       void api.setSetting("format", format);
       if (announce && output.value.trim()) {
-        setBusy(false, `Eksport: ${outputFormats[format].label}. Gotowy wynik zostaje bez zmian — OCR nie uruchamia się ponownie.`);
+        setBusy(false, t("ocr.status.formatChanged", { format: t(outputFormats[format].label) }));
       }
     }
 
@@ -1077,11 +1088,11 @@
         try {
           await persistHistory();
           await cleanupRemovedHistorySources(previousHistory, history);
-          api.toast("Historia OCR została wyczyszczona razem z nieużywanymi kopiami źródeł.");
+          api.toast(t("ocr.history.cleared"));
         } catch (error) {
           history = previousHistory;
           renderHistory();
-          api.toast(error.message || "Nie udało się wyczyścić historii OCR.");
+          api.toast(error.message || t("ocr.history.clearFailed"));
         }
         return;
       }
@@ -1091,11 +1102,11 @@
         try {
           await persistHistory();
           await cleanupRemovedHistorySources(previousHistory, history);
-          api.toast("Usunięto wpis z historii OCR.");
+          api.toast(t("ocr.history.deleted"));
         } catch (error) {
           history = previousHistory;
           renderHistory();
-          api.toast(error.message || "Nie udało się usunąć wpisu z historii OCR.");
+          api.toast(error.message || t("ocr.history.deleteFailed"));
         }
       }
     });
@@ -1109,26 +1120,26 @@
       fileInput.value = "";
       modeSelect.value = "";
       output.value = "";
-      documentName.textContent = "Brak dokumentu";
+      documentName.textContent = t("ocr.source.noDocument");
       showImages([]);
       updateResultLabels();
-      setBusy(false, "Wybierz dokument, aby rozpocząć.");
+      setBusy(false, t("ocr.status.start"));
     });
     $(".ocr-copy").addEventListener("click", async () => {
       if (!output.value) return;
       await navigator.clipboard.writeText(output.value);
-      api.toast("Skopiowano transkrypcję.");
+      api.toast(t("ocr.output.copied"));
     });
     toChatButton?.addEventListener("click", sendResultToChat);
     saveFolderButton?.addEventListener("click", saveToOutputFolder);
     openFolderButton?.addEventListener("click", openLastFolder);
     openFileButton?.addEventListener("click", openLastFile);
     chooseFolderButton?.addEventListener("click", chooseOutputFolder);
-    // PPM na „Folder…” = wróć do domyślnego supercli-data\exports\ocr
+    // Right-click on "Folder…" = return to the default supercli-data\exports\ocr
     chooseFolderButton?.addEventListener("contextmenu", (event) => {
       event.preventDefault();
       clearOutputFolder().catch((error) => {
-        api.toast(error.message || "Nie udało się przywrócić domyślnego folderu.");
+        api.toast(error.message || t("ocr.error.resetFolder"));
       });
     });
     pagesLimitSelect?.addEventListener("change", async () => {
@@ -1136,8 +1147,8 @@
       await api.setSetting("maxPdfPages", maxPdfPages);
       api.toast(
         maxPdfPages > 0
-          ? `Limit PDF: pierwsze ${maxPdfPages} stron`
-          : "Limit PDF: wszystkie strony",
+          ? tn("ocr.pdf.limitSet", maxPdfPages)
+          : t("ocr.pdf.limitAll"),
       );
     });
     autoOpenFolderInput?.addEventListener("change", async () => {
@@ -1145,8 +1156,8 @@
       await api.setSetting("autoOpenFolderAfterSave", autoOpenFolderAfterSave);
       api.toast(
         autoOpenFolderAfterSave
-          ? "Po zapisie folder wyników otworzy się automatycznie."
-          : "Po zapisie folder nie otwiera się sam.",
+          ? t("ocr.autoOpen.on")
+          : t("ocr.autoOpen.off"),
       );
     });
     previewToggle.addEventListener("click", () => {
@@ -1169,13 +1180,13 @@
         if (result?.saved) {
           const savedPath = result.path || filename;
           if (result.path) rememberSavedPath(result.path, "", false);
-          api.toast(`Zapisano: ${savedPath}`);
-          setBusy(false, `Zapisano jako ${format.toUpperCase()}: ${savedPath}`);
+          api.toast(t("ocr.save.saved", { path: savedPath }));
+          setBusy(false, t("ocr.save.savedAs", { format: format.toUpperCase(), path: savedPath }));
         } else if (!result?.browserFallback) {
-          setBusy(false, "Anulowano zapis pliku.");
+          setBusy(false, t("ocr.save.cancelled"));
         }
       } catch (error) {
-        if (error?.name !== "AbortError") api.toast(error.message || "Nie udało się przygotować dokumentu.");
+        if (error?.name !== "AbortError") api.toast(error.message || t("ocr.error.export"));
       } finally {
         updateResultLabels();
       }
@@ -1185,7 +1196,7 @@
       event.preventDefault();
       const instruction = correctionInput.value.trim();
       if (!instruction || !output.value || busy) return;
-      setBusy(true, "AI poprawia transkrypcję…");
+      setBusy(true, t("ocr.correction.running"));
       try {
         const model = selectedModel();
         const result = await api.visionTranscribe({
@@ -1207,14 +1218,14 @@
           ].join("\n"),
         });
         output.value = stripReasoning(result.text);
-        if (!output.value) throw new Error("Model nie zwrócił poprawionego tekstu końcowego.");
+        if (!output.value) throw new Error(t("ocr.correction.emptyResult"));
         outputEditing = false;
         correctionInput.value = "";
         updateResultLabels();
-        await saveHistory(currentFile?.name || documentName.textContent || "Dokument", output.value);
-        setBusy(false, "Transkrypcja została poprawiona.");
+        await saveHistory(currentFile?.name || documentName.textContent || t("ocr.document"), output.value);
+        setBusy(false, t("ocr.correction.done"));
       } catch (error) {
-        setBusy(false, error.message || "Nie udało się poprawić tekstu.");
+        setBusy(false, error.message || t("ocr.correction.failed"));
       }
     });
     ["dragenter", "dragover"].forEach((type) => dropZone.addEventListener(type, (event) => {
@@ -1261,7 +1272,7 @@
       modelSelect.value = settings.model;
     }
     updateResultLabels();
-    setBusy(false, "Wybierz dokument, aby rozpocząć.");
+    setBusy(false, t("ocr.status.start"));
 
     return () => {
       releaseCurrentPDF();

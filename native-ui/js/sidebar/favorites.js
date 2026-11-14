@@ -15,7 +15,7 @@ function saveFavorites(items) {
 }
 
 function cleanFavoriteTitle(text) {
-  return String(text || "").replace(/\s*\u{1F4CE}\s*[^\r\n]*$/u, "").trim() || "Rozmowa";
+  return String(text || "").replace(/\s*\u{1F4CE}\s*[^\r\n]*$/u, "").trim() || t("app.session.untitled");
 }
 
 function renderFavorites() {
@@ -42,7 +42,7 @@ function renderFavorites() {
         const current = loadFavorites().filter((item) => item.id !== favorite.id);
         saveFavorites(current);
         renderFavorites();
-        window.NestCafe?.toast?.(error?.message || "Nie udało się otworzyć ulubionej rozmowy.");
+        window.NestCafe?.toast?.(error?.message || t("sidebar.favorites.openFailed"));
       }
     });
     list.appendChild(button);
@@ -58,20 +58,20 @@ function decorateSession(row, session) {
   const toggle = document.createElement("span");
   toggle.className = "favorite-toggle";
   toggle.setAttribute("role", "button");
-  toggle.title = "Dodaj do ulubionych";
+  toggle.title = t("sidebar.favorites.add");
   toggle.textContent = "☆";
   const refresh = () => {
     const active = loadFavorites().some((item) => item.id === session.id);
     toggle.classList.toggle("active", active);
     toggle.textContent = active ? "★" : "☆";
-    toggle.title = active ? "Usuń z ulubionych" : "Dodaj do ulubionych";
+    toggle.title = active ? t("sidebar.favorites.remove") : t("sidebar.favorites.add");
   };
   toggle.addEventListener("click", (event) => {
     event.stopPropagation();
     const favorites = loadFavorites();
     const index = favorites.findIndex((item) => item.id === session.id);
     if (index >= 0) favorites.splice(index, 1);
-    else favorites.unshift({ id: session.id, title: window.NestCafe?.sessionTitle?.(session) || "Rozmowa" });
+    else favorites.unshift({ id: session.id, title: window.NestCafe?.sessionTitle?.(session) || t("app.session.untitled") });
     saveFavorites(favorites);
     refresh();
     renderFavorites();
@@ -90,7 +90,7 @@ function updateFavoriteTitle(sessionID, title) {
   const favorites = loadFavorites();
   const item = favorites.find((favorite) => favorite.id === sessionID);
   if (!item) return;
-  item.title = String(title || "Rozmowa").trim() || "Rozmowa";
+  item.title = String(title || "").trim() || t("app.session.untitled");
   saveFavorites(favorites);
   renderFavorites();
 }

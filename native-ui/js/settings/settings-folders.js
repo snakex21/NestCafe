@@ -6,8 +6,13 @@ function folderPathKey(path) {
   return String(path || "").replace(/[\\/]+$/, "").toLowerCase();
 }
 
+function folderFormatDateTime(value) {
+  const options = { year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" };
+  return window.NestCafe?.i18n?.formatDate ? window.NestCafe.i18n.formatDate(value, options) : new Date(value).toLocaleString();
+}
+
 function folderCountSummary(result) {
-  if (!result) return "Nie przeskanowano";
+  if (!result) return t("folders.scan.notScanned");
   if (result.error) return result.error;
   const parts = [];
   const counts = result.counts || {};
@@ -24,10 +29,10 @@ function folderCountSummary(result) {
   ]) {
     if (counts[key]) parts.push(`${counts[key]} ${label}`);
   }
-  return parts.length ? parts.join(" · ") : result.total ? `${result.total} innych plików` : "Folder jest pusty";
+  return parts.length ? parts.join(" · ") : result.total ? tn("folders.scan.otherFiles", result.total) : t("folders.scan.empty");
 }
 
-window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (root) => {
+window.NestCafe?.settings?.registerPage?.("folders", t("folders.pageTitle"), async (root) => {
   let state = { config: { selected_paths: [], custom_paths: [] }, entries: [], suggestions: [] };
   let modelCatalog = [];
   let jobPollActive = false;
@@ -38,17 +43,17 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
   const suggestions = document.createElement("section");
   suggestions.className = "folder-suggestions";
 
-  const scanButton = folderSettingsUI.button("Odśwież skan");
-  const addButton = folderSettingsUI.button("+ Wybierz folder");
-  const indexButton = folderSettingsUI.button("Indeksuj z AI", "settings-primary-button");
-  const cancelIndexButton = folderSettingsUI.button("Anuluj analizę", "settings-danger-button");
+  const scanButton = folderSettingsUI.button(t("folders.action.rescan"));
+  const addButton = folderSettingsUI.button(t("folders.action.addFolder"));
+  const indexButton = folderSettingsUI.button(t("folders.action.index"), "settings-primary-button");
+  const cancelIndexButton = folderSettingsUI.button(t("folders.action.cancelIndex"), "settings-danger-button");
   cancelIndexButton.hidden = true;
   const status = document.createElement("div");
   status.className = "folder-index-status";
 
   const visionModel = document.createElement("select");
   visionModel.className = "folder-ai-model";
-  visionModel.setAttribute("aria-label", "Model AI do indeksowania");
+  visionModel.setAttribute("aria-label", t("folders.model.ariaLabel"));
   const visionNote = document.createElement("p");
   visionNote.className = "folder-ai-model-note";
   const report = document.createElement("section");
@@ -60,14 +65,15 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
   outlookPanel.innerHTML = `
     <div class="folder-vision-copy">
       <span class="folder-vision-mark" aria-hidden="true">@</span>
-      <div><strong>Poczta Outlook</strong><small>Indeksuje temat, nadawcę, datę, treść i nazwy załączników z lokalnego Outlooka. Nie wysyła, nie przenosi i nie oznacza wiadomości jako przeczytanych.</small></div>
+      <div><strong data-i18n="folders.outlook.title"></strong><small data-i18n="folders.outlook.description"></small></div>
     </div>
     <div class="folder-vision-controls">
-      <label><span>Folder poczty</span><input class="folder-outlook-name" type="text" value="Inbox" placeholder="Inbox lub konto/folder" /></label>
-      <label><span>Najnowsze wiadomości</span><input class="folder-outlook-limit" type="number" min="1" max="2000" step="1" value="250" /></label>
-      <label class="folder-vision-toggle"><span>Indeksuj</span><input class="settings-switch-input" type="checkbox" aria-label="Włącz indeksowanie poczty Outlook" /></label>
+      <label><span data-i18n="folders.outlook.folderLabel"></span><input class="folder-outlook-name" type="text" value="Inbox" data-i18n-placeholder="folders.outlook.folderPlaceholder" /></label>
+      <label><span data-i18n="folders.outlook.limitLabel"></span><input class="folder-outlook-limit" type="number" min="1" max="2000" step="1" value="250" /></label>
+      <label class="folder-vision-toggle"><span data-i18n="folders.outlook.toggleLabel"></span><input class="settings-switch-input" type="checkbox" data-i18n-aria-label="folders.outlook.toggleAriaLabel" /></label>
     </div>
-    <p class="folder-vision-note">Pierwsze uruchomienie może potrwać dłużej. Następne używa cache i analizuje tylko zmienione wiadomości.</p>`;
+    <p class="folder-vision-note" data-i18n="folders.outlook.note"></p>`;
+  window.NestCafe?.i18n?.apply?.(outlookPanel);
   const outlookToggle = outlookPanel.querySelector(".folder-vision-toggle input");
   const outlookFolder = outlookPanel.querySelector(".folder-outlook-name");
   const outlookLimit = outlookPanel.querySelector(".folder-outlook-limit");
@@ -100,16 +106,20 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
     const last = state.config?.last_indexed_at;
     const job = state.job;
     const jobRunning = job?.state === "running";
-    const currentFile = job?.current_file?.split(/[\\/]/).pop() || "Przygotowywanie indeksu";
+    const currentFile = job?.current_file?.split(/[\\/]/).pop() || t("folders.status.preparing");
     status.innerHTML = `
-      <div><strong>${sourceCount}</strong><span>Wybrane źródła</span></div>
-      <div><strong>${scannedFiles}</strong><span>Pliki w aktualnym skanie</span></div>
-      <div><strong>${jobRunning ? `${job.current || 0}/${job.total || "…"}` : last ? new Date(last).toLocaleString("pl-PL") : "—"}</strong><span>${jobRunning ? currentFile : "Ostatnia indeksacja"}</span></div>`;
+      <div><strong>${sourceCount}</strong><span data-i18n="folders.status.sources"></span></div>
+      <div><strong>${scannedFiles}</strong><span data-i18n="folders.status.scannedFiles"></span></div>
+      <div><strong>${jobRunning ? `${job.current || 0}/${job.total || "…"}` : last ? folderFormatDateTime(last) : "—"}</strong><span class="folder-status-last"></span></div>`;
+    window.NestCafe?.i18n?.apply?.(status);
+    status.querySelector(".folder-status-last").textContent = jobRunning ? currentFile : t("folders.status.lastIndexed");
     indexButton.disabled = !sourceCount || jobRunning || !visionModel.value;
-    indexButton.textContent = jobRunning ? `AI analizuje ${job.current || 0}/${job.total || "…"}` : "Indeksuj z AI";
+    indexButton.textContent = jobRunning
+      ? t("folders.action.indexing", { current: job.current || 0, total: job.total || "…" })
+      : t("folders.action.index");
     cancelIndexButton.hidden = !jobRunning;
     cancelIndexButton.disabled = !jobRunning || cancelRequested;
-    cancelIndexButton.textContent = cancelRequested ? "Anulowanie…" : "Anuluj analizę";
+    cancelIndexButton.textContent = cancelRequested ? t("folders.action.canceling") : t("folders.action.cancelIndex");
     status.classList.toggle("working", jobRunning);
   };
 
@@ -117,7 +127,8 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
     suggestions.replaceChildren();
     if (state.suggestions?.length) {
       const copy = document.createElement("div");
-      copy.innerHTML = "<strong>Lokalizacje z tego komputera</strong><span>NestCafe odczytuje je z Windows i pokazuje tylko foldery oraz dyski, które rzeczywiście istnieją.</span>";
+      copy.innerHTML = '<strong data-i18n="folders.suggestions.title"></strong><span data-i18n="folders.suggestions.hint"></span>';
+      window.NestCafe?.i18n?.apply?.(copy);
       const buttons = document.createElement("div");
       for (const suggestion of state.suggestions) {
         const button = folderSettingsUI.button(`+ ${suggestion.label}`);
@@ -148,7 +159,7 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
       if (entry.indexed) {
         const badge = document.createElement("span");
         badge.className = "settings-status-badge online";
-        badge.textContent = "Indeks AI";
+        badge.textContent = t("folders.entry.indexedBadge");
         titleLine.append(badge);
       }
       const path = document.createElement("code");
@@ -158,15 +169,16 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
       scan.className = result?.error ? "folder-index-scan error" : "folder-index-scan";
       scan.textContent = folderCountSummary(result);
       if (entry.indexed) {
-        scan.textContent += ` · AI opisało ${entry.indexed.ai_file_count || 0}/${entry.indexed.file_count} plików`;
-        if (entry.indexed.content_file_count) scan.textContent += ` · treść ${entry.indexed.content_file_count}`;
-        if (entry.indexed.reused_file_count) scan.textContent += ` · z cache ${entry.indexed.reused_file_count}`;
-        if (entry.indexed.visual_file_count) scan.textContent += ` · wizja ${entry.indexed.visual_file_count}`;
-        if (entry.indexed.skipped_file_count) scan.textContent += ` · pominięte ${entry.indexed.skipped_file_count}`;
+        const details = [t("folders.entry.aiDescribed", { done: entry.indexed.ai_file_count || 0, total: entry.indexed.file_count })];
+        if (entry.indexed.content_file_count) details.push(t("folders.entry.content", { value: entry.indexed.content_file_count }));
+        if (entry.indexed.reused_file_count) details.push(t("folders.entry.cached", { value: entry.indexed.reused_file_count }));
+        if (entry.indexed.visual_file_count) details.push(t("folders.entry.vision", { value: entry.indexed.visual_file_count }));
+        if (entry.indexed.skipped_file_count) details.push(t("folders.entry.skipped", { value: entry.indexed.skipped_file_count }));
+        scan.textContent += ` · ${details.join(" · ")}`;
       }
       copy.append(titleLine, path, scan);
       const actions = document.createElement("div");
-      const remove = folderSettingsUI.button("Usuń", "settings-danger-button");
+      const remove = folderSettingsUI.button(t("common.remove"), "settings-danger-button");
       remove.addEventListener("click", async () => {
         remove.disabled = true;
         state.entries = state.entries.filter((item) => item.id !== entry.id);
@@ -174,7 +186,7 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
         try {
           await saveSelection();
           await loadState(false);
-          window.NestCafe?.toast?.("Folder został usunięty z indeksowania.");
+          window.NestCafe?.toast?.(t("folders.entry.removed"));
         } catch (error) {
           window.NestCafe?.toast?.(error.message);
           await loadState(false);
@@ -200,7 +212,7 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
       list.append(row);
     }
     if (!state.entries?.length) {
-      list.append(folderSettingsUI.empty("Nie dodano folderów", "Wybierz proponowaną lokalizację albo dodaj dowolny folder z dysku."));
+      list.append(folderSettingsUI.empty(t("folders.list.emptyTitle"), t("folders.list.emptyHint")));
     }
     renderStatus();
   };
@@ -222,16 +234,18 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
       { ai: 0, reused: 0, images: 0, skipped: 0 },
     );
     const head = document.createElement("header");
-    head.innerHTML = `<div><strong>Raport indeksowania AI</strong><span>AI ${totals.ai} · cache ${totals.reused} · obrazy ${totals.images} · pominięte ${totals.skipped}</span></div>`;
+    head.innerHTML = `<div><strong></strong><span></span></div>`;
+    head.querySelector("strong").textContent = t("folders.report.title");
+    head.querySelector("span").textContent = t("folders.report.totals", { ai: totals.ai, reused: totals.reused, images: totals.images, skipped: totals.skipped });
     report.append(head);
     for (const result of results) {
       const item = document.createElement("article");
       const title = document.createElement("strong");
-      title.textContent = result.path || "Poczta Outlook";
+      title.textContent = result.path || t("folders.outlook.title");
       const metrics = document.createElement("span");
       metrics.textContent = result.error
         ? result.error
-        : `AI ${result.ai_indexed || 0} · cache ${result.reused || 0} · pominięte ${result.skipped_total || 0}`;
+        : t("folders.report.resultMetrics", { ai: result.ai_indexed || 0, reused: result.reused || 0, skipped: result.skipped_total || 0 });
       item.append(title, metrics);
       if (result.folder_summary) {
         const summary = document.createElement("p");
@@ -242,21 +256,21 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
       if (skipped.length) {
         const details = document.createElement("details");
         const summary = document.createElement("summary");
-        summary.textContent = `Pokaż pominięte pliki (${result.skipped_total || skipped.length})`;
+        summary.textContent = t("folders.report.showSkipped", { value: result.skipped_total || skipped.length });
         const skippedList = document.createElement("ul");
         for (const entry of skipped) {
           const row = document.createElement("li");
           const path = document.createElement("code");
-          path.textContent = entry.path || "Nieznany plik";
+          path.textContent = entry.path || t("folders.report.unknownFile");
           const reason = document.createElement("span");
-          reason.textContent = entry.reason || "AI nie mogło przeanalizować pliku";
+          reason.textContent = entry.reason || t("folders.report.analysisFailed");
           row.append(path, reason);
           skippedList.append(row);
         }
         const hiddenCount = Math.max(0, (result.skipped_total || 0) - skipped.length);
         if (hiddenCount) {
           const more = document.createElement("li");
-          more.textContent = `…oraz ${hiddenCount} dalszych plików`;
+          more.textContent = tn("folders.report.moreFiles", hiddenCount);
           skippedList.append(more);
         }
         details.append(summary, skippedList);
@@ -269,10 +283,10 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
   const updateModelNote = () => {
     const selected = visionModel.selectedOptions[0];
     if (!selected) {
-      visionNote.textContent = "Brak skonfigurowanych modeli AI. Dodaj model u dostawcy, aby utworzyć indeks.";
+      visionNote.textContent = t("folders.model.none");
       return;
     }
-    visionNote.textContent = "NestCafe wyśle obsługiwane dokumenty i obrazy do wybranego AI. Jeśli model czegoś nie przyjmie, zobaczysz to w raporcie.";
+    visionNote.textContent = t("folders.model.note");
   };
 
   const scanPaths = async (paths) => {
@@ -281,7 +295,7 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
       return;
     }
     scanButton.disabled = true;
-    scanButton.textContent = "Skanowanie…";
+    scanButton.textContent = t("folders.action.scanning");
     try {
       const response = await folderSettingsUI.json("/api/folder-indexing", {
         method: "POST",
@@ -291,7 +305,7 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
       for (const result of response.results || []) scans.set(folderPathKey(result.path), result);
     } finally {
       scanButton.disabled = false;
-      scanButton.textContent = "Odśwież skan";
+      scanButton.textContent = t("folders.action.rescan");
       render();
     }
   };
@@ -304,7 +318,7 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
     state = folderState;
     modelCatalog = [...(models.models || [])].sort((left, right) => {
       if (left.active !== right.active) return left.active ? -1 : 1;
-      return `${left.provider}/${left.id}`.localeCompare(`${right.provider}/${right.id}`, "pl");
+      return `${left.provider}/${left.id}`.localeCompare(`${right.provider}/${right.id}`, window.NestCafe?.i18n?.lang || undefined);
     });
     visionModel.replaceChildren();
     for (const model of modelCatalog) {
@@ -312,7 +326,7 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
       option.value = `${encodeURIComponent(model.provider || "")}::${encodeURIComponent(model.id)}`;
       option.dataset.provider = model.provider || "";
       option.dataset.model = model.id;
-      option.textContent = `${model.id} · ${model.provider || "provider"}`;
+      option.textContent = `${model.id} · ${model.provider || t("folders.model.unknownProvider")}`;
       visionModel.append(option);
     }
     const savedModel = state.config?.vision_model || "";
@@ -411,7 +425,7 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
     if (!paths.length && !outlookToggle.checked) return;
     indexButton.disabled = true;
     cancelRequested = false;
-    indexButton.textContent = "Indeksowanie…";
+    indexButton.textContent = t("folders.action.indexingStarted");
     status.classList.add("working");
     try {
       let response = await folderSettingsUI.json("/api/folder-indexing", {
@@ -432,10 +446,10 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
         if (!finished) return;
         if (finished.state === "canceled") {
           renderReport(finished.results || []);
-          window.NestCafe?.toast?.("Analiza AI została anulowana. Już przeanalizowane pliki pozostają w cache.");
+          window.NestCafe?.toast?.(t("folders.toast.canceled"));
           return;
         }
-        if (finished.state === "failed") throw new Error(finished.error || "Indeksowanie nie powiodło się.");
+        if (finished.state === "failed") throw new Error(finished.error || t("folders.toast.failed"));
         response = { results: finished.results || [] };
       }
       const failed = (response.results || []).filter((result) => result.error);
@@ -447,12 +461,12 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
       renderReport(response.results || []);
       window.NestCafe?.toast?.(
         failed.length
-          ? `Indeks zapisany, ale ${failed.length} folderów zwróciło błąd.`
+          ? tn("folders.toast.savedWithFolderErrors", failed.length)
           : analysisErrors.length
-            ? `Indeks zapisany. AI przeanalizowało ${analyzed} plików, ale część analizy się nie udała.`
+            ? tn("folders.toast.savedWithAnalysisErrors", analyzed)
             : analyzed || reused
-              ? `Indeks AI zapisany. AI: ${analyzed}, cache: ${reused}, obrazy: ${visual}, pominięte: ${skipped}.`
-              : "Indeks treści dokumentów został zapisany w pamięci NestCafe.",
+              ? t("folders.toast.savedAi", { analyzed, reused, images: visual, skipped })
+              : t("folders.toast.savedContent"),
       );
       await loadState();
     } catch (error) {
@@ -460,7 +474,7 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
     } finally {
       status.classList.remove("working");
       indexButton.disabled = false;
-      indexButton.textContent = "Indeksuj z AI";
+      indexButton.textContent = t("folders.action.index");
     }
   });
 
@@ -470,18 +484,19 @@ window.NestCafe?.settings?.registerPage?.("folders", "Pliki i foldery", async (r
   const actionBar = document.createElement("div");
   actionBar.className = "folder-index-action";
   actionBar.innerHTML = `
-    <div class="folder-ai-action-copy"><strong>Indeks AI źródeł</strong><span>Skan zbiera tylko listę plików. Wybrany model AI tworzy krótkie notatki o plikach i całym folderze.</span></div>`;
+    <div class="folder-ai-action-copy"><strong data-i18n="folders.aiAction.title"></strong><span data-i18n="folders.aiAction.hint"></span></div>`;
+  window.NestCafe?.i18n?.apply?.(actionBar);
   const modelControl = document.createElement("label");
   modelControl.className = "folder-ai-model-control";
   const modelLabel = document.createElement("span");
-  modelLabel.textContent = "Model AI";
+  modelLabel.textContent = t("folders.model.label");
   modelControl.append(modelLabel, visionModel);
   actionBar.append(modelControl, indexButton, cancelIndexButton, visionNote);
 
   root.replaceChildren(
     folderSettingsUI.sectionHeader(
-      "Źródła dokumentów",
-      "Dodaj foldery do spisu. Sam skan tylko liczy pliki — przeszukiwalny indeks i notatkę o folderze tworzy dopiero wybrane AI.",
+      t("folders.header.title"),
+      t("folders.header.description"),
       headerActions,
     ),
     status,

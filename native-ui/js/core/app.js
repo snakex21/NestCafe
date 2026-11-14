@@ -14,6 +14,8 @@ const sessionList = $("#session-list");
 const toolRows = new Map();
 const questionToolIDs = new Set();
 const welcomeHTML = conversation.innerHTML;
+// True when the engine answered but reports no usable model (welcome shows a connect CTA).
+let modelMissing = false;
 
 let activeSession = "";
 let running = false;
@@ -36,7 +38,6 @@ let transcriptHasMore = false;
 let transcriptBeforeSeq = 0;
 let transcriptSessionID = "";
 let transcriptAbortController = null;
-const defaultPromptPlaceholder = promptInput.getAttribute("placeholder") || "Wiadomość lub polecenie…";
 
 function scrollConversation(force = false) {
   if (force) {
@@ -117,7 +118,7 @@ function sessionDisplayTitle(session) {
   const overrides = readSessionTitleOverrides();
   const custom = String(overrides[session?.id] || "").trim();
   if (custom) return custom;
-  return cleanSessionTitleText(session?.first_user_msg) || "Rozmowa";
+  return cleanSessionTitleText(session?.first_user_msg) || t("app.session.untitled");
 }
 
 function saveSessionTitle(sessionID, value) {
@@ -146,10 +147,10 @@ function updateComposerState() {
   promptInput.disabled = questionPending;
   if (attachButton) attachButton.disabled = questionPending;
   sendButton.disabled = questionPending;
-  sendButton.textContent = questionPending ? "Odpowiedz wyżej" : (running ? "Dodaj do kolejki" : "Wyślij");
+  sendButton.textContent = questionPending ? t("app.composer.answerAbove") : (running ? t("app.composer.addToQueue") : t("composer.send"));
   sendButton.classList.toggle("queue-mode", running && !questionPending);
   form.classList.toggle("question-pending", questionPending);
-  promptInput.placeholder = questionPending ? "Odpowiedz na pytanie powyżej…" : defaultPromptPlaceholder;
+  promptInput.placeholder = questionPending ? t("app.composer.answerPlaceholder") : t("composer.prompt.placeholder");
 }
 
 function setQuestionPending(value) {
@@ -166,9 +167,19 @@ function setRunning(value) {
   running = value;
   stopButton.hidden = !value;
   document.body.classList.toggle("running-state", value);
-  runState.textContent = value ? "W toku" : "Gotowy";
+  runState.textContent = value ? t("topbar.state.running") : t("topbar.state.ready");
   updateComposerState();
 }
+
+function syncWelcomeConnect() {
+  const connect = conversation.querySelector?.("#welcome-connect");
+  if (connect) connect.hidden = !modelMissing;
+}
+
+// The welcome block is re-created from welcomeHTML, so listen on the conversation.
+conversation.addEventListener("click", (event) => {
+  if (event.target?.closest?.(".welcome-connect-button")) $("#provider-button")?.click();
+});
 
 function clearWelcome() {
   const welcome = $("#welcome");
@@ -193,7 +204,7 @@ function interruptWithQueuedTask(task) {
   pendingImmediateTask = { ...task };
   clearPendingQuestion();
   if (running && abortController) {
-    showToast("Przerywam bieżące zadanie i uruchomię wybraną wiadomość z kolejki.");
+    showToast(t("app.queue.interrupting"));
     abortController.abort();
     return;
   }
@@ -252,7 +263,7 @@ function handleEvent(event, current) {
       if (event.id) questionToolIDs.add(event.id);
       chat().prepareQuestionBatch?.(event.args || "");
     } else {
-      const row = addActivity(event.name || "Narzędzie", event.args || "", event.id);
+      const row = addActivity(event.name || t("app.activity.tool"), event.args || "", event.id);
       row.dataset.toolName = event.name || "";
       row.dataset.toolArgs = event.args || "";
     }
@@ -262,37 +273,39 @@ function handleEvent(event, current) {
       questionToolIDs.delete(event.id);
       chat().clearQuestionBatch?.();
     } else {
-      const row = toolRows.get(event.id) || addActivity("Wynik narzędzia", "", event.id);
+      const row = toolRows.get(event.id) || addActivity(t("app.activity.toolResult"), "", event.id);
       chat().completeActivity(row, event);
       chat().enhanceToolResult?.(row, event);
     }
   } else if (event.type === "file_changes") {
     addFileChanges(event.file_changes);
   } else if (event.type === "worker" || event.type === "worker_progress") {
-    addActivity(`Delegacja · ${event.name || "worker"}`, event.output || event.tool || event.status || "");
+    addActivity(t("app.activity.delegation", { name: event.name || "worker" }), event.output || event.tool || event.status || "");
   } else if (event.type === "notice" || event.type === "compact" || event.type === "reflection") {
-    addActivity(event.type === "compact" ? "Porządkowanie kontekstu" : "Informacja", event.text || "").classList.add("info-line");
+    addActivity(event.type === "compact" ? t("app.activity.compact") : t("app.activity.info"), event.text || "").classList.add("info-line");
   } else if (event.type === "question") {
     if (chat().showQuestion) chat().showQuestion(event.question);
-    else addActivity("Pytanie od agenta", event.question?.question || "Odpowiedź wymaga interfejsu pytań.");
+    else addActivity(t("app.activity.question"), event.question?.question || t("app.activity.questionUnsupported"));
   } else if (event.type === "done") {
     chat().ensureReasoningVisibility?.(current, event.reasoning_tok);
     chat().finalizeMessage?.(current);
     clearPendingQuestion();
     addFileChanges(event.file_changes);
-    const formatTokens = (value) => new Intl.NumberFormat("pl-PL").format(value || 0);
-    const cached = event.tok_cached ? ` · cache ${formatTokens(event.tok_cached)}` : "";
-    addActivity("✓ Ukończono", `${formatTokens(event.tok_total)} tokenów${cached}`).classList.add("completion-line");
+    const tokens = tn("app.activity.tokens", event.tok_total || 0);
+    const usage = event.tok_cached
+      ? t("app.activity.tokensWithCache", { tokens, cached: window.NestCafe.i18n.formatNumber(event.tok_cached) })
+      : tokens;
+    addActivity(t("app.activity.done"), usage).classList.add("completion-line");
     window.NestCafe?.appearance?.notifyTaskComplete?.(
-      "NestCafe zakończyło zadanie",
-      title.textContent || "Zadanie zostało ukończone.",
+      t("app.notify.doneTitle"),
+      title.textContent || t("app.notify.doneBody"),
     );
     current = null;
   } else if (event.type === "error") {
     chat().finalizeMessage?.(current);
     clearPendingQuestion();
     addFileChanges(event.file_changes);
-    const errorRow = addActivity("Błąd", event.err || "Nieznany błąd");
+    const errorRow = addActivity(t("common.error"), event.err || t("app.activity.unknownError"));
     if (window.NestCafe?.errors?.decorate) window.NestCafe.errors.decorate(errorRow, event.err);
     else errorRow.classList.add("error");
   }
@@ -321,7 +334,7 @@ async function sendPrompt(text, attachments = [], draft = null, onAccepted = nul
     window.NestCafe?.attachments?.renderSent?.(userMessage, sentAttachments);
   }
   if (!activeSession) {
-    title.textContent = (prompt || "Nowa rozmowa").slice(0, 56);
+    title.textContent = (prompt || t("app.newConversation")).slice(0, 56);
   }
   setRunning(true);
   abortController = new AbortController();
@@ -333,7 +346,7 @@ async function sendPrompt(text, attachments = [], draft = null, onAccepted = nul
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        prompt: prompt || "Opisz załączone pliki.",
+        prompt: prompt || t("app.prompt.describeAttachments"),
         session_id: activeSession,
         attachments: sentAttachments,
       }),
@@ -350,12 +363,12 @@ async function sendPrompt(text, attachments = [], draft = null, onAccepted = nul
       current = handleEvent(event, current);
     });
     if (outcome === "incomplete") {
-      addActivity("Połączenie", "Połączenie zakończyło się bez potwierdzenia wyniku. Kolejka została wstrzymana.").classList.add("error");
+      addActivity(t("app.activity.connection"), t("app.activity.connectionIncomplete")).classList.add("error");
     }
   } catch (error) {
     outcome = error.name === "AbortError" ? "interrupted" : "error";
     if (error.name !== "AbortError") {
-      addActivity("Połączenie", error.message).classList.add("error");
+      addActivity(t("app.activity.connection"), error.message).classList.add("error");
       showToast(error.message);
     }
   } finally {
@@ -370,7 +383,7 @@ async function sendPrompt(text, attachments = [], draft = null, onAccepted = nul
     chat().finishPendingActivities?.(toolRows.values(), outcome);
     if (outcome !== "done" && !pendingImmediateTask) window.NestCafe?.plan?.pause?.();
     setRunning(false);
-    if (outcome !== "done") runState.textContent = outcome === "interrupted" ? "Przerwano" : "Błąd";
+    if (outcome !== "done") runState.textContent = outcome === "interrupted" ? t("topbar.state.interrupted") : t("common.error");
     liveTurnAppend = false;
     resetLiveConversationObserver();
     conversation.querySelectorAll(".live-turn").forEach((node) => node.classList.remove("live-turn"));
@@ -381,7 +394,7 @@ async function sendPrompt(text, attachments = [], draft = null, onAccepted = nul
       await loadSessions();
       // The live user bubble is created before the backend assigns its durable
       // transcript sequence number. Resolve that seq after EVERY turn, not only
-      // turns with attachments, so "Cofnij" works immediately and consistently
+      // turns with attachments, so "Rewind" works immediately and consistently
       // without requiring the user to reopen the conversation first.
       if (activeSession) {
         const latestSeq = await findLatestUserSeq(activeSession);
@@ -434,7 +447,7 @@ async function findLatestUserSeq(sessionID) {
 
 function fileLabelFromAttachments(paths) {
   const names = (paths || []).map((path) => path.split(/[\\/]/).pop()).filter(Boolean);
-  if (!names.length) return "Załączniki";
+  if (!names.length) return t("app.attachments.label");
   if (names.length === 1) return names[0];
   return `${names[0]} +${names.length - 1}`;
 }
@@ -448,13 +461,15 @@ async function loadHealth() {
     $("#status-dot").classList.remove("offline");
     $("#status-dot").classList.toggle("online", hasModel);
     $("#status-dot").classList.toggle("warning", !hasModel);
-    $("#engine-label").textContent = hasModel ? "SuperCli połączone" : "Dodaj dostawcę w Ustawieniach";
-    $("#model-label").textContent = hasModel ? model : "Brak modelu AI";
+    $("#engine-label").textContent = hasModel ? t("sidebar.engine.connected") : t("sidebar.engine.addProvider");
+    $("#model-label").textContent = hasModel ? model : t("sidebar.engine.noModel");
+    modelMissing = !hasModel;
+    syncWelcomeConnect();
     window.NestCafe?.attachments?.setWorkspace?.(health.home || "");
   } catch (error) {
     $("#status-dot").classList.remove("online", "warning");
     $("#status-dot").classList.add("offline");
-    $("#engine-label").textContent = "Brak połączenia z silnikiem";
+    $("#engine-label").textContent = t("sidebar.engine.offline");
     $("#model-label").textContent = error.message;
   }
 }
@@ -483,23 +498,23 @@ function renameSessionDialog(session) {
   const dialog = document.createElement("dialog");
   dialog.className = "confirm-dialog session-edit-dialog";
   const heading = document.createElement("h3");
-  heading.textContent = "Edytuj nazwę rozmowy";
+  heading.textContent = t("sidebar.rename.title");
   const copy = document.createElement("p");
-  copy.textContent = "Zmień nazwę widoczną w historii NestCafe.";
+  copy.textContent = t("sidebar.rename.body");
   const input = document.createElement("input");
   input.type = "text";
   input.maxLength = 120;
   input.value = sessionDisplayTitle(session);
-  input.setAttribute("aria-label", "Nazwa rozmowy");
+  input.setAttribute("aria-label", t("sidebar.rename.label"));
   const actions = document.createElement("div");
   const cancel = document.createElement("button");
   cancel.type = "button";
   cancel.className = "confirm-cancel";
-  cancel.textContent = "Anuluj";
+  cancel.textContent = t("common.cancel");
   const save = document.createElement("button");
   save.type = "button";
   save.className = "confirm-save";
-  save.textContent = "Zapisz";
+  save.textContent = t("common.save");
   cancel.addEventListener("click", () => dialog.close());
   const commit = async () => {
     const value = input.value.trim();
@@ -528,9 +543,13 @@ function renameSessionDialog(session) {
 function deleteSessionDialog(session) {
   const dialog = document.createElement("dialog");
   dialog.className = "confirm-dialog";
-  dialog.innerHTML = `<h3>Usunąć rozmowę?</h3><p>Ta rozmowa zostanie trwale usunięta. Dokumenty i pliki na dysku nie zostaną zmienione.</p><div><button class="confirm-cancel" type="button">Anuluj</button><button class="confirm-delete" type="button">Usuń</button></div>`;
+  dialog.innerHTML = `<h3></h3><p></p><div><button class="confirm-cancel" type="button"></button><button class="confirm-delete" type="button"></button></div>`;
+  dialog.querySelector("h3").textContent = t("sidebar.delete.title");
+  dialog.querySelector("p").textContent = t("sidebar.delete.body");
   const cancel = dialog.querySelector(".confirm-cancel");
   const confirm = dialog.querySelector(".confirm-delete");
+  cancel.textContent = t("common.cancel");
+  confirm.textContent = t("common.delete");
   cancel.addEventListener("click", () => dialog.close());
   confirm.addEventListener("click", async () => {
     confirm.disabled = true;
@@ -559,7 +578,7 @@ async function loadSessions() {
     if (!sessions.length) {
       const empty = document.createElement("p");
       empty.className = "session-list-empty";
-      empty.textContent = "Brak rozmów. Nowe rozmowy pojawią się tutaj.";
+      empty.textContent = t("sidebar.history.empty");
       sessionList.appendChild(empty);
     }
     for (const session of sessions) {
@@ -574,19 +593,19 @@ async function loadSessions() {
       const meta = document.createElement("span");
       meta.className = "session-meta";
       const count = Number(session.message_count) || 0;
-      meta.textContent = `${count} ${count === 1 ? "wiadomość" : "wiadomości"}${session.model ? ` · ${session.model}` : ""}`;
+      meta.textContent = `${tn("sidebar.history.messages", count)}${session.model ? ` · ${session.model}` : ""}`;
       button.append(dot, name, meta);
       window.NestCafe?.favorites?.decorateSession?.(button, session);
       button.append(
-        makeSessionAction("✎", "Edytuj nazwę", "session-edit", () => renameSessionDialog(session)),
-        makeSessionAction("×", "Usuń rozmowę", "session-delete", () => deleteSessionDialog(session)),
+        makeSessionAction("✎", t("sidebar.history.rename"), "session-edit", () => renameSessionDialog(session)),
+        makeSessionAction("×", t("sidebar.history.delete"), "session-delete", () => deleteSessionDialog(session)),
       );
       button.addEventListener("click", () => openSession(session));
       sessionList.appendChild(button);
     }
     return sessions;
   } catch (error) {
-    showToast(`Nie udało się wczytać rozmów: ${error.message}`);
+    showToast(t("sidebar.history.loadFailed", { error: error.message }));
     return [];
   }
 }
@@ -604,7 +623,7 @@ function renderLoadedTranscript(preserveScroll = false) {
     const older = document.createElement("button");
     older.type = "button";
     older.className = "history-older";
-    older.textContent = "Wczytaj starsze wiadomości";
+    older.textContent = t("app.transcript.older");
     older.addEventListener("click", loadOlderTranscript);
     conversation.appendChild(older);
   }
@@ -631,7 +650,7 @@ function renderLoadedTranscript(preserveScroll = false) {
       addFileChanges(message.turn?.file_changes);
     } else if (message.role === "tool") {
       if (message.name === "ask_user") continue;
-      const row = addActivity(message.name || "Narzędzie", "", `history-${message.seq || Math.random()}`);
+      const row = addActivity(message.name || t("app.activity.tool"), "", `history-${message.seq || Math.random()}`);
       row.dataset.toolName = message.name || "";
       chat().completeActivity(row, { output: message.content || "" });
     }
@@ -650,7 +669,7 @@ async function loadOlderTranscript() {
   const button = conversation.querySelector(".history-older");
   if (button) {
     button.disabled = true;
-    button.textContent = "Wczytywanie…";
+    button.textContent = t("app.transcript.loading");
   }
   transcriptAbortController?.abort();
   const controller = new AbortController();
@@ -670,7 +689,7 @@ async function loadOlderTranscript() {
       showToast(error.message);
       if (button?.isConnected) {
         button.disabled = false;
-        button.textContent = "Wczytaj starsze wiadomości";
+        button.textContent = t("app.transcript.older");
       }
     }
   } finally {
@@ -716,21 +735,21 @@ function rewindDialog(sessionID, seq, text, preview, messageAttachments = []) {
   const form = document.createElement("form");
   form.method = "dialog";
   const heading = document.createElement("h3");
-  heading.textContent = "Cofnij rozmowę do tej wiadomości";
+  heading.textContent = t("app.rewind.title");
   const copy = document.createElement("p");
   copy.textContent = messageAttachments.length
-    ? "Ta wiadomość i wszystkie późniejsze odpowiedzi zostaną trwale usunięte. Jej tekst i zdjęcia wrócą do pola pisania."
-    : "Ta wiadomość i wszystkie późniejsze odpowiedzi zostaną trwale usunięte. Jej tekst wróci do pola pisania.";
+    ? t("app.rewind.bodyWithImages")
+    : t("app.rewind.body");
   const reason = document.createElement("textarea");
   reason.maxLength = 400;
-  reason.placeholder = "Opcjonalnie: co było nie tak?";
+  reason.placeholder = t("app.rewind.reasonPlaceholder");
   let rewindFiles = null;
   if (preview?.available && preview.files?.length) {
     const option = document.createElement("label");
     rewindFiles = document.createElement("input");
     rewindFiles.type = "checkbox";
     const optionCopy = document.createElement("span");
-    optionCopy.textContent = `Cofnij również zmiany w ${preview.files.length} pliku/plikach. Domyślnie pliki pozostają bez zmian.`;
+    optionCopy.textContent = tn("app.rewind.files", preview.files.length);
     option.append(rewindFiles, optionCopy);
     form.append(heading, copy, reason, option);
   } else {
@@ -741,11 +760,11 @@ function rewindDialog(sessionID, seq, text, preview, messageAttachments = []) {
   const cancel = document.createElement("button");
   cancel.type = "button";
   cancel.className = "settings-secondary-button";
-  cancel.textContent = "Anuluj";
+  cancel.textContent = t("common.cancel");
   const confirm = document.createElement("button");
   confirm.type = "button";
   confirm.className = "settings-primary-button";
-  confirm.textContent = "Cofnij";
+  confirm.textContent = t("app.rewind.confirm");
   cancel.addEventListener("click", () => dialog.close());
   confirm.addEventListener("click", async () => {
     confirm.disabled = true;
@@ -769,7 +788,7 @@ function rewindDialog(sessionID, seq, text, preview, messageAttachments = []) {
       // not return it (older conversation, transient ordering, etc.).
       const session = sessions.find((item) => item.id === sessionID) || {
         id: sessionID,
-        first_user_msg: title.textContent || "Rozmowa",
+        first_user_msg: title.textContent || t("app.session.untitled"),
       };
       await openSession(session, true);
       promptInput.value = text || "";
@@ -781,7 +800,7 @@ function rewindDialog(sessionID, seq, text, preview, messageAttachments = []) {
       window.NestCafe?.attachments?.replace?.(restoredAttachments);
       window.NestCafe?.attachments?.forget?.(sessionID, seq);
       promptInput.focus();
-      showToast(result.warning || "Rozmowa została cofnięta.");
+      showToast(result.warning || t("app.rewind.done"));
     } catch (error) {
       showToast(error.message);
       confirm.disabled = false;
@@ -800,7 +819,7 @@ function rewindDialog(sessionID, seq, text, preview, messageAttachments = []) {
 async function rewindMessage(seq, text, trigger, messageAttachments = []) {
   if (!activeSession || !seq) return;
   if (running) {
-    showToast("Poczekaj, aż bieżące zadanie się zakończy, zanim cofniesz wiadomość.");
+    showToast(t("app.rewind.busy"));
     return;
   }
   trigger.disabled = true;
@@ -824,7 +843,7 @@ async function resumeSessionByID(id) {
     const sessions = await json("/api/sessions?limit=100");
     if (sequence !== navigationSequence || running) return false;
     const session = sessions.find((item) => item.id === id);
-    if (!session) throw new Error("Nie znaleziono rozmowy powiązanej z zadaniem.");
+    if (!session) throw new Error(t("app.session.notFound"));
     return await openSession(session, false, sequence);
   } catch (error) {
     if (sequence !== navigationSequence || running) return false;
@@ -838,9 +857,11 @@ function newConversation() {
   activeSession = "";
   toolRows.clear();
   conversation.innerHTML = welcomeHTML;
+  window.NestCafe?.i18n?.apply?.(conversation);
+  syncWelcomeConnect();
   window.NestCafe?.favorites?.render?.();
   document.body.classList.add("empty-state");
-  title.textContent = "Nowa rozmowa";
+  title.textContent = t("app.newConversation");
   window.NestCafe?.attachments?.clear?.();
   composerDraftStore.restore();
   loadSessions();
@@ -853,12 +874,12 @@ form.addEventListener("submit", async (event) => {
   const draft = { scope: composerDraftStore.scope(), text };
   const pendingAttachments = window.NestCafe?.attachments?.list?.() || [];
   if (questionPending) {
-    showToast("Najpierw odpowiedz na pytanie agenta powyżej.");
+    showToast(t("app.composer.answerFirst"));
     return;
   }
   if (running) {
     if (pendingAttachments.length) {
-      showToast("Załączniki można wysłać po zakończeniu bieżącego zadania.");
+      showToast(t("app.composer.attachmentsBusy"));
       return;
     }
     if (!text.trim()) return;
@@ -887,7 +908,7 @@ promptInput.addEventListener("input", () => {
 });
 
 stopButton.addEventListener("click", () => {
-  // Stop pauses the queue; the separate explicit "Teraz" action replaces a run.
+  // Stop pauses the queue; the separate explicit "Now" action replaces a run.
   window.NestCafe?.plan?.pause?.();
   pendingImmediateTask = null;
   abortController?.abort();

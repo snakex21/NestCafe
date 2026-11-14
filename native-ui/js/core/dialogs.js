@@ -9,7 +9,7 @@
     dialog.className = "confirm-dialog nestcafe-system-dialog";
 
     const heading = document.createElement("h3");
-    heading.textContent = title || "Potwierdzenie";
+    heading.textContent = title || t("dialogs.confirm.title");
 
     const copy = document.createElement("p");
     copy.textContent = message || "";
@@ -30,12 +30,12 @@
       const cancel = document.createElement("button");
       cancel.type = "button";
       cancel.className = "confirm-cancel";
-      cancel.textContent = options.cancelLabel || "Anuluj";
+      cancel.textContent = options.cancelLabel || t("common.cancel");
 
       const confirm = document.createElement("button");
       confirm.type = "button";
       confirm.className = options.danger === false ? "confirm-save" : "confirm-delete";
-      confirm.textContent = options.confirmLabel || (options.danger === false ? "Potwierdź" : "Usuń");
+      confirm.textContent = options.confirmLabel || (options.danger === false ? t("common.confirm") : t("common.delete"));
 
       let settled = false;
       const finish = (value) => {
@@ -81,12 +81,12 @@
       const cancel = document.createElement("button");
       cancel.type = "button";
       cancel.className = "confirm-cancel";
-      cancel.textContent = options.cancelLabel || "Anuluj";
+      cancel.textContent = options.cancelLabel || t("common.cancel");
 
       const confirm = document.createElement("button");
       confirm.type = "button";
       confirm.className = "confirm-save";
-      confirm.textContent = options.confirmLabel || "Zapisz";
+      confirm.textContent = options.confirmLabel || t("common.save");
 
       let settled = false;
       const finish = (value) => {

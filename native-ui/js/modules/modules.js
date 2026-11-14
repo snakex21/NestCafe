@@ -18,6 +18,14 @@
     return response.json();
   }
 
+  // Translated module name/description: "<prefix>.module.title" / ".description",
+  // prefix = manifest.i18nPrefix or the module name without a trailing "-viewer".
+  function moduleText(manifest, field, fallback) {
+    const prefix = manifest.i18nPrefix || String(manifest.name || "").replace(/-viewer$/, "");
+    const key = `${prefix}.module.${field}`;
+    return prefix && window.NestCafe?.i18n?.has?.(key) ? t(key) : fallback;
+  }
+
   function modulePath(manifest, file) {
     return `/modules/${encodeURIComponent(manifest.name)}/${file}`;
   }
@@ -32,7 +40,7 @@
       const node = document.createElement(tag);
       Object.entries(attributes).forEach(([name, value]) => node.setAttribute(name, value));
       node.addEventListener("load", resolve, { once: true });
-      node.addEventListener("error", () => reject(new Error(`Nie można załadować ${attributes.src || attributes.href}`)), { once: true });
+      node.addEventListener("error", () => reject(new Error(t("modules.assetLoadFailed", { path: attributes.src || attributes.href }))), { once: true });
       document.head.appendChild(node);
     });
   }
@@ -56,10 +64,10 @@
       },
       async storeSource(file) {
         const body = new FormData();
-        body.append("file", file, file.name || "dokument");
+        body.append("file", file, file.name || "document");
         const result = await request("/api/attachment/upload?scope=profile", { method: "POST", body });
         const path = Array.isArray(result.paths) ? result.paths[0] : "";
-        if (!path) throw new Error("Silnik nie zwrocil sciezki zapisanego dokumentu.");
+        if (!path) throw new Error(t("modules.noStoredPath"));
         return path;
       },
       async loadSource(path) {
@@ -151,7 +159,7 @@
       "data-module-asset": `${manifest.name}-script`,
     });
     if (!window.NestCafeModules[manifest.name]?.mount) {
-      throw new Error(`Moduł ${manifest.name} nie udostępnił funkcji mount().`);
+      throw new Error(t("modules.noMount", { name: manifest.name }));
     }
   }
 
@@ -174,7 +182,7 @@
     closeModule();
     try {
       await ensureModuleLoaded(manifest);
-      title.textContent = manifest.title || manifest.name;
+      title.textContent = moduleText(manifest, "title", manifest.title || manifest.name);
       workspace.hidden = false;
       document.body.classList.add("module-open");
       document.querySelectorAll(".module-item").forEach((button) => {
@@ -202,8 +210,8 @@
       button.className = "module-item";
       button.dataset.module = manifest.name;
       button.innerHTML = '<span class="module-item-icon">▤</span><span><strong></strong><small></small></span>';
-      button.querySelector("strong").textContent = manifest.title || manifest.name;
-      button.querySelector("small").textContent = manifest.description || `v${manifest.version || "1.0.0"}`;
+      button.querySelector("strong").textContent = moduleText(manifest, "title", manifest.title || manifest.name);
+      button.querySelector("small").textContent = moduleText(manifest, "description", manifest.description || `v${manifest.version || "1.0.0"}`);
       button.addEventListener("click", () => openModule(manifest));
       list.appendChild(button);
     }
@@ -213,7 +221,7 @@
     try {
       renderCatalog(await request("/modules/catalog.json"));
     } catch {
-      empty.textContent = "Nie znaleziono zgodnych modułów.";
+      empty.textContent = t("modules.catalogUnavailable");
       empty.hidden = false;
     }
   }

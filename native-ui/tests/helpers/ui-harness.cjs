@@ -76,10 +76,41 @@ function harness() {
     clearInterval: id => intervals.delete(id),
     getComputedStyle: () => ({ getPropertyValue: () => '' }),
   });
+  installI18n(context);
   const source = file => fs.readFileSync(path.join(__dirname, '../../js', file), 'utf8');
   const load = file => vm.runInContext(source(file), context, { filename: file });
   const flush = async () => { for (let i = 0; i < 30; i++) await Promise.resolve(); };
   return { context, nc, window, element, timers, intervals, load, source, flush };
 }
 
-module.exports = { Element, descendants, harness };
+// Runs the real js/core/i18n.js inside a test context. A synchronous XHR stub
+// serves the catalogs from native-ui/locales and reports `lang` as the saved
+// UI language, so UI code under test renders the same strings as the app.
+function installI18n(context, lang = 'pl') {
+  const root = path.join(__dirname, '../..');
+  class XMLHttpRequest {
+    open(method, url) { this.url = url; }
+    send() {
+      if (this.url === '/api/settings') {
+        this.status = 200; this.responseText = JSON.stringify({ settings: { 'ui.lang': lang } }); return;
+      }
+      const file = path.join(root, this.url);
+      if (this.url.startsWith('locales/') && fs.existsSync(file)) {
+        this.status = 200; this.responseText = fs.readFileSync(file, 'utf8'); return;
+      }
+      this.status = 404; this.responseText = '';
+    }
+  }
+  if (!context.window) context.window = {};
+  if (!context.window.NestCafe) context.window.NestCafe = {};
+  const nc = context.window.NestCafe;
+  if (typeof nc.export !== 'function') nc.export = function (name, value) { this[name] = value; return value; };
+  context.XMLHttpRequest = XMLHttpRequest;
+  if (!context.document) context.document = {};
+  if (!context.document.documentElement) context.document.documentElement = {};
+  const source = fs.readFileSync(path.join(root, 'js/core/i18n.js'), 'utf8');
+  vm.runInContext(source, context, { filename: 'core/i18n.js' });
+  return nc.i18n;
+}
+
+module.exports = { Element, descendants, harness, installI18n };

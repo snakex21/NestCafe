@@ -7,17 +7,19 @@
 
   const tokenLabel = (value) => {
     const tokens = Number(value || 0);
-    if (!tokens) return "Nie wykryto";
-    if (tokens >= 1_000_000) return `${tokens / 1_000_000} mln`;
-    if (tokens >= 1_000) return `${Math.round(tokens / 1_000)} tys.`;
-    return String(tokens);
+    const format = (value) => window.NestCafe?.i18n?.formatNumber?.(value) ?? String(value);
+    if (!tokens) return t("settings.models.notDetected");
+    if (tokens >= 1_000_000) return t("settings.models.tokensMillions", { value: format(tokens / 1_000_000) });
+    if (tokens >= 1_000) return t("settings.models.tokensThousands", { value: format(Math.round(tokens / 1_000)) });
+    return format(tokens);
   };
 
-  register("models", "Modele i kontekst", async (root) => {
+  register("models", t("settings.nav.models"), async (root) => {
     const search = document.createElement("input");
     search.type = "search";
     search.className = "settings-search-input";
-    search.placeholder = "Szukaj modelu lub dostawcy…";
+    search.placeholder = t("settings.models.searchPlaceholder");
+    search.setAttribute("aria-label", t("settings.models.searchLabel"));
     const list = document.createElement("div");
     list.className = "settings-model-context-list";
     let models = [];
@@ -34,8 +36,8 @@
         const name = document.createElement("strong");
         name.textContent = model.id;
         const meta = document.createElement("span");
-        const abilities = [model.reasoning && "myślenie"].filter(Boolean);
-        meta.textContent = `${model.provider || "dostawca"} · auto: ${tokenLabel(model.context_length)}${abilities.length ? ` · ${abilities.join(" · ")}` : ""}`;
+        const abilities = [model.reasoning && t("settings.models.reasoning")].filter(Boolean);
+        meta.textContent = `${model.provider || t("settings.models.providerFallback")} · ${t("settings.models.autoContext", { value: tokenLabel(model.context_length) })}${abilities.length ? ` · ${abilities.join(" · ")}` : ""}`;
         identity.append(name, meta);
 
         const control = document.createElement("div");
@@ -44,11 +46,13 @@
         input.type = "text";
         input.inputMode = "text";
         input.value = model.manual_context_length ? String(model.manual_context_length) : "auto";
-        input.placeholder = "auto, 100k lub 1m";
-        input.setAttribute("aria-label", `Kontekst modelu ${model.id}`);
-        const save = ui.button("Zapisz", "settings-primary-button");
+        input.placeholder = t("settings.models.contextPlaceholder");
+        input.setAttribute("aria-label", t("settings.models.contextLabel", { model: model.id }));
+        const save = ui.button(t("common.save"), "settings-primary-button");
         const status = document.createElement("small");
-        status.textContent = model.manual_context_length ? `Ręcznie: ${tokenLabel(model.manual_context_length)}` : "Automatycznie";
+        status.textContent = model.manual_context_length
+          ? t("settings.models.manual", { value: tokenLabel(model.manual_context_length) })
+          : t("settings.models.automatic");
         save.addEventListener("click", async () => {
           save.disabled = true;
           try {
@@ -57,7 +61,7 @@
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ provider: model.provider, model: model.id, value: input.value.trim() || "auto" }),
             });
-            window.NestCafe?.toast?.(`Zapisano kontekst dla ${model.provider}/${model.id}.`);
+            window.NestCafe?.toast?.(t("settings.models.saved", { model: `${model.provider}/${model.id}` }));
             await load();
           } catch (error) {
             window.NestCafe?.toast?.(error.message);
@@ -72,7 +76,7 @@
         row.append(identity, control);
         list.append(row);
       }
-      if (!list.children.length) list.append(ui.empty("Brak modeli", "Zmień wyszukiwanie albo skonfiguruj dostawcę."));
+      if (!list.children.length) list.append(ui.empty(t("settings.models.emptyTitle"), t("settings.models.emptyHint")));
     };
 
     const load = async () => {
@@ -85,8 +89,8 @@
     shell.className = "settings-model-context-page";
     shell.append(
       ui.sectionHeader(
-        "Kontekst modeli",
-        "Ręczny limit dotyczy pary dostawca/model. „auto” wraca do wartości z API lub katalogu.",
+        t("settings.models.heading"),
+        t("settings.models.description"),
       ),
       search,
       list,

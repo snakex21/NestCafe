@@ -41,14 +41,18 @@ function renderGoal() {
   const done = tasks.filter((task) => task.status === "done" || task.status === "skipped").length;
   if (badge) badge.textContent = `${done}/${tasks.length}`;
   document.querySelector("#goal-title").textContent = currentGoal.title;
-  const labels = { active: "w toku", done: "zakończony", abandoned: "porzucony" };
+  const knownStatuses = ["active", "done", "abandoned"];
   document.querySelector("#goal-status").textContent = currentGoal.verification_status === "passed"
-    ? "zweryfikowany" : labels[currentGoal.status] || currentGoal.status;
-  document.querySelector("#goal-description").textContent = currentGoal.description || "Bez dodatkowego opisu.";
+    ? t("plan.goal.status.verified")
+    : knownStatuses.includes(currentGoal.status) ? t(`plan.goal.status.${currentGoal.status}`) : currentGoal.status;
+  document.querySelector("#goal-description").textContent = currentGoal.description || t("plan.goal.noDescription");
   const criteria = document.querySelector("#goal-criteria");
   criteria.hidden = !currentGoal.success_criteria;
-  criteria.textContent = currentGoal.success_criteria ? `Gotowe, gdy: ${currentGoal.success_criteria}` : "";
-  document.querySelector("#goal-progress").textContent = `${done} z ${tasks.length} kroków ukończonych`;
+  criteria.textContent = currentGoal.success_criteria ? t("plan.goal.criteria", { criteria: currentGoal.success_criteria }) : "";
+  document.querySelector("#goal-progress").textContent = t("plan.goal.progress", {
+    done: window.NestCafe?.i18n?.formatNumber?.(done) ?? String(done),
+    steps: tn("plan.goal.progressSteps", tasks.length),
+  });
   goalTasks.replaceChildren();
   for (const task of tasks) {
     const row = document.createElement("label");
@@ -107,13 +111,13 @@ function queueRow(task, index, compact = false) {
   number.type = "button";
   number.className = compact ? "composer-queue-index" : "queue-index-button";
   number.textContent = String(index + 1).padStart(2, "0");
-  number.title = "Zmień pozycję w kolejce";
+  number.title = t("plan.queue.changePosition");
   number.addEventListener("click", () => chooseQueuedTaskPosition(task, index));
 
   const copy = document.createElement("button");
   copy.type = "button";
   copy.className = compact ? "composer-queue-copy" : "queue-copy-button";
-  copy.title = "Edytuj wiadomość";
+  copy.title = t("plan.queue.editMessage");
   const prompt = document.createElement("strong");
   prompt.textContent = task.prompt;
   copy.appendChild(prompt);
@@ -121,14 +125,14 @@ function queueRow(task, index, compact = false) {
 
   const actions = document.createElement("div");
   actions.className = compact ? "composer-queue-actions" : "queue-actions";
-  const now = queueButton(compact ? "Teraz" : "Uruchom", "Przerwij bieżącą pracę i uruchom teraz", () => runQueuedTask(task));
+  const now = queueButton(compact ? t("plan.queue.now") : t("plan.queue.run"), t("plan.queue.runNowTitle"), () => runQueuedTask(task));
   now.classList.add("queue-now");
-  const edit = queueButton("✎", "Edytuj", () => editQueuedTask(task));
-  const up = queueButton("↑", "Przesuń wyżej", () => moveQueuedTask(task, Math.max(0, index - 1)));
+  const edit = queueButton("✎", t("common.edit"), () => editQueuedTask(task));
+  const up = queueButton("↑", t("plan.queue.moveUp"), () => moveQueuedTask(task, Math.max(0, index - 1)));
   up.disabled = index === 0;
-  const down = queueButton("↓", "Przesuń niżej", () => moveQueuedTask(task, Math.min(queuedTasks.length - 1, index + 1)));
+  const down = queueButton("↓", t("plan.queue.moveDown"), () => moveQueuedTask(task, Math.min(queuedTasks.length - 1, index + 1)));
   down.disabled = index + 1 >= queuedTasks.length;
-  const remove = queueButton("×", "Usuń", () => removeQueuedTask(task.id));
+  const remove = queueButton("×", t("common.remove"), () => removeQueuedTask(task.id));
   remove.classList.add("queue-remove");
   actions.append(now, edit, up, down, remove);
   row.append(number, copy, actions);
@@ -144,9 +148,9 @@ function renderComposerQueue() {
   const head = document.createElement("div");
   head.className = "composer-queue-head";
   const label = document.createElement("strong");
-  label.textContent = `W kolejce · ${queuedTasks.length}`;
+  label.textContent = t("plan.queue.composerCount", { count: queuedTasks.length });
   const hint = document.createElement("span");
-  hint.textContent = "Teraz = przerwij bieżącego agenta i uruchom tę wiadomość";
+  hint.textContent = t("plan.queue.composerHint");
   head.append(label, hint);
   composerQueue.appendChild(head);
 
@@ -163,7 +167,7 @@ function renderQueue() {
   if (!queuedTasks.length) {
     const empty = document.createElement("div");
     empty.className = "queue-empty";
-    empty.textContent = "Kolejka jest pusta.";
+    empty.textContent = t("plan.queue.empty");
     queueList.appendChild(empty);
     return;
   }
@@ -187,19 +191,19 @@ async function patchQueuedTask(task, patch) {
 
 async function chooseQueuedTaskPosition(task, index) {
   const value = await window.NestCafe?.dialogs?.prompt?.({
-    title: "Zmień pozycję w kolejce",
-    message: `Wybierz pozycję od 1 do ${queuedTasks.length}.`,
+    title: t("plan.queue.changePosition"),
+    message: t("plan.queue.positionPrompt", { max: queuedTasks.length }),
     value: String(index + 1),
     type: "number",
     min: 1,
     max: queuedTasks.length,
     step: 1,
-    confirmLabel: "Przenieś",
+    confirmLabel: t("plan.queue.move"),
   });
   if (value == null) return;
   const position = Number(value) - 1;
   if (!Number.isInteger(position) || position < 0 || position >= queuedTasks.length) {
-    window.NestCafe?.toast?.("Podaj prawidłową pozycję kolejki.");
+    window.NestCafe?.toast?.(t("plan.queue.invalidPosition"));
     return;
   }
   await moveQueuedTask(task, position);
@@ -209,14 +213,14 @@ function editQueuedTask(task) {
   const dialog = document.createElement("dialog");
   dialog.className = "confirm-dialog queue-edit-dialog";
   const heading = document.createElement("h3");
-  heading.textContent = "Edytuj wiadomość w kolejce";
+  heading.textContent = t("plan.queue.editTitle");
   const input = document.createElement("textarea");
   input.rows = 6;
   input.value = task.prompt || "";
   const actions = document.createElement("div");
-  const cancel = queueButton("Anuluj", "Anuluj", () => dialog.close());
+  const cancel = queueButton(t("common.cancel"), t("common.cancel"), () => dialog.close());
   cancel.className = "confirm-cancel";
-  const save = queueButton("Zapisz", "Zapisz wiadomość", async () => {
+  const save = queueButton(t("common.save"), t("plan.queue.saveMessage"), async () => {
     const prompt = input.value.trim();
     if (!prompt) return input.focus();
     save.disabled = true;
@@ -255,7 +259,7 @@ async function enqueueTask(prompt, automatic = false) {
     });
     continueQueuedRuns = continueQueuedRuns || automatic;
     await loadQueue();
-    window.NestCafe?.toast?.("Dodano do kolejki.");
+    window.NestCafe?.toast?.(t("plan.queue.added"));
     return true;
   } catch (error) {
     window.NestCafe?.toast?.(error.message);
@@ -301,7 +305,7 @@ async function runQueuedTask(task, promptOverride = "", options = {}) {
     if (!canContinue() || window.NestCafe?.isRunning?.()) {
       launchingQueuedTasks.delete(task.id);
       if (options.sequence == null && window.NestCafe?.isRunning?.()) {
-        window.NestCafe?.toast?.("Rozpoczęto inne zadanie. Ta wiadomość pozostała w kolejce.");
+        window.NestCafe?.toast?.(t("plan.queue.otherRunStarted"));
       }
       return false;
     }
@@ -311,7 +315,7 @@ async function runQueuedTask(task, promptOverride = "", options = {}) {
     const run = window.NestCafe?.runPrompt?.(promptOverride || task.prompt, [], null, async (signal) => {
       if (!await removeQueuedTask(task.id, signal)) {
         pauseQueuedRuns();
-        if (!signal.aborted) window.NestCafe?.toast?.("Zadanie uruchomiono, ale nie udało się usunąć go z kolejki. Kolejka została wstrzymana.");
+        if (!signal.aborted) window.NestCafe?.toast?.(t("plan.queue.removeFailedPaused"));
       }
     });
     Promise.resolve(run).catch((error) => window.NestCafe?.toast?.(error.message))
@@ -324,13 +328,20 @@ async function runQueuedTask(task, promptOverride = "", options = {}) {
   }
 }
 
+function memoryEmpty(text) {
+  const empty = document.createElement("div");
+  empty.className = "memory-empty";
+  empty.textContent = text;
+  return empty;
+}
+
 async function loadMemory() {
-  memoryList.innerHTML = '<div class="memory-empty">Wczytuję pamięć…</div>';
+  memoryList.replaceChildren(memoryEmpty(t("plan.memory.loading")));
   try {
     const rows = await planJson("/api/memory?limit=60") || [];
     memoryList.replaceChildren();
     if (!rows.length) {
-      memoryList.innerHTML = '<div class="memory-empty">Agent nie zapisał jeszcze żadnych faktów.</div>';
+      memoryList.replaceChildren(memoryEmpty(t("plan.memory.empty")));
       return;
     }
     for (const item of rows) {
@@ -347,13 +358,13 @@ async function loadMemory() {
         copy.appendChild(tags);
       }
       const scope = document.createElement("small");
-      const target = item.target === "global" ? "wspólna" : "przestrzeń";
-      scope.textContent = `${item.scope || "pamięć"} · ${target}`;
+      const target = item.target === "global" ? t("plan.memory.targetGlobal") : t("plan.memory.targetWorkspace");
+      scope.textContent = `${item.scope || t("plan.memory.scopeFallback")} · ${target}`;
       row.append(copy, scope);
       memoryList.appendChild(row);
     }
   } catch (error) {
-    memoryList.innerHTML = `<div class="memory-empty">${error.message}</div>`;
+    memoryList.replaceChildren(memoryEmpty(error.message));
   }
 }
 
@@ -392,14 +403,14 @@ document.querySelector("#goal-add-task").addEventListener("submit", async (event
 document.querySelector("#verify-goal").addEventListener("click", () => mutateGoal({
   action: "verify",
   passed: true,
-  text: document.querySelector("#goal-evidence").value || "Potwierdzone przez użytkownika w NestCafe.",
+  text: document.querySelector("#goal-evidence").value || t("plan.goal.userVerifiedEvidence"),
 }));
 document.querySelector("#finish-goal").addEventListener("click", () => mutateGoal({ action: "set_status", status: "done" }));
 document.querySelector("#abandon-goal").addEventListener("click", async () => {
   const approved = await window.NestCafe?.dialogs?.confirm?.({
-    title: "Porzucić aktywny cel?",
-    message: "Cel pozostanie w historii, ale nie będzie już aktywny.",
-    confirmLabel: "Porzuć cel",
+    title: t("plan.goal.abandon.title"),
+    message: t("plan.goal.abandon.message"),
+    confirmLabel: t("plan.goal.abandon.confirm"),
   });
   if (approved) mutateGoal({ action: "set_status", status: "abandoned" });
 });
@@ -415,7 +426,7 @@ document.querySelector("#refresh-memory").addEventListener("click", loadMemory);
 function openPlanDialog(page = "goal") {
   const memoryView = page === "memory";
   planDialog.classList.toggle("memory-view", memoryView);
-  document.querySelector(".plan-head h2").textContent = memoryView ? "Pamięć" : "Plan pracy";
+  document.querySelector(".plan-head h2").textContent = memoryView ? t("plan.title.memory") : t("plan.title.plan");
   activatePlanTab(memoryView ? "memory" : page);
   window.NestCafe?.settings?.setPlanNavigation?.(memoryView ? "memory" : "plan");
   planDialog.showModal();

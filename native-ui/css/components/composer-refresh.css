@@ -54,6 +54,7 @@
 }
 
 .composer-context {
+  min-width: 0;
   gap: 11px;
 }
 
@@ -63,8 +64,22 @@
 }
 
 .composer-keys {
+  overflow: hidden;
   color: var(--nc-muted-soft) !important;
   font-size: 10.5px !important;
+  white-space: nowrap;
+}
+
+/* The keyboard hint is the first thing to go when the composer gets narrow,
+   so the model label keeps its room instead of being truncated. */
+.composer-footer {
+  container-type: inline-size;
+}
+
+@container (max-width: 620px) {
+  .composer-keys {
+    display: none !important;
+  }
 }
 
 .composer-keys kbd {
@@ -136,6 +151,8 @@
 }
 
 .model-button {
+  flex: 0 0 auto;
+  min-width: 9rem;
   max-width: 220px;
   padding: 0 10px 0 12px;
   display: inline-flex;
@@ -148,6 +165,7 @@
 }
 
 .model-button-label {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -235,8 +253,8 @@
   }
 
   .model-button {
-    min-width: 0;
-    max-width: 126px;
+    min-width: 7rem;
+    max-width: 140px;
   }
 
   .reasoning-button {
@@ -247,4 +265,14 @@
     min-width: 60px;
     padding-inline: 10px;
   }
+}
+
+/* Model picker: loading placeholder and "add provider" empty state. */
+.model-empty p {
+  margin: 0 0 10px;
+}
+
+.model-empty .model-empty-action {
+  min-height: 32px;
+  padding: 0 14px;
 }

@@ -1,8 +1,8 @@
 {
   "name": "ocr-viewer",
   "version": "1.2.0",
-  "title": "Przeglądarka OCR",
-  "description": "OCR i tłumaczenie dokumentów do języka polskiego z eksportem do Worda, Markdown i TXT.",
+  "title": "OCR Viewer",
+  "description": "OCR and document translation with export to Word, Markdown and TXT.",
   "icon": "file-text",
   "nativeEntry": "native.js",
   "nativeStyle": "native.css",

@@ -7,27 +7,17 @@ const reasoningMenu = document.querySelector("#reasoning-menu");
 const reasoningOptions = document.querySelector("#reasoning-options");
 const reasoningEffective = document.querySelector("#reasoning-effective");
 
-const reasoningLabels = {
-  "": "Automatyczny",
-  none: "Wyłączone",
-  minimal: "Minimalny",
-  low: "Niski",
-  medium: "Średni",
-  high: "Wysoki",
-  xhigh: "Bardzo wysoki",
-  max: "Maksymalny",
-};
+// Catalog keys per level; "" is the automatic (engine default) level.
+const reasoningLevelKeys = ["none", "minimal", "low", "medium", "high", "xhigh", "max"];
 
-const reasoningShortLabels = {
-  "": "auto",
-  none: "wył.",
-  minimal: "min.",
-  low: "niski",
-  medium: "średni",
-  high: "wysoki",
-  xhigh: "b. wysoki",
-  max: "maks.",
-};
+function reasoningKey(prefix, level) {
+  return `${prefix}.${level === "" ? "auto" : level}`;
+}
+
+function reasoningShortLabel(level) {
+  if (level === "" || reasoningLevelKeys.includes(level)) return t(reasoningKey("reasoning.short", level));
+  return level;
+}
 
 let reasoningSaving = false;
 let reasoningState = null;
@@ -39,7 +29,9 @@ async function reasoningJson(path, options) {
 }
 
 function reasoningLabel(level) {
-  return reasoningLabels[level] || level || reasoningLabels[""];
+  if (!level) return t("reasoning.level.auto");
+  if (reasoningLevelKeys.includes(level)) return t(reasoningKey("reasoning.level", level));
+  return level;
 }
 
 function renderReasoning(view) {
@@ -47,15 +39,16 @@ function renderReasoning(view) {
   const configured = reasoningState.configured || "";
   const effective = reasoningState.effective || configured || "";
   reasoningControl.hidden = false;
-  reasoningLevel.textContent = reasoningShortLabels[configured] || configured || "auto";
+  reasoningLevel.textContent = reasoningShortLabel(configured);
   reasoningButton.classList.toggle("active", !!configured);
-  reasoningButton.title = `Poziom rozumowania: ${reasoningLabel(configured)}`
-    + (reasoningState.adjusted ? ` (faktycznie: ${reasoningLabel(effective)})` : "");
+  reasoningButton.title = reasoningState.adjusted
+    ? t("reasoning.button.titleAdjusted", { level: reasoningLabel(configured), effective: reasoningLabel(effective) })
+    : t("reasoning.button.title", { level: reasoningLabel(configured) });
   reasoningEffective.textContent = reasoningState.adjusted
-    ? `Wybrano: ${reasoningLabel(configured)} · model użyje: ${reasoningLabel(effective)}`
-    : `Aktywny: ${reasoningLabel(effective)}`;
+    ? t("reasoning.effective.adjusted", { level: reasoningLabel(configured), effective: reasoningLabel(effective) })
+    : t("reasoning.effective.active", { level: reasoningLabel(effective) });
 
-  const choices = [{ value: "", label: reasoningLabels[""] }];
+  const choices = [{ value: "", label: reasoningLabel("") }];
   for (const level of reasoningState.levels || []) {
     if (!choices.some((choice) => choice.value === level)) {
       choices.push({ value: level, label: reasoningLabel(level) });
@@ -84,7 +77,7 @@ async function loadReasoning() {
   try {
     renderReasoning(await reasoningJson("/api/reasoning"));
   } catch (error) {
-    window.NestCafe?.toast?.(`Nie udało się wczytać poziomu rozumowania: ${error.message}`);
+    window.NestCafe?.toast?.(t("reasoning.toast.loadFailed", { error: error.message }));
   }
 }
 

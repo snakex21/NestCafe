@@ -12,9 +12,32 @@ let activeProvider = "";
 let modelSelectionPending = false;
 let modelLoadSeq = 0;
 
+// Display names for well-known provider/template ids. The stored id stays
+// unchanged; only what the user sees is prettified.
+const PROVIDER_DISPLAY_NAMES = {
+  openai: "OpenAI", anthropic: "Anthropic", claude: "Claude", google: "Google Gemini",
+  gemini: "Gemini", deepseek: "DeepSeek", openrouter: "OpenRouter", anyrouter: "AnyRouter",
+  ollama: "Ollama", lmstudio: "LM Studio", mistral: "Mistral", groq: "Groq", xai: "xAI",
+  opencode: "OpenCode", "opencode-go": "OpenCode Go", zen: "OpenCode Zen", codex: "Codex",
+  kilo: "Kilo", kilocode: "Kilo Code", together: "Together AI", huggingface: "Hugging Face",
+  perplexity: "Perplexity", fireworks: "Fireworks", cerebras: "Cerebras", cohere: "Cohere",
+  nvidia: "NVIDIA", novita: "Novita", chutes: "Chutes", venice: "Venice", lepton: "Lepton AI",
+  zhipu: "Zhipu", moonshot: "Moonshot", dashscope: "DashScope", doubao: "Doubao",
+  stepfun: "StepFun", yi: "01.AI Yi", xiaomi: "Xiaomi MiMo", minimax: "MiniMax",
+  deepinfra: "DeepInfra", siliconflow: "SiliconFlow", baichuan: "Baichuan",
+  tencent: "Tencent Hunyuan", featherless: "Featherless", iflytek: "iFlytek",
+  qianfan: "Baidu Qianfan", sensenova: "SenseNova", cline: "Cline", nous: "Nous Portal",
+  azure: "Azure OpenAI", bedrock: "Amazon Bedrock", vertex: "Vertex AI", litellm: "LiteLLM",
+};
+
+function providerDisplayName(name) {
+  const raw = String(name || "").trim();
+  return PROVIDER_DISPLAY_NAMES[raw.toLowerCase()] || raw;
+}
+
 function compactModelName(model) {
   const original = String(model || "").trim();
-  if (!original || original === "no model") return "Wybierz model";
+  if (!original || original === "no model") return t("models.button.choose");
   let name = original.split("/").pop() || original;
   name = name
     .replace(/[-_:](?:contributor[-_:])?free$/i, "")
@@ -29,7 +52,7 @@ function compactModelName(model) {
 
 function setModelButton(model, provider) {
   modelButtonLabel.textContent = compactModelName(model);
-  modelButton.title = provider ? `${model} · ${provider}` : model || "Wybierz model";
+  modelButton.title = provider ? `${model} · ${providerDisplayName(provider)}` : model || t("models.button.choose");
 }
 
 async function modelJson(path, options) {
@@ -40,8 +63,28 @@ async function modelJson(path, options) {
 
 function modelCapabilities(model) {
   const caps = [];
-  if (model.reasoning) caps.push("think");
+  if (model.reasoning) caps.push(t("models.caps.think"));
   return caps.join(" · ");
+}
+
+function addProviderButton() {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "secondary-button model-empty-action";
+  button.textContent = t("models.list.addProvider");
+  button.addEventListener("click", () => {
+    if (modelDialog.open) modelDialog.close();
+    document.querySelector("#provider-button")?.click();
+  });
+  return button;
+}
+
+function renderModelsLoading() {
+  const loading = document.createElement("div");
+  loading.className = "model-empty model-loading";
+  loading.setAttribute("aria-busy", "true");
+  loading.textContent = t("models.list.loading");
+  modelList.replaceChildren(loading);
 }
 
 function renderModels() {
@@ -55,9 +98,13 @@ function renderModels() {
   if (!visible.length) {
     const empty = document.createElement("div");
     empty.className = "model-empty";
-    empty.textContent = query
-      ? "Brak wyników dla tego wyszukiwania."
-      : "Brak modeli. Dodaj dostawcę w Ustawieniach.";
+    if (query) {
+      empty.textContent = t("models.list.noResults");
+    } else {
+      const message = document.createElement("p");
+      message.textContent = t("models.list.noModels");
+      empty.append(message, addProviderButton());
+    }
     modelList.appendChild(empty);
     return;
   }
@@ -70,7 +117,7 @@ function renderModels() {
     const name = document.createElement("strong");
     name.textContent = model.id;
     const provider = document.createElement("small");
-    provider.textContent = model.provider || "provider";
+    provider.textContent = model.provider ? providerDisplayName(model.provider) : t("models.list.providerFallback");
     identity.append(name, provider);
     const caps = document.createElement("span");
     caps.className = "caps";
@@ -84,7 +131,7 @@ function renderModels() {
 async function loadModels() {
   if (modelSelectionPending) return false;
   const sequence = ++modelLoadSeq;
-  modelList.innerHTML = `<div class="model-empty">Ładowanie modeli…</div>`;
+  renderModelsLoading();
   let response;
   try {
     response = await modelJson("/api/models");
@@ -158,8 +205,8 @@ function positionModelMenu() {
   let maxHeight = Math.min(440, available, viewportLimit);
   let top;
 
-  // Przy bardzo małej ilości miejsca panel staje się nakładką w obrębie
-  // viewportu zamiast wychodzić pod dolną krawędź aplikacji.
+  // With very little room the panel becomes an overlay inside the viewport
+  // instead of spilling below the bottom edge of the app.
   if (maxHeight < Math.min(220, viewportLimit)) {
     maxHeight = Math.min(440, viewportLimit);
     top = Math.max(gutter, (viewportHeight - maxHeight) / 2);
@@ -185,6 +232,8 @@ function getActiveModel() {
 
 modelButton.addEventListener("click", async () => {
   positionModelMenu();
+  // Open first with a lightweight placeholder so there is never a bare backdrop.
+  if (!modelCatalog.length) renderModelsLoading();
   modelDialog.showModal();
   modelSearch.value = "";
   try {
@@ -212,6 +261,7 @@ const modelsApi = {
   refresh: loadModels,
   getActive: getActiveModel,
   list: () => modelCatalog.map((model) => ({ ...model })),
+  providerDisplayName,
 };
 window.NestCafe.export("models", modelsApi);
 // Flat aliases (export() binds the object, not these function names).

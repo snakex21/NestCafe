@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pl">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -13,14 +13,14 @@
       <aside class="sidebar" id="app-sidebar">
         <div class="sidebar-brand">
           <img class="brand-logo" src="assets/nestcafe-icon.png" alt="" />
-          <div><strong>NestCafe</strong><span>Pulpit roboczy</span></div>
+          <div><strong>NestCafe</strong><span data-i18n="sidebar.brand.subtitle"></span></div>
         </div>
 
         <button class="document-library-button" id="document-library-button" type="button">
           <span class="document-library-glyph" aria-hidden="true"></span>
           <span class="document-library-copy">
-            <small>ŹRÓDŁA</small>
-            <strong>Pliki i foldery</strong>
+            <small data-i18n="sidebar.library.kicker"></small>
+            <strong data-i18n="sidebar.library.title"></strong>
           </span>
           <span class="document-library-arrow" aria-hidden="true">→</span>
         </button>
@@ -28,61 +28,61 @@
         <div class="sidebar-actions">
           <button class="new-chat" id="new-chat" type="button">
             <span aria-hidden="true">＋</span>
-            Nowa rozmowa
+            <bdi data-i18n="app.newConversation"></bdi>
           </button>
-          <button class="search-button" id="search-sessions" type="button" title="Szukaj rozmów" aria-label="Szukaj rozmów">⌕</button>
+          <button class="search-button" id="search-sessions" type="button" data-i18n-title="sidebar.searchSessions" data-i18n-aria-label="sidebar.searchSessions">⌕</button>
         </div>
 
         <section class="sidebar-section module-section">
           <div class="module-heading">
-            <span>Moduły</span>
-            <button id="module-add" type="button" title="Przeglądaj umiejętności" aria-label="Przeglądaj umiejętności">+</button>
+            <span data-i18n="sidebar.modules.heading"></span>
+            <button id="module-add" type="button" data-i18n-title="sidebar.modules.browse" data-i18n-aria-label="sidebar.modules.browse">+</button>
           </div>
           <div class="module-list" id="module-list"></div>
-          <p class="module-empty" id="module-empty">Brak aktywnych modułów.</p>
+          <p class="module-empty" id="module-empty" data-i18n="sidebar.modules.empty"></p>
         </section>
 
         <section class="sidebar-section favorite-section" id="favorites" hidden>
           <div class="sidebar-heading favorite-heading">
-            <span>Ulubione</span>
+            <span data-i18n="sidebar.favorites.heading"></span>
           </div>
-          <nav class="favorite-list" id="favorite-list" aria-label="Ulubione rozmowy"></nav>
+          <nav class="favorite-list" id="favorite-list" data-i18n-aria-label="sidebar.favorites.navLabel"></nav>
         </section>
 
         <section class="sidebar-section history-section">
           <div class="sidebar-heading">
-            <span>Historia</span>
-            <button id="refresh-sessions" type="button" title="Odśwież historię" aria-label="Odśwież historię">↻</button>
+            <span data-i18n="sidebar.history.heading"></span>
+            <button id="refresh-sessions" type="button" data-i18n-title="sidebar.history.refresh" data-i18n-aria-label="sidebar.history.refresh">↻</button>
           </div>
-          <nav class="session-list" id="session-list" aria-label="Historia rozmów"></nav>
-          <button class="clear-sessions" id="clear-sessions" type="button">Wyczyść historię</button>
+          <nav class="session-list" id="session-list" data-i18n-aria-label="sidebar.history.navLabel"></nav>
+          <button class="clear-sessions" id="clear-sessions" type="button" data-i18n="sidebar.history.clear"></button>
         </section>
 
         <div class="engine-state">
           <span class="status-dot" id="status-dot"></span>
           <div class="engine-copy">
-            <strong id="model-label">Model</strong>
-            <span id="engine-label">Łączenie…</span>
+            <strong id="model-label" data-i18n="sidebar.engine.model"></strong>
+            <span id="engine-label" data-i18n="sidebar.engine.connecting"></span>
           </div>
-          <button class="provider-button" id="provider-button" type="button" title="Ustawienia" aria-label="Ustawienia">⚙</button>
+          <button class="provider-button" id="provider-button" type="button" data-i18n-title="common.settings" data-i18n-aria-label="common.settings">⚙</button>
         </div>
       </aside>
 
       <main class="workspace">
-        <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-controls="app-sidebar" aria-expanded="false" aria-label="Pokaż menu" title="Pokaż menu">☰</button>
+        <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-controls="app-sidebar" aria-expanded="false" data-i18n-aria-label="sidebar.toggle.show" data-i18n-title="sidebar.toggle.show">☰</button>
         <header class="topbar">
-          <button class="execution-back" id="execution-back" type="button" aria-label="Wróć do pustej rozmowy">←</button>
-          <div class="topbar-title"><span>ROZMOWA</span><h1 id="conversation-title">Nowa rozmowa</h1></div>
-          <div class="run-state" id="run-state">Gotowy</div>
+          <button class="execution-back" id="execution-back" type="button" data-i18n-aria-label="topbar.back">←</button>
+          <div class="topbar-title"><span data-i18n="topbar.kicker"></span><h1 id="conversation-title" data-i18n="app.newConversation"></h1></div>
+          <div class="run-state" id="run-state" data-i18n="topbar.state.ready"></div>
         </header>
 
         <section class="module-workspace" id="module-workspace" hidden>
           <header class="module-workspace-head">
             <div>
-              <span>MODUŁ</span>
-              <h2 id="module-workspace-title">Moduł</h2>
+              <span data-i18n="app.module.kicker"></span>
+              <h2 id="module-workspace-title" data-i18n="app.module.title"></h2>
             </div>
-            <button id="module-close" type="button" aria-label="Zamknij moduł">×</button>
+            <button id="module-close" type="button" data-i18n-aria-label="app.module.close">×</button>
           </header>
           <div class="module-workspace-content" id="module-workspace-content"></div>
         </section>
@@ -90,54 +90,58 @@
         <section class="conversation" id="conversation" aria-live="polite">
           <div class="welcome" id="welcome">
             <div class="welcome-intro">
-              <span class="welcome-kicker">START</span>
-              <h2>Wpisz zadanie</h2>
-              <p>Model, pliki i narzędzia działają w tym oknie. Enter wysyła, Shift+Enter nowa linia.</p>
+              <span class="welcome-kicker" data-i18n="welcome.kicker"></span>
+              <h2 data-i18n="welcome.title"></h2>
+              <p data-i18n="welcome.body"></p>
+              <div class="welcome-connect" id="welcome-connect" hidden>
+                <p data-i18n="welcome.connect.text"></p>
+                <button class="welcome-connect-button" type="button" data-i18n="welcome.connect.button"></button>
+              </div>
             </div>
           </div>
         </section>
 
-        <section class="composer-queue" id="composer-queue" aria-label="Kolejka wiadomości" hidden></section>
+        <section class="composer-queue" id="composer-queue" data-i18n-aria-label="composer.queue.label" hidden></section>
 
         <form class="composer" id="composer">
           <div class="attachment-list" id="attachment-list" hidden></div>
           <textarea
             id="prompt"
             rows="1"
-            placeholder="Wiadomość lub polecenie…"
-            aria-label="Wiadomość"
+            data-i18n-placeholder="composer.prompt.placeholder"
+            data-i18n-aria-label="composer.prompt.label"
           ></textarea>
           <div class="composer-footer">
             <div class="composer-context">
               <span class="attach-control">
-                <button class="attach-button" id="attach-button" type="button" title="Załącz plik" aria-label="Załącz plik">
+                <button class="attach-button" id="attach-button" type="button" data-i18n-title="composer.attach" data-i18n-aria-label="composer.attach">
                   <span class="nc-fluent-icon" aria-hidden="true">&#xE723;</span>
                 </button>
                 <input class="attach-file-input" id="attachment-file-input" type="file" multiple tabindex="-1" aria-hidden="true" />
               </span>
-              <span class="composer-keys"><kbd>Enter</kbd> wyślij <i>·</i> <kbd>Shift+Enter</kbd> nowa linia</span>
+              <span class="composer-keys"><kbd>Enter</kbd> <span data-i18n="composer.keys.send"></span> <i>·</i> <kbd>Shift+Enter</kbd> <span data-i18n="composer.keys.newLine"></span></span>
             </div>
             <div class="composer-actions">
               <button class="model-button" id="model-button" type="button">
-                <span class="model-button-label" id="model-button-label">Model</span>
+                <span class="model-button-label" id="model-button-label" data-i18n="composer.model"></span>
                 <span class="nc-fluent-icon model-chevron" aria-hidden="true">&#xE70D;</span>
               </button>
               <div class="reasoning-control" id="reasoning-control">
                 <button class="reasoning-button" id="reasoning-button" type="button" aria-haspopup="menu" aria-expanded="false">
-                  <span>Myślenie</span>
+                  <span data-i18n="composer.reasoning.button"></span>
                   <span class="reasoning-level" id="reasoning-level">auto</span>
                   <span class="nc-fluent-icon reasoning-chevron" aria-hidden="true">&#xE70D;</span>
                 </button>
-                <div class="reasoning-menu" id="reasoning-menu" role="menu" aria-label="Poziom rozumowania" hidden>
+                <div class="reasoning-menu" id="reasoning-menu" role="menu" data-i18n-aria-label="composer.reasoning.menuLabel" hidden>
                   <div class="reasoning-menu-head">
-                    <strong>Poziom rozumowania</strong>
-                    <small id="reasoning-effective">Automatyczny</small>
+                    <strong data-i18n="composer.reasoning.menuLabel"></strong>
+                    <small id="reasoning-effective" data-i18n="composer.reasoning.automatic"></small>
                   </div>
                   <div id="reasoning-options"></div>
                 </div>
               </div>
-              <button class="stop-button" id="stop-button" type="button" hidden>Stop</button>
-              <button class="send-button" id="send-button" type="submit">Wyślij</button>
+              <button class="stop-button" id="stop-button" type="button" data-i18n="composer.stop" hidden></button>
+              <button class="send-button" id="send-button" type="submit" data-i18n="composer.send"></button>
             </div>
           </div>
         </form>
@@ -147,121 +151,119 @@
     <dialog class="model-dialog" id="model-dialog">
       <form method="dialog" class="model-dialog-head">
         <div>
-          <span class="eyebrow">SILNIK AI</span>
-          <h2>Wybierz model</h2>
+          <span class="eyebrow" data-i18n="dialogs.model.kicker"></span>
+          <h2 data-i18n="dialogs.model.title"></h2>
         </div>
-        <button type="submit" aria-label="Zamknij">×</button>
+        <button type="submit" data-i18n-aria-label="common.close">×</button>
       </form>
-      <input id="model-search" type="search" placeholder="Szukaj modelu lub providera…" />
+      <input id="model-search" type="search" data-i18n-placeholder="dialogs.model.search" />
       <div class="model-list" id="model-list"></div>
     </dialog>
 
     <dialog class="skills-dialog" id="skills-dialog">
       <form method="dialog" class="skills-dialog-head">
-        <h2>Umiejętności</h2>
-        <button type="submit" aria-label="Zamknij">×</button>
+        <h2 data-i18n="dialogs.skills.title"></h2>
+        <button type="submit" data-i18n-aria-label="common.close">×</button>
       </form>
       <div class="skills-toolbar">
-        <input id="skills-search" type="search" placeholder="Szukaj umiejętności…" />
-        <span id="skills-summary">Ładowanie katalogu…</span>
+        <input id="skills-search" type="search" data-i18n-placeholder="dialogs.skills.search" />
+        <span id="skills-summary" data-i18n="dialogs.skills.loading"></span>
       </div>
       <div class="skills-list" id="skills-list"></div>
-      <button class="skills-more" id="skills-more" type="button" hidden>Pokaż więcej</button>
+      <button class="skills-more" id="skills-more" type="button" data-i18n="dialogs.skills.more" hidden></button>
     </dialog>
 
     <dialog class="provider-dialog" id="provider-dialog">
       <div class="provider-dialog-head">
         <div>
-          <span class="eyebrow">POŁĄCZENIA AI</span>
-          <h2>Dostawcy modeli</h2>
+          <span class="eyebrow" data-i18n="dialogs.provider.kicker"></span>
+          <h2 data-i18n="dialogs.provider.title"></h2>
         </div>
-        <button id="close-providers" type="button" aria-label="Zamknij">×</button>
+        <button id="close-providers" type="button" data-i18n-aria-label="common.close">×</button>
       </div>
 
       <div class="provider-layout">
         <aside class="provider-sidebar">
-          <button class="add-provider" id="add-provider" type="button">＋ Dodaj dostawcę</button>
+          <button class="add-provider" id="add-provider" type="button" data-i18n="dialogs.provider.addButton"></button>
           <div class="provider-list" id="provider-list"></div>
         </aside>
 
         <form class="provider-form" id="provider-form">
           <div class="provider-form-title">
             <div>
-              <span class="eyebrow" id="provider-mode">NOWE POŁĄCZENIE</span>
-              <h3 id="provider-title">Dodaj dostawcę</h3>
+              <span class="eyebrow" id="provider-mode" data-i18n="dialogs.provider.modeNew"></span>
+              <h3 id="provider-title" data-i18n="dialogs.provider.formTitle"></h3>
             </div>
-            <span class="provider-status" id="provider-status">Nie sprawdzono</span>
+            <span class="provider-status" id="provider-status" data-i18n="dialogs.provider.statusUnchecked"></span>
           </div>
 
           <label>
-            <span>Gotowy szablon</span>
+            <span data-i18n="dialogs.provider.template"></span>
             <select id="provider-template">
-              <option value="">Własna konfiguracja</option>
+              <option value="" data-i18n="dialogs.provider.templateCustom"></option>
             </select>
           </label>
 
           <div class="provider-grid">
             <label>
-              <span>Nazwa</span>
+              <span data-i18n="dialogs.provider.name"></span>
               <input id="provider-name" autocomplete="off" required />
             </label>
             <label>
-              <span>Typ API</span>
+              <span data-i18n="dialogs.provider.apiType"></span>
               <select id="provider-type">
-                <option value="auto">Auto wykryj (OpenAI / Anthropic)</option>
+                <option value="auto" data-i18n="dialogs.provider.typeAuto"></option>
                 <option value="openai">OpenAI Chat Completions</option>
                 <option value="responses">OpenAI Responses API</option>
                 <option value="anthropic">Anthropic Messages</option>
                 <option value="opencode">OpenCode gateway</option>
-                <option value="codex">Konto Codex</option>
+                <option value="codex" data-i18n="dialogs.provider.typeCodex"></option>
               </select>
             </label>
           </div>
 
           <label>
-            <span>Adres serwera</span>
+            <span data-i18n="dialogs.provider.url"></span>
             <input id="provider-url" type="url" placeholder="http://localhost:1234/v1" required />
           </label>
 
           <label>
-            <span>Domyślny model <small>opcjonalnie</small></span>
-            <input id="provider-model" autocomplete="off" placeholder="np. gpt-5 lub nazwa modelu lokalnego" />
+            <span><bdi data-i18n="dialogs.provider.defaultModel"></bdi> <small data-i18n="dialogs.provider.optional"></small></span>
+            <input id="provider-model" autocomplete="off" data-i18n-placeholder="dialogs.provider.modelPlaceholder" />
           </label>
 
           <label>
-            <span>Klucz API <small id="provider-key-hint">pozostaw pusty, jeśli serwer go nie wymaga</small></span>
+            <span><bdi data-i18n="dialogs.provider.apiKey"></bdi> <small id="provider-key-hint" data-i18n="dialogs.provider.keyHint"></small></span>
             <input id="provider-key" type="password" autocomplete="new-password" />
           </label>
 
           <div class="provider-options" id="provider-options" hidden>
-            <label><input id="provider-disabled" type="checkbox" /> Zachowaj, ale wyłącz dostawcę</label>
-            <label><input id="provider-clear-key" type="checkbox" /> Usuń zapisany klucz</label>
+            <label><input id="provider-disabled" type="checkbox" /> <bdi data-i18n="dialogs.provider.keepDisabled"></bdi></label>
+            <label><input id="provider-clear-key" type="checkbox" /> <bdi data-i18n="dialogs.provider.clearKey"></bdi></label>
           </div>
 
-          <div class="provider-diagnostic" id="provider-diagnostic">
-            Po zapisaniu NestCafe sprawdzi endpoint modeli bez uruchamiania inferencji.
-          </div>
+          <div class="provider-diagnostic" id="provider-diagnostic" data-i18n="dialogs.provider.diagnostic"></div>
 
           <section class="provider-models" id="provider-models" hidden>
             <div class="provider-models-head">
               <div>
-                <strong>Lista modeli</strong>
-                <small id="provider-models-count">0 modeli</small>
+                <strong data-i18n="dialogs.provider.modelList"></strong>
+                <small id="provider-models-count" data-i18n="dialogs.provider.modelsNone"></small>
               </div>
               <div class="provider-models-actions">
-                <button class="secondary-button" id="provider-models-enable" type="button">Włącz wszystkie</button>
-                <button class="secondary-button" id="provider-models-disable" type="button">Wyłącz wszystkie</button>
+                <button class="secondary-button" id="provider-models-enable" type="button" data-i18n="dialogs.provider.enableAll"></button>
+                <button class="secondary-button" id="provider-models-disable" type="button" data-i18n="dialogs.provider.disableAll"></button>
               </div>
             </div>
-            <input id="provider-model-search" type="search" placeholder="Szukaj modeli…" autocomplete="off" />
+            <input id="provider-model-search" type="search" data-i18n-placeholder="dialogs.provider.modelSearch" autocomplete="off" />
             <div class="provider-model-list" id="provider-model-list"></div>
           </section>
 
           <div class="provider-actions">
-            <button class="danger-button" id="delete-provider" type="button" hidden>Usuń</button>
+            <button class="danger-button" id="delete-provider" type="button" data-i18n="common.delete" hidden></button>
             <div>
-              <button class="secondary-button" id="check-provider" type="button" hidden>Sprawdź</button>
-              <button class="save-provider" id="save-provider" type="submit">Dodaj i sprawdź</button>
+              <button class="secondary-button" id="check-provider" type="button" data-i18n="dialogs.provider.check" hidden></button>
+              <button class="save-provider" id="save-provider" type="submit" data-i18n="dialogs.provider.addAndCheck"></button>
             </div>
           </div>
         </form>
@@ -271,32 +273,32 @@
     <dialog class="plan-dialog" id="plan-dialog">
       <div class="plan-head">
         <div>
-          <span class="eyebrow">ORGANIZACJA PRACY</span>
-          <h2>Plan pracy</h2>
+          <span class="eyebrow" data-i18n="plan.dialog.kicker"></span>
+          <h2 data-i18n="plan.dialog.title"></h2>
         </div>
-        <button id="close-plan" type="button" aria-label="Zamknij">×</button>
+        <button id="close-plan" type="button" data-i18n-aria-label="common.close">×</button>
       </div>
-      <nav class="plan-tabs" aria-label="Plan pracy">
-        <button class="active" type="button" data-plan-tab="goal">Cel</button>
-        <button type="button" data-plan-tab="queue">Kolejka <small id="queue-count">0</small></button>
+      <nav class="plan-tabs" data-i18n-aria-label="plan.dialog.title">
+        <button class="active" type="button" data-plan-tab="goal" data-i18n="plan.dialog.tabGoal"></button>
+        <button type="button" data-plan-tab="queue"><bdi data-i18n="plan.dialog.tabQueue"></bdi> <small id="queue-count">0</small></button>
       </nav>
 
       <section class="plan-panel active" id="plan-goal">
         <form class="goal-create" id="goal-create">
           <div class="plan-empty">
-            <h3>Brak aktywnego celu</h3>
-            <p>Cel utrzymuje kierunek pracy między rozmowami i pokazuje modelowi otwarte kroki.</p>
+            <h3 data-i18n="plan.dialog.noGoal"></h3>
+            <p data-i18n="plan.dialog.goalIntro"></p>
           </div>
-          <label><span>Nazwa celu</span><input id="goal-title-input" required /></label>
-          <label><span>Co ma powstać</span><textarea id="goal-description-input" rows="2"></textarea></label>
-          <label><span>Kiedy uznamy pracę za gotową</span><input id="goal-criteria-input" /></label>
-          <button class="plan-primary" type="submit">Utwórz cel</button>
+          <label><span data-i18n="plan.dialog.goalName"></span><input id="goal-title-input" required /></label>
+          <label><span data-i18n="plan.dialog.goalOutcome"></span><textarea id="goal-description-input" rows="2"></textarea></label>
+          <label><span data-i18n="plan.dialog.goalCriteria"></span><input id="goal-criteria-input" /></label>
+          <button class="plan-primary" type="submit" data-i18n="plan.dialog.createGoal"></button>
         </form>
 
         <div class="goal-active" id="goal-active" hidden>
           <div class="goal-summary">
             <div>
-              <span class="eyebrow">AKTYWNY CEL</span>
+              <span class="eyebrow" data-i18n="plan.dialog.activeGoal"></span>
               <h3 id="goal-title"></h3>
             </div>
             <span class="goal-status" id="goal-status"></span>
@@ -306,42 +308,42 @@
           <div class="goal-progress" id="goal-progress"></div>
           <div class="goal-tasks" id="goal-tasks"></div>
           <form class="goal-add-task" id="goal-add-task">
-            <input id="goal-task-input" placeholder="Dodaj kolejny krok…" required />
-            <button type="submit">Dodaj</button>
+            <input id="goal-task-input" data-i18n-placeholder="plan.dialog.addStep" required />
+            <button type="submit" data-i18n="common.add"></button>
           </form>
           <div class="goal-verify" id="goal-verify" hidden>
-            <label><span>Dowód wykonania</span><input id="goal-evidence" placeholder="np. dokument sprawdzony i zapisany" /></label>
-            <button class="plan-primary" id="verify-goal" type="button">Potwierdź wykonanie</button>
+            <label><span data-i18n="plan.dialog.evidence"></span><input id="goal-evidence" data-i18n-placeholder="plan.dialog.evidencePlaceholder" /></label>
+            <button class="plan-primary" id="verify-goal" type="button" data-i18n="plan.dialog.verify"></button>
           </div>
           <div class="goal-actions">
-            <button id="abandon-goal" type="button">Porzuć cel</button>
-            <button class="plan-primary" id="finish-goal" type="button" hidden>Zakończ cel</button>
+            <button id="abandon-goal" type="button" data-i18n="plan.dialog.abandon"></button>
+            <button class="plan-primary" id="finish-goal" type="button" data-i18n="plan.dialog.finish" hidden></button>
           </div>
         </div>
       </section>
 
       <section class="plan-panel" id="plan-queue">
         <div class="plan-intro">
-          <div><h3>Kolejka wiadomości</h3><p>Zadania pozostają zapisane po zamknięciu aplikacji.</p></div>
-          <button id="run-queue" type="button">Uruchom pierwsze</button>
+          <div><h3 data-i18n="plan.dialog.queueTitle"></h3><p data-i18n="plan.dialog.queueIntro"></p></div>
+          <button id="run-queue" type="button" data-i18n="plan.dialog.runFirst"></button>
         </div>
         <form class="queue-add" id="queue-add">
-          <input id="queue-input" placeholder="Dodaj zadanie do wykonania później…" required />
-          <button class="plan-primary" type="submit">Dodaj</button>
+          <input id="queue-input" data-i18n-placeholder="plan.dialog.queuePlaceholder" required />
+          <button class="plan-primary" type="submit" data-i18n="common.add"></button>
         </form>
         <div class="queue-list" id="queue-list"></div>
       </section>
 
       <section class="plan-panel" id="plan-memory">
         <div class="plan-intro">
-          <div><h3>Pamięć NestCafe</h3><p>Fakty zapisane dla bieżącego kontekstu oraz we wspólnej pamięci aplikacji.</p></div>
-          <button id="refresh-memory" type="button">Odśwież</button>
+          <div><h3 data-i18n="plan.dialog.memoryTitle"></h3><p data-i18n="plan.dialog.memoryIntro"></p></div>
+          <button id="refresh-memory" type="button" data-i18n="common.refresh"></button>
         </div>
         <div class="memory-list" id="memory-list"></div>
       </section>
     </dialog>
 
-    <div class="toast" id="toast" role="status" hidden></div>
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
     <!-- Load order: SuperCli runtime → NestCafe bus → shell → features → settings pages → modules -->
     <script src="/.__supercli/ui/runtime.js"></script>
     <script src="js/core/namespace.js"></script>

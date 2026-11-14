@@ -132,3 +132,40 @@ test('run end clears unanswered approvals and the pending state', () => {
   assert.equal(card.isConnected, false);
   assert.equal(app.pending.at(-1), false);
 });
+
+test('an expired approval stays in the transcript, marked expired, with no enabled buttons', async () => {
+  const app = chatApp();
+  const toasts = [];
+  app.nc.toast = message => toasts.push(message);
+  app.context.fetch = async (url, options = {}) => {
+    app.posts.push({ url, body: JSON.parse(options.body || '{}') });
+    return { ok: false, status: 410, text: async () => 'expired' };
+  };
+  app.chat.showQuestion(approvalQuestion());
+  const [card] = app.overlays();
+  await app.button(card, 'Zatwierdź').emit('click');
+  await app.flush();
+  assert.equal(card.isConnected, true);
+  assert.ok(card.classList.contains('expired'));
+  assert.match(app.text(card), /Wygasło — operacja nie została wykonana/);
+  assert.ok(app.buttons(card).every(b => b.disabled || b.parent.isConnected === false));
+  assert.equal(app.pending.at(-1), false);
+  assert.equal(toasts.length, 1);
+  // Run end must not remove the expired card.
+  app.chat.clearApprovals();
+  assert.equal(card.isConnected, true);
+});
+
+test('approval card is labelled by its title and Escape denies', async () => {
+  const app = chatApp();
+  app.chat.showQuestion(approvalQuestion());
+  const [card] = app.overlays();
+  const panel = card.children[0];
+  assert.equal(panel.getAttribute('role'), 'alertdialog');
+  const heading = descendants(panel).find(node => node.tag === 'h2');
+  assert.equal(panel.getAttribute('aria-labelledby'), heading.id);
+  assert.ok(panel.getAttribute('aria-describedby'));
+  for (const handler of panel.events.keydown) await handler({ key: 'Escape', preventDefault() {}, stopPropagation() {} });
+  await app.flush();
+  assert.deepEqual(app.posts[0].body, { id: 'q-approval-1', selected: [], custom: '', cancelled: true });
+});

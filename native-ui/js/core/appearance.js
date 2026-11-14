@@ -116,7 +116,7 @@
       "contextmenu",
       (event) => {
         if (!currentSettings["ui.debugMode"]) return;
-        // Let WebView2 show its native menu (includes "Zbadaj" / Inspect when
+        // Let WebView2 show its native menu (includes Inspect when
         // DevTools are enabled by the host). We only mark the target so Elements
         // can be found quickly if the user opens DevTools via keyboard.
         event.target?.setAttribute?.("data-nestcafe-inspect", "1");
@@ -159,7 +159,7 @@
       if (permission === "default") permission = await Notification.requestPermission();
       if (permission === "granted") new Notification(title, { body, icon: "assets/nestcafe-icon.png" });
     } catch {
-      // Powiadomienia nie mogą blokować zakończenia zadania.
+      // Notifications must never block finishing a task.
     }
   }
 
