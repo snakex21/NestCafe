@@ -4,10 +4,14 @@ const THINKING_OPEN_KEY = "nestcafe.chat.thinking-open";
 let activeQuestionOverlay = null;
 let pendingQuestionBatch = null;
 let questionBatchSeq = 0;
+// Host approval prompts (SuperCli >= 1.0.23) are tracked apart from ask_user:
+// one can arrive while an ask_user form is open and must neither replace that
+// form nor be consumed as one of its batched questions.
+const pendingApprovalOverlays = new Set();
 
 function notifyQuestionPending() {
   window.dispatchEvent(new CustomEvent("nestcafe:question-pending", {
-    detail: { pending: Boolean(activeQuestionOverlay) },
+    detail: { pending: Boolean(activeQuestionOverlay) || pendingApprovalOverlays.size > 0 },
   }));
 }
 
@@ -1050,8 +1054,170 @@ function showQuestionBatch(question) {
   return true;
 }
 
+function isApprovalQuestion(question) {
+  return Boolean(question?.approval && typeof question.approval === "object");
+}
+
+// The server compares the answer with its own labels (already localized), so
+// the buttons send exactly those. Wire order without a card: deny, approve,
+// similar.
+function approvalLabels(question) {
+  const approval = question.approval || {};
+  const options = Array.isArray(question.options) ? question.options.map((option) => String(option?.label || "")) : [];
+  return {
+    deny: String(approval.deny_label || options[0] || "Odrzuć"),
+    approve: String(approval.approve_label || options[1] || "Zatwierdź"),
+    similar: String(approval.similar_label || ""),
+  };
+}
+
+// question.question is the server's full plain-text prompt: the localized
+// summary, a blank line, then tool/target/... fields and the reversibility
+// line. The summary becomes the heading; the rest stays verbatim as details.
+function approvalTexts(question) {
+  const full = String(question.question || "").trim();
+  const summary = String(question.approval?.summary || "").trim();
+  if (summary && full.startsWith(summary)) {
+    return { heading: summary, details: full.slice(summary.length).trim() };
+  }
+  const split = full.indexOf("\n\n");
+  if (split > 0) return { heading: full.slice(0, split).trim(), details: full.slice(split).trim() };
+  return { heading: full || summary || "Agent prosi o zgodę na operację.", details: "" };
+}
+
+function approvalReceiptText(kind, labels, approval) {
+  if (kind === "deny") return `✕ ${labels.deny} — operacja nie została wykonana.`;
+  if (kind === "similar") {
+    const minutes = Number(approval?.grant_minutes) > 0 ? ` (${Number(approval.grant_minutes)} min)` : "";
+    return `✓ ${labels.similar}${minutes}`;
+  }
+  return `✓ ${labels.approve}`;
+}
+
+function finishApprovalOverlay(overlay) {
+  if (pendingApprovalOverlays.delete(overlay)) notifyQuestionPending();
+}
+
+function clearApprovals() {
+  for (const overlay of pendingApprovalOverlays) overlay.remove();
+  pendingApprovalOverlays.clear();
+  notifyQuestionPending();
+}
+
+function showApprovalQuestion(question) {
+  const approval = question.approval || {};
+  const labels = approvalLabels(question);
+  const texts = approvalTexts(question);
+
+  const overlay = document.createElement("div");
+  overlay.className = "question-overlay approval-overlay";
+  overlay.dataset.questionId = String(question.id);
+  const panel = document.createElement("section");
+  panel.className = `question-panel approval-panel${approval.reversible ? "" : " irreversible"}`;
+  panel.setAttribute("role", "alertdialog");
+
+  const kicker = document.createElement("div");
+  kicker.className = "question-kicker";
+  kicker.textContent = question.header || "Wymagana zgoda";
+  const heading = document.createElement("h2");
+  heading.className = "question-text approval-heading";
+  heading.textContent = texts.heading;
+  panel.append(kicker, heading);
+
+  const badges = document.createElement("div");
+  badges.className = "approval-badges";
+  const reversible = document.createElement("span");
+  reversible.className = `approval-badge ${approval.reversible ? "reversible" : "irreversible"}`;
+  reversible.textContent = approval.reversible ? "Można cofnąć" : "Nie da się cofnąć";
+  badges.appendChild(reversible);
+  if (approval.tool) {
+    const tool = document.createElement("span");
+    tool.className = "approval-badge";
+    tool.textContent = approval.operation ? `${approval.tool} · ${approval.operation}` : String(approval.tool);
+    badges.appendChild(tool);
+  }
+  panel.appendChild(badges);
+
+  if (texts.details) {
+    const details = document.createElement("pre");
+    details.className = "approval-details";
+    details.textContent = texts.details;
+    panel.appendChild(details);
+  }
+
+  const error = document.createElement("div");
+  error.className = "question-error";
+  const actions = document.createElement("div");
+  actions.className = "question-actions approval-actions";
+  const deny = document.createElement("button");
+  deny.type = "button";
+  deny.className = "question-cancel approval-deny";
+  deny.textContent = labels.deny;
+  const approve = document.createElement("button");
+  approve.type = "button";
+  approve.className = "question-submit approval-approve";
+  approve.textContent = labels.approve;
+  const buttons = [deny];
+  actions.appendChild(deny);
+  if (labels.similar) {
+    const similar = document.createElement("button");
+    similar.type = "button";
+    similar.className = "question-cancel approval-similar";
+    similar.textContent = labels.similar;
+    similar.addEventListener("click", () => answer("similar"));
+    actions.appendChild(similar);
+    buttons.push(similar);
+  }
+  actions.appendChild(approve);
+  buttons.push(approve);
+  panel.append(error, actions);
+  overlay.appendChild(panel);
+  mountQuestionSurface(overlay);
+  pendingApprovalOverlays.add(overlay);
+  notifyQuestionPending();
+
+  async function answer(kind) {
+    buttons.forEach((button) => { button.disabled = true; });
+    error.textContent = "";
+    const body = kind === "deny"
+      ? { selected: [], custom: "", cancelled: true }
+      : { selected: [kind === "similar" ? labels.similar : labels.approve], custom: "", cancelled: false };
+    try {
+      await postQuestionAnswer(question.id, body);
+      actions.remove();
+      error.remove();
+      overlay.classList.add("answered");
+      panel.classList.add(kind === "deny" ? "denied" : "approved");
+      panel.removeAttribute("role");
+      const receipt = document.createElement("div");
+      receipt.className = "approval-receipt";
+      receipt.textContent = approvalReceiptText(kind, labels, approval);
+      panel.appendChild(receipt);
+      finishApprovalOverlay(overlay);
+    } catch (err) {
+      if (err?.status === 410) {
+        overlay.remove();
+        finishApprovalOverlay(overlay);
+        window.NestCafe?.toast?.("Ta prośba o zgodę już wygasła — operacja nie została wykonana.");
+        return;
+      }
+      error.textContent = err.message || "Nie udało się wysłać odpowiedzi.";
+      buttons.forEach((button) => { button.disabled = false; });
+    }
+  }
+
+  deny.addEventListener("click", () => answer("deny"));
+  approve.addEventListener("click", () => answer("approve"));
+  // Focus the safe choice: Enter on a fresh card must not approve anything.
+  setTimeout(() => deny.focus(), 0);
+}
+
 function showQuestion(question) {
   if (!question?.id) return;
+  if (isApprovalQuestion(question)) {
+    showApprovalQuestion(question);
+    return;
+  }
   if (showQuestionBatch(question)) return;
   closeQuestion();
 
@@ -1170,6 +1336,7 @@ const chatApi = {
   showQuestion,
   renderStoredQuestion,
   closeQuestion,
+  clearApprovals,
   prepareQuestionBatch,
   clearQuestionBatch,
   addFileChanges,

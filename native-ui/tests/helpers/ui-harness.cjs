@@ -41,6 +41,7 @@ class Element {
   }
   getAttribute(name) { return this.attrs[name] || ''; }
   setAttribute(name, value) { this.attrs[name] = value; }
+  removeAttribute(name) { delete this.attrs[name]; }
   focus() {} select() {} reset() {}
   remove() { this.isConnected = false; }
   closest() { return this.parent || this; }

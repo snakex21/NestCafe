@@ -184,6 +184,7 @@ function clearPendingQuestion() {
   questionToolIDs.clear();
   chat().clearQuestionBatch?.();
   chat().closeQuestion?.();
+  chat().clearApprovals?.();
   setQuestionPending(false);
 }
 
