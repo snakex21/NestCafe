@@ -58,7 +58,9 @@ jobs:
 
       - name: UI unit tests
         shell: pwsh
-        run: node --test native-ui/tests/
+        # List the files explicitly: newer Node releases reject a bare directory
+        # argument to --test, older ones do not expand globs.
+        run: node --test @(Get-ChildItem native-ui/tests -Filter *.test.cjs | ForEach-Object FullName)
 
       - name: Visual regression check
         shell: pwsh
