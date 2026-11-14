@@ -47,11 +47,13 @@ build.bat C:\path\to\supercli-web.exe
 ## Thunderbird AI Bridge
 
 - First-class NestCafe status UI: **Settings → Integrations**.
-- Bundled add-on: `integrations/Thunderbird-AI-Bridge.xpi` (vendored bridge 0.9.34, SHA-256 pinned in `integrations/Thunderbird-AI-Bridge.xpi.sha256`; the build fails on a mismatch).
+- Bundled add-on: `integrations/Thunderbird-AI-Bridge.xpi` (vendored bridge 0.10.0, SHA-256 pinned in `integrations/Thunderbird-AI-Bridge.xpi.sha256`; the build fails on a mismatch).
 - `build-native.ps1 -RefreshBridge` copies `../Thunderbird-AI-Bridge/dist/thunderbird-ai-bridge.xpi` and re-pins the hash; otherwise builds use the vendored XPI.
 - Bridge 0.9.33+ protocol (CORS + long-poll host, `include_attachments`, Message-ID dedupe fields, `verify_move`, `repair_folder`, ambiguous-account errors) needs SuperCli >= 1.0.20.
+- Bridge 0.10.0 (protocol 2: pairing, mutual HMAC auth, signed messages) needs SuperCli >= 1.0.25 and is refused by older engines; 0.9.x extensions are refused by 1.0.25.
+- Pairing UI: Settings -> Integrations -> Thunderbird -> "Paruj z Thunderbirdem" shows a one-time code; the user enters it in Thunderbird (Add-ons -> Thunderbird AI Bridge -> Options). "Rozparuj" forgets the secret.
 - Host endpoint: `127.0.0.1:47831`; the SuperCli `thunderbird_mail` tool owns the local bridge protocol.
-- NestCafe APIs: `/api/integrations/thunderbird` and `/api/integrations/thunderbird/xpi`.
+- NestCafe APIs: `/api/integrations/thunderbird` (with a `bridge` status object), `/api/integrations/thunderbird/xpi`, and local-only POST `/api/integrations/thunderbird/pair`, `/pair/cancel`, `/unpair`.
 - Extension source: `https://github.com/snakex21/Thunderbird-AI-Bridge`.
 
 ## Host approval prompts (SuperCli >= 1.0.23)

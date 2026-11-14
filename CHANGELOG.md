@@ -1,5 +1,45 @@
 # Changelog
 
+## 2.1.2
+
+**Security release. Requires and bundles SuperCli 1.0.25** (`SUPERCLI_REF` = `v1.0.25`)
+**and Thunderbird AI Bridge 0.10.0** (vendored XPI, SHA-256
+`1821574b39a2fec111bcf1f13da29dcb102edbb9f08e1dc56433ec09423512c2`).
+
+Until now NestCafe/SuperCli and the Thunderbird extension trusted each other through a
+fixed token that was the same in every copy, on port 47831, with CORS open to any page.
+Another program, a second NestCafe/SuperCli or a web page could take the port and
+Thunderbird attached to it (during a review a test copy of NestCafe received the real
+mailbox connection). The bridge now uses a one-time pairing and signs every message.
+
+### Pairing Thunderbird (once)
+
+1. Save the bundled XPI (**Ustawienia → Integracje → Zapisz wbudowane XPI**) and install
+   it in Thunderbird (**Dodatki i motywy → koło zębate → Zainstaluj dodatek z pliku**).
+   Extension 0.9.x cannot connect to this version.
+2. In NestCafe: **Ustawienia → Integracje → Thunderbird AI Bridge → Paruj z Thunderbirdem**.
+   A 16-character code appears, valid for 5 minutes.
+3. In Thunderbird: **Dodatki i motywy → Thunderbird AI Bridge → Opcje**, enter the code,
+   click **Paruj**. NestCafe shows *Połączony*, the extension shows *Połączono*.
+
+### From SuperCli 1.0.25
+
+- The code authenticates an ECDH P-256 exchange; both sides derive a 256-bit secret,
+  stored DPAPI-protected in the engine's data folder (`thunderbird-bridge/pairing.json`).
+- Mutual HMAC challenge-response on every connection; every request and response is
+  signed with a timestamp and a single-use nonce. Loopback only, exact `Host` header,
+  web origins refused, CORS only for the paired extension.
+- An unpaired engine does not open the bridge port. A second NestCafe/SuperCli never
+  takes it over and says which instance holds it.
+- Old 0.9.x extensions get a clear "update the extension" message and nothing else.
+
+### NestCafe
+
+- Thunderbird card in **Ustawienia → Integracje**: *Paruj z Thunderbirdem* / *Paruj
+  ponownie* with the one-time code and instructions, *Rozparuj*, and statuses
+  *Niesparowany*, *Czeka na kod*, *Połączony*, *Sparowany, ale bez połączenia*, port held by
+  another instance, outdated extension.
+
 ## 2.1.1
 
 **Requires and bundles SuperCli 1.0.24** (`SUPERCLI_REF` = `v1.0.24`). The bundled
