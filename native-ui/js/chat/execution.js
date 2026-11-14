@@ -651,10 +651,21 @@ function prepareQuestionBatch(rawArgs) {
   };
 }
 
+// Called when the ask_user call ends (tool_result, done, error, interrupt).
+// The server can deliver the tool_result while the last answer's POST is
+// still awaiting its response, i.e. before flushQuestionBatch renders the
+// receipt. Removing the overlay then made the "Odpowiedziano" confirmation
+// disappear for multi-question asks. Once the user committed every answer
+// the receipt is rendered here instead; an uncommitted batch is removed.
 function clearQuestionBatch() {
   const batch = pendingQuestionBatch;
   pendingQuestionBatch = null;
-  if (batch?.overlay && activeQuestionOverlay === batch.overlay) closeQuestion(batch.overlay);
+  if (!batch?.overlay) return;
+  if (batch.committing) {
+    renderQuestionReceipt(batch.overlay, batch.questions, batch.answers);
+    return;
+  }
+  if (activeQuestionOverlay === batch.overlay) closeQuestion(batch.overlay);
 }
 
 function questionAnswerFromPanel(panel) {
@@ -988,7 +999,9 @@ async function flushQuestionBatch(batch) {
     await postQuestionAnswer(serverQuestion.id, batch.answers[batch.sent]);
     batch.sent++;
     batch.sending = false;
-    if (batch.sent >= batch.questions.length) {
+    // The ask_user call already ended (clearQuestionBatch rendered the
+    // receipt): never switch that node back to the sending view.
+    if (batch.sent >= batch.questions.length || pendingQuestionBatch !== batch) {
       renderQuestionReceipt(batch.overlay, batch.questions, batch.answers);
       if (pendingQuestionBatch === batch) pendingQuestionBatch = null;
       return;
@@ -997,6 +1010,7 @@ async function flushQuestionBatch(batch) {
     flushQuestionBatch(batch);
   } catch (err) {
     batch.sending = false;
+    if (pendingQuestionBatch !== batch) return; // the call ended; keep its receipt
     if (err?.status === 410) {
       expireQuestion(batch.overlay, batch);
       return;

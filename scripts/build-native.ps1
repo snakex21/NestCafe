@@ -101,7 +101,7 @@ function Sync-BuiltinSkills {
 
 function Sync-ThunderbirdBridge {
     if ($RefreshBridge) {
-        $builtXpi = Join-Path $bridgeRoot 'dist	hunderbird-ai-bridge.xpi'
+        $builtXpi = Join-Path (Join-Path $bridgeRoot 'dist') 'thunderbird-ai-bridge.xpi'
         if (-not (Test-Path -LiteralPath $builtXpi)) {
             throw "Brak zbudowanego Thunderbird AI Bridge: $builtXpi"
         }
